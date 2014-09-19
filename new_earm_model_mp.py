@@ -16,7 +16,8 @@ import os
 from earm.lopez_embedded import model
 import PSO_CLASS_multiprocc
 
-
+import multiprocessing
+import multiprocessing as mp
 # List of model observables and corresponding data file columns for
 # point-by-point fitting
 obs_names = ['mBid', 'cPARP']
@@ -183,18 +184,21 @@ DIM = 106
 nominal_values = np.array([p.value for p in model.parameters])
 x0 = np.log10(nominal_values[rate_mask])
 f,MIN,MAX,SAVE = objective_func,-10,3,'EARM'
-best,fitness,pop=PSO_CLASS.PSO(swarm_size=50,iterations=500,pos=x0,best=x0,max_pos=MAX,
+swarm=PSO_CLASS_multiprocc.PSO(swarm_size=50,iterations=500,pos=x0,best=x0,max_pos=MAX,
         min_pos=MIN,max_vel=2.,min_vel=-2.,obj_function=f,dim=DIM)
 
 
 
-end=display(best)
-#display(x0)
-pop = np.asarray(pop)
-for i in xrange(1,10):
-    plt.plot(best[i],best[i+1],'o')
-    plt.plot(x0[i],x0[i+1],'x')
-    plt.plot(pop[:,i],pop[:,i+1],'.')
-    plt.xlim(-10,3)
-    plt.ylim(-10,3)
-    plt.show()
+if __name__ == '__main__':
+    import time
+    start = time.time()   
+    m = mp.Manager()
+    sample = swarm.particles
+    #obj_values = m.dict()
+    #p = mp.Pool(8,initializer = init, initargs=(sample,obj_values))
+    #allblocks =range(len(sample))
+    #p.imap_unordered(OBJ,allblocks,1)
+    #p.close()
+    #p.join()
+    swarm.evaluate_fitness()
+    

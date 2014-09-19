@@ -7,8 +7,8 @@ Created on Tue Jun  3 16:34:54 2014
 
 
 import numpy as np
-
- 
+import multiprocessing
+import multiprocessing as mp
 #class creation
 class Particle(object):
   def __init__(self, swarm,max_vel , min_vel , max_pos, min_pos,dim,obj_function,
@@ -68,12 +68,25 @@ class Particle(object):
       self.fitness = tmp
     else:
       self.best=self.best
-    return 
+     
   def return_position(self):
       return self.best
 
-
- 
+def init(sample,dictionary):
+    global Sample
+    global Dictionary
+    Sample,Dictionary = sample,dictionary
+	
+def OBJ(block):
+    print sample[block]
+    #block.step()
+    sample[block].step
+    print sample[block]
+    obj_values[block]=sample[block].position,sample[block].velocity,sample[block].fitness,sample[block].best
+    print obj_values
+    print obj_values[0]
+    
+    return 
 class Swarm(object):
   def __init__(self,swarm_size ):
     # Get the number of arguments our function takes
@@ -103,12 +116,32 @@ class Swarm(object):
     if self.globalFitness is None or current_best_fitness < self.globalFitness:
       self.globalbest = current_best
       self.globalFitness = current_best_fitness
-  
+
+    
   def evaluate_fitness(self):
     self.time += 1
+    sample = []
     for particle in self.particles:
-      particle.step()
+      sample.append(particle)
+    #sample = self.particles
+    
+    m = mp.Manager()
+    obj_values = m.dict()
+    p = mp.Pool(8,initializer = init, initargs=(sample,obj_values))
+    allblocks =range(len(sample))
+    p.imap_unordered(OBJ,allblocks,1)
+    p.close()
+    p.join()
+    count = 0
+    for particle in self.particles:
+        print obj_values
+        particle.position = obj_values[count][0]
+        particle.velocity = obj_values[count][1]
+        particle.fitness = obj_values[count][2]
+        particle.best = obj_values[count][3]
+        count+=1
     self._update_best()
+
 
 
 # main
@@ -123,17 +156,18 @@ def PSO(swarm_size,iterations,best,obj_function,max_vel,
             max_vel = max_vel , min_vel = min_vel,
             max_pos = max_pos, min_pos = min_pos,  dim = dim ),j)
     # Run the algorithm a few times
-    num_steps = iterations
-  for _ in range(num_steps):
-    swarm.evaluate_fitness()
-    if _ % 10 == 0:
-      print _
+  #num_steps = iterations
+  return swarm
+  #for _ in range(num_steps):
+  #  swarm.evaluate_fitness()
+  #  if _ % 10 == 0:
+  #    print _
 
-  print "After ",swarm.time,"iterations with "+str(swarm_size)+\
-  " particles, PSO converged at with a value of ",swarm.globalFitness
-  population = [None] * swarm_size
-  count = 0
-  for particle in swarm.particles:
-      population[count] = particle.return_position()
-      count+=1
-  return swarm.globalbest,swarm.globalFitness, population
+  #print "After ",swarm.time,"iterations with "+str(swarm_size)+\
+  #" particles, PSO converged at with a value of ",swarm.globalFitness
+  #population = [None] * swarm_size
+  #count = 0
+  #for particle in swarm.particles:
+  #    population[count] = particle.return_position()
+  #    count+=1
+  #return swarm.globalbest,swarm.globalFitness, population
