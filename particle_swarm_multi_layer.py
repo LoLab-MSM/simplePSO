@@ -145,7 +145,7 @@ def generate(size,  sv,range_percent, smin, smax):
     tmp = [random.uniform(-1*range_percent, range_percent) for _ in range(size)]
     part[:] = list(map(operator.add, part, list(map(operator.mul, part, tmp))))
     #print part
-    part.speed = [random.uniform(smin, smax) for _ in range(size)]
+    part.speed = [random.uniform(-1, 1) for _ in range(size)]
     part.smin = smin
     part.smax = smax
 
@@ -158,28 +158,40 @@ def updateParticle(part, best, lb, ub,phi1, phi2,):
     v_u1 = map(operator.mul, u1, map(operator.sub, part.best, part))
     v_u2 = map(operator.mul, u2, map(operator.sub, best, part))
     part.speed = list(map(operator.add, part.speed, map(operator.add, v_u1, v_u2)))
+    print 'speed',part.speed
     for i, speed in enumerate(part.speed):
-        if speed < part.smin:
-            #print 's',
-            part.speed[i] = part.smin
-        elif speed > part.smax:
-            #print 'x',
-            part.speed[i] = part.smax
+        print i,'spI',part.speed
+        print 'max',part.smin[i],part.smax[i]
+        if speed < part.smin[i]:
+            print 's'
+            part.speed[i] = part.smin[i]
+        elif speed > part.smax[i]:
+            print 'x'
+            part.speed[i] = part.smax[i]
+        #print i,'after',part.speed
     part[:] = list(map(operator.add, part, part.speed))
     for i, pos in enumerate(part):
+        #if i ==1:
+        #    print 'sp',part.speed[i],
+        #    print 'cur',pos,
+        #    print 'lb',lb[i],
+        #    print 'ub',ub[i],
         if pos < lb[i]:
-            #print '1',
+            #print '1'
             part[i] = lb[i]
         elif pos > ub[i]:
             #print '2',
             part[i] =  ub[i]
+        #if i ==1:
+        #    print 'new',part[i]
+            
 def setPos(part, newPos):
     part[:] = newPos
 
 
 toolbox = base.Toolbox()
 
-creator.create("FitnessMax", base.Fitness,weights=(-1.00,))
+creator.create("FitnessMax", base.Fitness,weights=(1.00,))
 creator.create("Particle", list, fitness=creator.FitnessMax, \
     speed=list,smin=list, smax=list, best=None)
 
@@ -187,7 +199,7 @@ creator.create("Particle", list, fitness=creator.FitnessMax, \
 #toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=1, phi2=1)
 toolbox.register("setPos", setPos)
-toolbox.register("evaluate", himmelblau)
+toolbox.register("evaluate", h1)
 
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -205,17 +217,21 @@ def init(sample,dictionary):
 def OBJ(block):
     #print block
     obj_values[block]=h1(sample[block])
-def sampleRegion(start_values,range_percent):
-    lb = start_values + (start_values * -1. * range_percent)
-    ub = start_values + (start_values * 1. * range_percent)
-    #print lb,ub
-    #print np.shape(lb)
-    minspeed = np.max(start_values) - np.min(start_values)
+def sampleRegion(start_values,realrange,range_percent):
+    lb = start_values + ( realrange[0])
+    #print (start_values * -1. * range_percent).T
+    ub = start_values + (realrange[1])
+    #print 'lb', lb.T    
+    #print 'sv ',start_values.T
     
-    toolbox.register("particle", generate, size=2, sv=start_values,range_percent=range_percent, smin=-1*minspeed, smax=minspeed)
+    #print 'ub',ub.T
+    #print np.shape(lb)
+    minspeed = ub-lb
+    #print 'minsp',minspeed*.1
+    toolbox.register("particle", generate, size=2, sv=start_values,range_percent=range_percent, smin=-.1*minspeed, smax=.1*minspeed)
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     GEN = 10
-    nParticles = 50
+    nParticles = 2
     pop = toolbox.population(n=nParticles)
     best = None
     for g in range(1,GEN):
@@ -230,8 +246,8 @@ def sampleRegion(start_values,range_percent):
                 best.fitness.values = part.fitness.values
         for part in pop:
             toolbox.update(part, best,lb,ub)
-
-    return best ,best.fitness.values, pop
+    #print 'be',best[:]
+    
         
         
     #avg =np.average(pop,axis=0)
@@ -244,23 +260,26 @@ def sampleRegion(start_values,range_percent):
     #plt.hist(np.asarray(pop)[:,1])
     #plt.show()
     #plt.figure()    
-    #plt.hist2d(np.asarray(pop)[:,0],np.asarray(pop)[:,1])
+    #print np.shape(pop)
+    #plt.hist2d(np.asarray(pop)[:,0,0],np.asarray(pop)[:,1,0])
     #plt.colorbar()
     #plt.show()
+    return best ,best.fitness.values, pop
 
 if __name__ == '__main__':
     nominal_values = np.array([-10,10])
-    nParticles = 500
-    lower,upper=-6,0
+    nParticles = 2
+    lower,upper=-100,100
     Y=generateSample(2,nParticles,20,lb=lower,ub=upper)
     data=[]
     score = []
     POP = []
     plt.figure(figsize=(8,8)) 
+    print int((upper-lower)*-.1) ,int((upper-lower)*.1)
     for i in xrange(0,len(Y)):
-        #print Y[i].tolist()
-        Y[i,1]*=-1
-        tmpbest,tmpscore ,tmppop= sampleRegion(Y[i].reshape(2,1),.2)
+        print Y[i]
+        #Y[i,1]*=-1
+        tmpbest,tmpscore ,tmppop= sampleRegion(Y[i].reshape(2,1),[int((upper-lower)*-.01) ,int((upper-lower)*.01)],.1)
         data.append(tmpbest)
         score.append(tmpscore)
         POP.append(tmppop)
@@ -285,20 +304,22 @@ if __name__ == '__main__':
     dy = data[:,1] - Y[:,1]
     #plt.arrow(Y[:,0],Y[:,1],dx,dy,color=np.array(score))
     plt.scatter(data[:,0],data[:,1],c=np.array(score),s=100)
+    plt.ylim(lower,upper)
+    plt.xlim(lower,upper)
     #plt.colorbar()
     #plt.show()
     #plt.gray()
     #plt.figure(figsize=(8,8))    
     blank = np.zeros((100,100))
     
-    for countx,i in enumerate(np.linspace(lower,upper,100)):
-        for county,j in enumerate(np.linspace(lower,upper,100)):
-            blank[countx,county]= himmelblau2([i,j])
+    #for countx,i in enumerate(np.linspace(lower,upper,100)):
+    #    for county,j in enumerate(np.linspace(lower,upper,100)):
+    #        blank[countx,county]= himmelblau2([i,j])
 
     plt.colorbar()
-    plt.savefig('multiSwarm_pso_x6-0.png',dpi=200)
-    plt.figure(figsize=(8,8)) 
-    plt.imshow(blank,extent=[lower,upper,lower,upper],interpolation='none',origin='lower',)#norm=LogNorm(vmin=0.01,vmax=1))#vmin=np.min(blank), vmax=np.max(blank))
-    plt.colorbar()    
-    plt.savefig('landscapex6-0.png',dpi=200)
+    #plt.savefig('multiSwarm_pso_x6-0.png',dpi=200)
+    #plt.figure(figsize=(8,8)) 
+    #plt.imshow(blank,extent=[lower,upper,lower,upper],interpolation='none',origin='lower',)#norm=LogNorm(vmin=0.01,vmax=1))#vmin=np.min(blank), vmax=np.max(blank))
+    #plt.colorbar()    
+    #plt.savefig('landscapex6-0.png',dpi=200)
     
