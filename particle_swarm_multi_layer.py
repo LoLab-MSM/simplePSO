@@ -41,36 +41,15 @@ from matplotlib.colors import LogNorm
 cmap = plt.cm.jet
 
 cNorm  = colors.Normalize(vmin=np.min(0), vmax=np.max(100))
-
 scalarMap = cmx.ScalarMappable(norm=cNorm,cmap=cmap)
+
 def h12(individual):
 
     num = (sin(individual[0] - individual[1] / 8))**2 + (sin(individual[1] + individual[0] / 8))**2
     denum = ((individual[0] - 8.6998)**2 + (individual[1] - 6.7665)**2)**0.5 + 1
     return num / denum
 def himmelblau2(individual):
-    """The Himmelblau's function is multimodal with 4 defined minimums in 
-    :math:`[-6, 6]^2`.
 
-    .. list-table:: 
-       :widths: 10 50
-       :stub-columns: 1
-
-       * - Type
-         - minimization
-       * - Range
-         - :math:`x_i \in [-6, 6]`
-       * - Global optima
-         - :math:`\mathbf{x}_1 = (3.0, 2.0)`, :math:`f(\mathbf{x}_1) = 0`\n
-           :math:`\mathbf{x}_2 = (-2.805118, 3.131312)`, :math:`f(\mathbf{x}_2) = 0`\n
-           :math:`\mathbf{x}_3 = (-3.779310, -3.283186)`, :math:`f(\mathbf{x}_3) = 0`\n
-           :math:`\mathbf{x}_4 = (3.584428, -1.848126)`, :math:`f(\mathbf{x}_4) = 0`\n
-       * - Function
-         - :math:`f(x_1, x_2) = (x_1^2 + x_2 - 11)^2 + (x_1 + x_2^2 -7)^2`
-
-    .. plot:: code/benchmarks/himmelblau.py
-        :width: 67 %
-    """
     return (individual[0] * individual[0] + individual[1] - 11)**2 + \
         (individual[0] + individual[1] * individual[1] - 7)**2
 def himmelblau(individual):
@@ -158,15 +137,15 @@ def updateParticle(part, best, lb, ub,phi1, phi2,):
     v_u1 = map(operator.mul, u1, map(operator.sub, part.best, part))
     v_u2 = map(operator.mul, u2, map(operator.sub, best, part))
     part.speed = list(map(operator.add, part.speed, map(operator.add, v_u1, v_u2)))
-    print 'speed',part.speed
+    #print 'speed',part.speed
     for i, speed in enumerate(part.speed):
-        print i,'spI',part.speed
-        print 'max',part.smin[i],part.smax[i]
+        #print i,'spI',part.speed
+        #print 'max',part.smin[i],part.smax[i]
         if speed < part.smin[i]:
-            print 's'
+            #print 's'
             part.speed[i] = part.smin[i]
         elif speed > part.smax[i]:
-            print 'x'
+            #print 'x'
             part.speed[i] = part.smax[i]
         #print i,'after',part.speed
     part[:] = list(map(operator.add, part, part.speed))
@@ -191,7 +170,7 @@ def setPos(part, newPos):
 
 toolbox = base.Toolbox()
 
-creator.create("FitnessMax", base.Fitness,weights=(1.00,))
+creator.create("FitnessMax", base.Fitness,weights=(-1.00,))
 creator.create("Particle", list, fitness=creator.FitnessMax, \
     speed=list,smin=list, smax=list, best=None)
 
@@ -199,7 +178,7 @@ creator.create("Particle", list, fitness=creator.FitnessMax, \
 #toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=1, phi2=1)
 toolbox.register("setPos", setPos)
-toolbox.register("evaluate", h1)
+toolbox.register("evaluate", himmelblau)
 
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -231,7 +210,7 @@ def sampleRegion(start_values,realrange,range_percent):
     toolbox.register("particle", generate, size=2, sv=start_values,range_percent=range_percent, smin=-.1*minspeed, smax=.1*minspeed)
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     GEN = 10
-    nParticles = 2
+    nParticles = 100
     pop = toolbox.population(n=nParticles)
     best = None
     for g in range(1,GEN):
@@ -268,22 +247,24 @@ def sampleRegion(start_values,realrange,range_percent):
 
 if __name__ == '__main__':
     nominal_values = np.array([-10,10])
-    nParticles = 2
-    lower,upper=-100,100
+    nParticles = 50
+    lower,upper=-6,6
     Y=generateSample(2,nParticles,20,lb=lower,ub=upper)
     data=[]
     score = []
     POP = []
     plt.figure(figsize=(8,8)) 
     print int((upper-lower)*-.1) ,int((upper-lower)*.1)
+    tmpbest=Y[0]
     for i in xrange(0,len(Y)):
-        print Y[i]
+        #tmpbest=Y[0]
         #Y[i,1]*=-1
-        tmpbest,tmpscore ,tmppop= sampleRegion(Y[i].reshape(2,1),[int((upper-lower)*-.01) ,int((upper-lower)*.01)],.1)
+        tmpbest,tmpscore ,tmppop= sampleRegion(Y[i].reshape(2,1),[int((upper-lower)*-.1) ,int((upper-lower)*.1)],.1)
         data.append(tmpbest)
         score.append(tmpscore)
         POP.append(tmppop)
-        
+        #tmpbest =np.array(tmpbest)
+        #Y[i]=tmpbest.reshape(2)
         #plt.figure()
         #print Y[i][0], Y[i][1], np.float(data[-1][0]), np.float(data[-1][1])
         dx,dy = np.float(data[-1][0])- Y[i][0]  , np.float(data[-1][1])-Y[i][1]
