@@ -160,10 +160,7 @@ def objective_func(x):
     ydata2 = exp_data['norm_ECRP']
     yvar2 = exp_data['nrm_var_ECRP']
     e1 += np.sum((ydata2 - ysim_norm2) ** 2 / (2 * yvar2)) / len(ydata2)
-    #print e1
     ysim_momp = solver.yobs['aSmac']
-    
-    #print ysim_momp
     ysim_momp_norm = ysim_momp / np.nanmax(ysim_momp)
     # Build a spline to interpolate it
     st, sc, sk = scipy.interpolate.splrep(solver.tspan, ysim_momp_norm)
@@ -188,12 +185,8 @@ def objective_func(x):
       #print e2
     if np.isnan(e1):
       e1 = 100000.
-    #print e1,e2
     error = e1 + e2
-    #print error
     return error,
-
-
 
 
 def generate(size, pmin, pmax, speedmin, speedmax):
@@ -209,7 +202,7 @@ def generate(size, pmin, pmax, speedmin, speedmax):
       part.smax[i] += np.abs(xnominal[i])*speedmax
     return part
 
-def updateParticle(part, best, phi1, phi2,worst):
+def updateParticle(part, best, phi1, phi2):
 
     u1 = (random.uniform(0, phi1) for _ in range(len(part)))
     u2 = (random.uniform(0, phi2) for _ in range(len(part)))
@@ -227,24 +220,7 @@ def updateParticle(part, best, phi1, phi2,worst):
             part[i] = lb[i]
         elif pos > ub[i]:
             part[i] =  ub[i]
-def updateParticle2(part, best, phi1, phi2):
 
-    u1 = (random.uniform(0, phi1) for _ in range(len(part)))
-    u2 = (random.uniform(0, phi2) for _ in range(len(part)))
-    v_u1 = map(operator.mul, u1, map(operator.sub, part.best, part))
-    v_u2 = map(operator.mul, u2, map(operator.sub, best, part))
-    part.speed = list(map(operator.add, part.speed, map(operator.add, v_u1, v_u2)))
-    for i, speed in enumerate(part.speed):
-        if speed < part.smin[i]:
-            part.speed[i] = part.smin[i]
-        elif speed > part.smax[i]:
-            part.speed[i] =  part.smax[i]
-    part[:] = list(map(operator.add, part, part.speed))
-    for i, pos in enumerate(part):
-        if pos < lb[i]:
-            part[i] = lb[i]
-        elif pos > ub[i]:
-            part[i] =  ub[i]
 
 
 toolbox = base.Toolbox()
@@ -264,7 +240,6 @@ toolbox.register("particle", generate, size=np.shape(rate_params)[0], \
       pmin=-9, pmax=5,speedmin=-.5,speedmax=.5)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=1, phi2=1)
-toolbox.register("update2", updateParticle2, phi1=1, phi2=0)
 toolbox.register("evaluate", objective_func)
 
 stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -304,23 +279,15 @@ if __name__ == '__main__':
         for part in pop:
             part.fitness.values = obj_values[count]
             count+=1
-            #if part.fitness.values > 5000:
-            #    toolbox.update(part,best,worst=worst)
             if not part.best  or part.best.fitness < part.fitness:
                 part.best = creator.Particle(part)
                 part.best.fitness.values = part.fitness.values
             if not best or best.fitness < part.fitness:
                 best = creator.Particle(part)
                 best.fitness.values = part.fitness.values
-            if worst == 0 or part.fitness.values > worst:
-                worst = part.fitness.values[0]
-            if part.fitness.values > 5000:
-                toolbox.update(part,best,worst=worst)
         for part in pop:
-            if g< 10:
-                toolbox.update(part, best,worst=worst)
-            else:
-                toolbox.update2(part,best)
+            toolbox.update(part, best)
+
 
           
         

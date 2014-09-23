@@ -198,15 +198,8 @@ def OBJ(block):
     obj_values[block]=h1(sample[block])
 def sampleRegion(start_values,realrange,range_percent):
     lb = start_values + ( realrange[0])
-    #print (start_values * -1. * range_percent).T
     ub = start_values + (realrange[1])
-    #print 'lb', lb.T    
-    #print 'sv ',start_values.T
-    
-    #print 'ub',ub.T
-    #print np.shape(lb)
     minspeed = ub-lb
-    #print 'minsp',minspeed*.1
     toolbox.register("particle", generate, size=2, sv=start_values,range_percent=range_percent, smin=-.1*minspeed, smax=.1*minspeed)
     toolbox.register("population", tools.initRepeat, list, toolbox.particle)
     GEN = 10
@@ -225,24 +218,6 @@ def sampleRegion(start_values,realrange,range_percent):
                 best.fitness.values = part.fitness.values
         for part in pop:
             toolbox.update(part, best,lb,ub)
-    #print 'be',best[:]
-    
-        
-        
-    #avg =np.average(pop,axis=0)
-    #std = np.std(pop,axis=0)
-    #for i in range(0,np.shape(np.average(pop,axis=0))[0]):
-    #    print avg[i],' ',std[i],'  ',nominal_values[i]
-    #plt.hist(np.asarray(pop)[:,0])
-    #plt.show()
-    #plt.figure()
-    #plt.hist(np.asarray(pop)[:,1])
-    #plt.show()
-    #plt.figure()    
-    #print np.shape(pop)
-    #plt.hist2d(np.asarray(pop)[:,0,0],np.asarray(pop)[:,1,0])
-    #plt.colorbar()
-    #plt.show()
     return best ,best.fitness.values, pop
 
 if __name__ == '__main__':
