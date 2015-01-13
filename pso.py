@@ -24,13 +24,13 @@ import os
 import inspect
 import multiprocessing
 import multiprocessing as mp
-from earm.lopez_embedded import model
+from earm.lopez_direct import model
 from pysb.util import load_params
 
 #param_dict = load_params("/home/pinojc/Projects/earm/EARM_2_0_M1a_fitted_params.txt")
 #for param in model.parameters:
-#	if param.name in param_dict:
-#		param.value = param_dict[param.name]
+#    if param.name in param_dict:
+#        param.value = param_dict[param.name]
 obs_names = ['mBid', 'cPARP']
 data_names = ['norm_ICRP', 'norm_ECRP']
 var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
@@ -56,7 +56,8 @@ momp_var = np.array([7245000.0, 3600.0, 1e4])
 
 
 tspan = exp_data['Time']
-obs_names = ['mBid', 'aSmac', 'cPARP']
+
+
 # Initialize solver object
 #solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
 solver = pysb.integrate.Solver(model, tspan, integrator='vode',  with_jacobian=True,rtol=1e-5, atol=1e-5, nsteps=20000)
@@ -68,38 +69,8 @@ rate_mask = np.array([p in rate_params for p in model.parameters])
 k_ids = [p.value for p in model.parameters_rules()]
 solver.verbose = False
 
-data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data.npy')
 
-ydata_norm = numpy.load(data_filename)
-print ydata_norm
-exp_var = 0.2
 
-def normalize(trajectories):
-    """Rescale a matrix of model trajectories to 0-1"""
-    ymin = trajectories.min(0)
-    ymax = trajectories.max(0)
-    return (trajectories - ymin) / (ymax - ymin)
-
-def extract_records(recarray, names):
-    """Convert a record-type array and list of names into a float array"""
-    return numpy.vstack([recarray[name] for name in names]).T
-
-def likelihood(x):
-    
-    Y=np.copy(x)
-    param_values = np.array([p.value for p in model.parameters])
-    rate_mask = np.array([p in rate_params for p in model.parameters])
-    #log transform X
-    #print param_values
-    param_values[rate_mask] = 10 ** Y
-    # Simulate model with new parameters and construct a matrix of the
-    # trajectories of the observables of interest, normalized to 0-1.
-    ysim = solver.run(param_values)
-    ysim_array = extract_records(ysim, obs_names)
-    ysim_norm = normalize(ysim_array)
-    err = numpy.sum((ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2))
-    print err
-    return numpy.sum((ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2)),
 
 def display(x):
     Y=np.copy(x)
@@ -272,7 +243,7 @@ toolbox.register("particle", generate, size=np.shape(rate_params)[0], \
       pmin=-9, pmax=5,speedmin=-.1,speedmax=.1)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=1, phi2=1)
-toolbox.register("evaluate", likelihood)
+toolbox.register("evaluate", objective_func)
 
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -289,11 +260,11 @@ def init(sample,dictionary):
 
 def OBJ(block):
     #print block
-    obj_values[block]=likelihood(sample[block])
+    obj_values[block]=objective_func(sample[block])
 
 if __name__ == '__main__':
     GEN = 100
-    pop = toolbox.population(n=50)
+    pop = toolbox.population(n=200)
     best = None
     for g in range(1,GEN):
         m = mp.Manager()
@@ -327,50 +298,16 @@ if __name__ == '__main__':
     avg =np.average(pop,axis=0)
     std = np.std(pop,axis=0)
     for i in range(0,np.shape(np.average(pop,axis=0))[0]):
-        #print avg[i]," ",std[i]
         print avg[i],' ',std[i],'  ',xnominal[i]
     plt.errorbar(np.arange(0,len(avg)),avg,yerr=std)
     plt.show()
     display(best)
     #plt.hold(True)
-    #plt.clf()
-    #empty=[]
-    #for i in pop:
-    #  empty.append(i.fitness.values)
-    #empty=np.asarray(empty)
-    #plt.hist(empty,25)
-    #plt.show()
-    #plt.clf()
-    #plot_all(pop)
-    #POP = np.array(pop) - avg
-    #[pcas,pcab] = numpy.linalg.eig(np.cov(POP));
-    #si = np.argsort(-pcas.ravel()); print si;
-    #pcas = numpy.diag(pcas);
-    #pcab = pcab[:,si];
+    plt.clf()
+    empty=[]
+    for i in pop:
+      empty.append(i.fitness.values)
+    empty=np.asarray(empty)
+    plt.hist(empty,25)
+    plt.show()
 
-    #fig = plt.figure();
-    #ax = fig.add_subplot(111);
-    #plt.plot(pcas[0,:],pcas[1,:])
-    #scores = []
-    #positions  = []
-    #for part in pop:
-    #  scores.append(part.best.fitness.values)
-    #  positions.append(part.best)
-    #plot_all(positions)
-#    Data = np.column_stack((scores,positions))
-#    LLHOOD = np.array(sorted(Data, key=lambda score_entry: score_entry[0]))
-#    plt.plot(LLHOOD[:10,0])
-#    plt.show()
-#    #plot_all(LLHOOD[0:2,1:])
-#    for i in range(0,10):
-#        display(LLHOOD[i,1:])
-#    plt.plot(LLHOOD[:10,1:].T)
-#    for i in range(1,len(LLHOOD.T)):
-#        print np.average(LLHOOD[:10,i]),np.std(LLHOOD[:10,i])
-#    plt.plot(np.std(LLHOOD[:10,:].T,axis=1))
-    #scores = np.array(np.log10(scores))
-    #pcacoffs = numpy.dot(pcab.conj().T,POP);
-    #pcacoffs =numpy.real(pcacoffs)
-    #p= ax.scatter(pcacoffs[:,0],pcacoffs[:,1],c=scores)
-    #fig.colorbar(p)
-    #plt.show()

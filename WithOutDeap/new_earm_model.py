@@ -14,7 +14,7 @@ import pysb.integrate
 import pysb.util
 import os
 from earm.lopez_embedded import model
-import PSO_CLASS_multiprocc
+import PSO_CLASS
 
 
 # List of model observables and corresponding data file columns for
