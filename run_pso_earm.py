@@ -25,10 +25,15 @@ import inspect
 import multiprocessing
 import multiprocessing as mp
 from earm.lopez_embedded import model
-#from earm.lopez_embedded import model
-#from earm.lopez_embedded import model
+#from earm.lopez_direct import model
+#from earm.lopez_indirect import model
 import sys
+from pysb.util import load_params
 
+best=np.loadtxt("/home/pinojc/Copy/HHMI/embedded.txt")
+#for param in model.parameters:
+#    if param.name in param_dict:
+#        param.value = param_dict[param.name]
 
 data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data.npy')
 
@@ -38,7 +43,7 @@ exp_var = 0.2
 
 rate_params = model.parameters_rules()
 
-tspan = np.linspace(0,5.5 * 3600,len(ydata_norm))  # 5.5 hours, in seconds
+tspan = np.linspace(0,5.5 * 3600,len(ydata_norm)*10)  # 5.5 hours, in seconds
 obs_names = ['mBid', 'aSmac', 'cPARP']
 # Initialize solver object
 #solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
@@ -69,7 +74,7 @@ def likelihood(x):
     solver.run(param_values)
     ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm = normalize(ysim_array)
-    err = numpy.sum((ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2))
+    err = numpy.sum((ydata_norm - ysim_norm[::10]) ** 2 / (2 * exp_var ** 2))
     #err = (ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2)
     #err= np.sum(err,axis=0)
     #print err
@@ -84,18 +89,18 @@ def display(x):
     ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm = normalize(ysim_array)
     count=1
-    #for j,obs_name in enumerate(obs_names):
-      #plt.subplot(3,1,count)
-      #plt.plot(solver.tspan,ysim_norm[:,j])
-      #plt.plot(solver.tspan,ydata_norm[:,j],'-x')
-      #plt.title(str(obs_name))
-      #count+=1
-    #plt.ylabel('concentration')
-    #plt.xlabel('time (s)')
-    #plt.show()
+    for j,obs_name in enumerate(obs_names):
+      plt.subplot(3,1,count)
+      plt.plot(solver.tspan,ysim_norm[:,j])
+      plt.plot(solver.tspan[::10],ydata_norm[:,j],'-x')
+      plt.title(str(obs_name))
+      count+=1
+    plt.ylabel('concentration')
+    plt.xlabel('time (s)')
+    plt.show()
 
 def generate(size, speedmin, speedmax):
-    u1 = (random.uniform(-1.*bounds_radius, 1.*bounds_radius) for _ in range(size))
+    u1 = (random.uniform(-1., 1.) for _ in range(size))
     tmp = map(operator.add,np.log10(k_ids),u1)
     part = creator.Particle(tmp)
     part.speed = [random.uniform(speedmin, speedmax) for _ in range(size)]
@@ -125,7 +130,7 @@ def updateParticle(part, best, phi1, phi2):
 toolbox = base.Toolbox()
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rate_mask])
-bounds_radius = 1
+bounds_radius = 10
 lb = xnominal - bounds_radius
 ub = xnominal + bounds_radius
 
@@ -134,7 +139,7 @@ creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
 creator.create("Particle", list, fitness=creator.FitnessMin, \
     speed=list,smin=list, smax=list, best=None)
 toolbox.register("particle", generate, size=np.shape(rate_params)[0],\
-                 speedmin=-.5,speedmax=.5)
+                 speedmin=-.2,speedmax=.2)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=2, phi2=2)
 toolbox.register("evaluate", likelihood)
@@ -157,12 +162,14 @@ def OBJ(block):
     obj_values[block]=likelihood(sample[block])
 
 if __name__ == '__main__':
-    GEN = 500
-    pop = toolbox.population(n=25)
+    GEN = 10
+    num_particles = 50
+    pop = toolbox.population(n=num_particles)
     best = creator.Particle(xnominal)
     best.fitness.values = likelihood(xnominal)
-
-    for g in range(0,GEN):
+    best_values =[]
+    evals = []
+    for g in range(1,GEN+1):
         m = mp.Manager()
         obj_values = m.dict()
         sample = []
@@ -174,56 +181,68 @@ if __name__ == '__main__':
         p.close()
         p.join()
         count=0
-        worst = 0
-        #for part in pop:
-            #part.fitness.values = obj_values[count]
-            #count+=1
-            #if g == 0:
-                #part.best = creator.Particle(part)
-                #part.best.fitness.values = part.fitness.values
-
-            #elif part.fitness.dominates2(part.best.fitness):
-                #part.best = creator.Particle(part)
-                #part.best.fitness.values = part.fitness.values
-
-            #if part.fitness.dominates2(best.fitness):
-                #%best = creator.Particle(part)
-                #best.fitness.values = part.fitness.values
+        
         for part in pop:
             part.fitness.values = obj_values[count]
             count+=1
-            if not part.best  or part.best.fitness < part.fitness:
+            if g == 1:
                 part.best = creator.Particle(part)
                 part.best.fitness.values = part.fitness.values
-            if not best or best.fitness < part.fitness:
+            elif part.best.fitness < part.fitness:
+                part.best = creator.Particle(part)
+                part.best.fitness.values = part.fitness.values
+            if best.fitness < part.fitness:
                 best = creator.Particle(part)
                 best.fitness.values = part.fitness.values
         for part in pop:
             toolbox.update(part, best)
-        for part in pop:
-            toolbox.update(part, best)
-
+ 
         logbook.record(gen=g, evals=len(pop), **stats.compile(pop))
         print(logbook.stream),best.fitness.values
-
+        best_values.append(best.fitness.values)
+        evals.append(g*num_particles)
+    
+    plt.plot(evals,best_values)
+    plt.show()
     #quit()
     display(best)
 
-    scores = []
-    positions  = []
-    for part in pop:
-      scores.append(part.best.fitness.values)
-      positions.append(part.best)
 
-    positions = np.array(positions)
-    #for i in range(len(positions)):
-        #plt.title(model.parameters_rules()[i])
-        #plt.hist(positions[:,i],bins=25,normed=1)
-        #plt.vlines(np.log10(model.parameters_rules()[i].value), 0, 1)
-        #plt.show()
-    avg =np.average(positions,axis=0)
-    std = np.std(positions,axis=0)
+
+
+
+
+
+  
+#    scores = []
+#    positions  = []
+#    for part in pop:
+#      scores.append(part.best.fitness.values)
+#      positions.append(part.best)
+#
+#    positions = np.array(positions)
+#    #for i in range(len(positions)):
+#        #plt.title(model.parameters_rules()[i])
+#        #plt.hist(positions[:,i],bins=25,normed=1)
+#        #plt.vlines(np.log10(model.parameters_rules()[i].value), 0, 1)
+#        #plt.show()
+#     avg =np.average(positions,axis=0)
+#     std = np.std(positions,axis=0)
     #for i in range(0,np.shape(np.average(pop,axis=0))[0]):
     #    print model.parameters_rules()[i],avg[i],' ',std[i],'  ',xnominal[i],best[i]
-    np.savetxt(str(sys.argv[1]),np.asarray(best))
+    #np.savetxt('indirect_'+str(sys.argv[1]),np.asarray(best))  
+    #np.savetxt('indirect.txt',np.asarray(best))
+      
+
+#    [pcas,pcab] = numpy.linalg.eig(np.cov(np.array(positions)));
+#     si = np.argsort(-pcas.ravel()); print si;
+#     pcas = numpy.diag(pcas);
+#     pcab = pcab[:,si];
+#     cm = plt.cm.get_cmap('RdYlBu')
+#     pcacoffs = numpy.dot(pcab.conj().T, positions-avg);
+#     pcacoffs =numpy.real(pcacoffs)
+#     scores = np.array(scores)
+#     sc = plt.scatter(pcacoffs[:,0],pcacoffs[:,1],c=scores,s=35,cmap=cm,)
+#     plt.colorbar(sc)
+#     plt.show()
 #main()
