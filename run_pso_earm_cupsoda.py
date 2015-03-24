@@ -38,7 +38,7 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
 
-earm_path = '/home/pinojc/git/earm'
+earm_path = '/home/pinojc/Projects/earm'
 data_path = os.path.join(earm_path, 'xpdata', 'forfits',
                          'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
@@ -58,7 +58,7 @@ tmul = 10
 tspan = np.linspace(exp_data['Time'][0], exp_data['Time'][-1],
                     (ntimes-1) * tmul + 1)
 
-set_cupSODA_path("/home/pinojc/cupSODA")
+set_cupSODA_path("/home/pinojc/CUPSODA")
 # Initialize solver object
 solver = cupSODA(model, tspan, atol=1e-12, rtol=1e-12, verbose=True)
 
@@ -68,8 +68,8 @@ rate_mask = np.array([p in rate_params for p in model.parameters])
 k_ids = [p.value for p in model.parameters_rules()]
 
 
-par_names = [p.name for p in model.parameters_rules()]
-par_dict  = {name : index for index,name in enumerate(par_names)}
+#par_names = [p.name for p in model.parameters_rules()]
+#par_dict  = {name : index for index,name in enumerate(par_names)}
 
 def likelihood(yobs):
     
@@ -180,6 +180,22 @@ def dominates(new, old):
     else:
         return False                
 toolbox = base.Toolbox()
+names = [p.name for p in model.parameters]
+initial = []
+for i in range(len(model.initial_conditions)):
+    initial.append(model.initial_conditions[i][1].name)
+print initial
+par_names=[]
+for each in names:
+    keep = 1
+    for i in initial:
+      if each == i:
+         keep = 0
+    if keep == 1:
+      par_names.append(each)
+print par_names
+par_dict = {par_names[i] : i for i in range(len(par_names))}
+par_vals = np.array([model.parameters[nm].value for nm in par_names])
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rate_mask])
 bounds_radius = 1
@@ -204,15 +220,13 @@ stats.register("min", numpy.min, axis=0)
 stats.register("max", numpy.max, axis=0)
 logbook = tools.Logbook()
 logbook.header = ["gen", "evals"] + stats.fields
+for rxn in model.reactions:
+	print rxn
+print len(model.reactions)
+print len(model.parameters)
+quit()
 
-def init(sample,dictionary):
-    global Sample
-    global Dictionary
-    Sample,Dictionary = sample,dictionary
-
-def OBJ(block):
-    obj_values[block]=likelihood(sample[block])
-solver.verbose=False
+solver.verbose=True
 if "__main__":# main():
     GEN = 1
     num_particles = 1000
@@ -225,8 +239,23 @@ if "__main__":# main():
     for g in range(1,GEN+1):
         
         count=0
-        c_matrix = np.zeros((num_particles, len(model.reactions)))
+        c_matrix = np.zeros((num_particles, len(xnominal)))
         print np.shape(c_matrix)
+        rate_args = []
+        for rxn in model.reactions:
+            rate_args.append([arg for arg in rxn['rate'].args if not re.match("_*s",str(arg))])
+        output = 0.01*len(sample_batch)
+        output = int(output) if output > 1 else 1
+        for i in range(len(sample_batch)):
+            for j in range(len(model.reactions)):
+                rate = 1.0
+                for r in rate_args[j]:
+                    x = str(r)
+                    if x in par_dict.keys():
+                        rate *= sample_batch[i][par_dict[x]] # model.parameters[x].value
+                    else:
+                        rate *= float(x)
+                c_matrix[i][j] = rate
         for i,p in enumerate(pop):
             Y=np.copy(p)
             c_matrix[i] = 10 ** Y	
