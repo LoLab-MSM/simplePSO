@@ -28,7 +28,7 @@ from earm.lopez_embedded import model
 #from earm.lopez_indirect import model
 import sys
 from pysb.util import load_params
-
+#print model.name
 
 
 obs_names = ['mBid', 'cPARP']
@@ -59,7 +59,7 @@ tspan = np.linspace(exp_data['Time'][0], exp_data['Time'][-1],
                     (ntimes-1) * tmul + 1)
 
 #solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
-solver = pysb.integrate.Solver(model, tspan, integrator='vode',  with_jacobian=True,rtol=1e-5, atol=1e-5,)
+
 
 
 rate_params = model.parameters_rules()
@@ -72,6 +72,17 @@ k_ids = [p.value for p in model.parameters_rules()]
 def likelihood(position):
     Y=np.copy(position)
     param_values[rate_mask] = 10 ** Y
+    changes={}
+    changes['Bid_0'] = 0
+    solver.run(param_values,initial_changes=changes)
+    ysim_momp = solver.yobs[momp_obs]
+    if np.nanmax(ysim_momp) == 0:
+        #print 'No aSmac!'
+        ysim_momp_norm = ysim_momp
+    else:
+        return 100000,
+
+    
     solver.run(param_values)
 
     
@@ -108,8 +119,8 @@ def likelihood(position):
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
 
-    
-    return [e1,e2,e3]
+    error = e1 + e2 +e3
+    return error,
 
 def display(position):
 
@@ -133,17 +144,38 @@ def display(position):
     plt.plot(solver.tspan, sim_obs_norm[2], color='g')
     plt.vlines(momp_data[0], -0.05, 1.05, color='g', linestyle=':')
     plt.show()
+def display2(position):
 
+
+    exp_obs_norm = exp_data[data_names].view(float).reshape(len(exp_data), -1).T
+    var_norm = exp_data[var_names].view(float).reshape(len(exp_data), -1).T
+    std_norm = var_norm ** 0.5
+    Y=np.copy(position)
+    changes={}
+    changes['Bid_0'] = 0
+    
+    param_values[rate_mask] = 10 ** Y
+    solver.run(param_values,initial_changes=changes)
+    obs_names_disp = obs_names + ['aSmac']
+    sim_obs = solver.yobs[obs_names_disp].view(float).reshape(len(solver.yobs), -1)
+    totals = obs_totals + [momp_obs_total]
+    sim_obs_norm = (sim_obs / totals).T
+    colors = ('r', 'b')
+    for exp, exp_err, sim, c in zip(exp_obs_norm, std_norm, sim_obs_norm, colors):
+        plt.plot(exp_data['Time'], exp, color=c, marker='.', linestyle=':')
+        plt.errorbar(exp_data['Time'], exp, yerr=exp_err, ecolor=c,
+                     elinewidth=0.5, capsize=0, fmt=None)
+        plt.plot(solver.tspan, sim, color=c)
+    plt.plot(solver.tspan, sim_obs_norm[2], color='g')
+    plt.vlines(momp_data[0], -0.05, 1.05, color='g', linestyle=':')
+    plt.show()
 
 
     
 def generate(size, speedmin, speedmax):
-    #u1 = (random.uniform(-1., 1.) for _ in range(size))
-    u1 = np.random.uniform(-1,1,size)
-    #tmp = map(operator.add,np.log10(k_ids),u1)
+    u1 = np.random.uniform(-2,2,size)
     tmp = np.log10(k_ids) + u1
     part = creator.Particle(tmp)
-    #part.speed = [random.uniform(speedmin, speedmax) for _ in range(size)]
     part.speed = np.random.uniform(speedmin,speedmax,size)
     part.smin = speedmin
     part.smax = speedmax
@@ -151,12 +183,7 @@ def generate(size, speedmin, speedmax):
 
 def updateParticle(part, best, phi1, phi2):
 
-    #u1 = (random.uniform(0, phi1) for _ in range(len(part)))
-    #u2 = (random.uniform(0, phi2) for _ in range(len(part)))
-    #v_u1 = map(operator.mul, u1, map(operator.sub, part.best, part))
-    #v_u2 = map(operator.mul, u2, map(operator.sub, best, part))
-    #part.speed = list(map(operator.add, part.speed, map(operator.add, v_u1, v_u2)))
-    #part[:] = list(map(operator.add, part, part.speed))
+
     u1 = numpy.random.uniform(0, phi1, len(part))
     u2 = numpy.random.uniform(0, phi2, len(part))
     v_u1 = u1 * (part.best - part)
@@ -180,9 +207,10 @@ def dominates(new, old):
     diff = sum_old - sum_new
     change1= old[0] - new[0]
     change2= old[1] - new[1] 
-    if  change1 >= 0. and change2 >= 0.:
+    change3 = old[2] - new[2]
+    if  change1 >= 0. and change2 >= 0. and change3 >=0.:
         return True
-    if change1 >= 0. or change2 >=0.: 
+    if change1 >= 0. or change2 >=0. or change3 >=0.: 
         if diff >= sum_old*.1:
             return True
         else:
@@ -192,12 +220,13 @@ def dominates(new, old):
 toolbox = base.Toolbox()
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rate_mask])
-bounds_radius = 10
+bounds_radius = 2
 lb = xnominal - bounds_radius
 ub = xnominal + bounds_radius
 
 
-creator.create("FitnessMin", base.Fitness,weights=(-1.00,-1.00,-1.00))
+#creator.create("FitnessMin", base.Fitness,weights=(-1.00,-1.00,-1.00))
+creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
 creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, \
     speed=list,smin=list, smax=list, best=None)
 toolbox.register("particle", generate, size=np.shape(rate_params)[0],\
@@ -218,14 +247,17 @@ logbook.header = ["gen", "evals"] + stats.fields
 def init(sample,dictionary):
     global Sample
     global Dictionary
+    global solver
+    solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6,)
     Sample,Dictionary = sample,dictionary
-
+solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6,)
 def OBJ(block):
     obj_values[block]=likelihood(sample[block])
 
 if "__main__":# main():
-    GEN = 500
-    num_particles = 100
+
+    GEN = 100
+    num_particles = 25
     
     best = creator.Particle(xnominal)
     best.fitness.values = likelihood(xnominal)
@@ -238,31 +270,31 @@ if "__main__":# main():
         sample = []
         for p in pop:
             sample.append(p)
-        p = mp.Pool(8,initializer = init, initargs=(sample,obj_values))
+        p = mp.Pool(4,initializer = init, initargs=(sample,obj_values))
         allblocks =range(len(pop))
         p.imap_unordered(OBJ,allblocks)
         p.close()
         p.join()
         count=0
-        fitnesses = toolbox.map(toolbox.evaluate, pop)
+        #fitnesses = toolbox.map(toolbox.evaluate, pop)
         
         #for ind, fit in zip(pop, fitnesses):
         #    ind.fitness.values = fit
         for part in pop:
+            #part.fitness.values = likelihood(part)
             part.fitness.values = obj_values[count]
-            
             count+=1
             if not g == 1:
-                #if part.fitness.dominates(part.best.fitness):
-                if dominates(part.fitness.values,part.best.fitness.values):
+                if part.fitness.values < part.best.fitness.values:
+                #if dominates(part.fitness.values,part.best.fitness.values):
                     part.best = creator.Particle(part)
                     part.best.fitness.values = part.fitness.values
             else:
                 part.best = creator.Particle(part)
                 part.best.fitness.values = part.fitness.values
 
-            #if part.fitness.dominates(best.fitness):
-            if dominates(part.fitness.values,best.fitness.values):
+            if part.fitness.values < best.fitness.values:
+            #if dominates(part.fitness.values,best.fitness.values):
                 best = creator.Particle(part)
                 best.fitness.values = part.fitness.values
         for part in pop:
@@ -281,19 +313,18 @@ if "__main__":# main():
     #plt.show()
     #quit()
     #display(best)
+    #display2(best)
     
-    np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],'embedded'),best)
+    np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
     end_states = np.zeros((len(best),num_particles))
     end_values = np.zeros((len(pop),3))
     for i,part in enumerate(pop):
         end_values[i,:] = part.best.fitness.values
         end_states[:,i] = part.best
-    np.savetxt('%s_%s_populations_best.txt' % (sys.argv[1],'embedded'),end_states)
-    np.savetxt('%s_%s_populations_fitness.txt'% (sys.argv[1],'embedded'),end_values)
-        
-
-
-
+    np.savetxt('%s_%s_populations_best.txt' % (sys.argv[1],model.name),end_states)
+    np.savetxt('%s_%s_populations_fitness.txt'% (sys.argv[1],model.name),end_values)
+#@profile
+#main()
 #import profile
 #profile.run('main()')
 

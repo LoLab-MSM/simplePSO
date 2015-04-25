@@ -6,107 +6,182 @@ Created on Wed Jan  7 22:38:07 2015
 """
 import pylab as plt
 import numpy as np
-
 import scipy.optimize
+import scipy.interpolate
 import numpy
 import pysb.integrate
 import pysb.util
 import os
 import inspect
-import multiprocessing
-import multiprocessing as mp
-from earm.lopez_indirect import model
-data_filename = os.path.join(os.path.dirname(__file__), 'experimental_data.npy')
+import sys
 
-ydata_norm = numpy.load(data_filename)
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.mlab import PCA as mlabPCA
+cm = plt.cm.get_cmap('RdYlBu')
 
-exp_var = 0.2
+opt = sys.argv[1]
+#opt = 'Embedded'
+if opt == 'Direct':
+    print opt
+    directory = 'Direct'
+    name = 'direct'
+    from earm.lopez_direct import model
+if opt == 'Indirect':
+    print opt
+    directory = 'Indirect'
+    name = 'indirect'
+    from earm.lopez_indirect import model
+if opt =='Embedded':
+    print opt
+    directory = 'Embedded'
+    from earm.lopez_embedded import model
+    name = model.name
+
+data = np.loadtxt("%s/1_%s_overall_best.txt" % (directory,name))
+for i in range(2,500):
+    if os.path.exists("%s/%s_%s_overall_best.txt"% (directory,str(i),name)):
+        tmp = np.loadtxt("%s/%s_%s_overall_best.txt"% (directory,str(i),name))
+        data = np.column_stack((data,tmp))
+
+obs_names = ['mBid', 'cPARP']
+data_names = ['norm_ICRP', 'norm_ECRP']
+var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
+# Total starting amounts of proteins in obs_names, for normalizing simulations
+obs_totals = [model.parameters['Bid_0'].value,
+              model.parameters['PARP_0'].value]
+
+earm_path = '/home/pinojc/Projects/earm'
+data_path = os.path.join(earm_path, 'xpdata', 'forfits',
+                         'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
+exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
+
+# Model observable corresponding to the IMS-RP reporter (MOMP timing)
+momp_obs = 'aSmac'
+# Mean and variance of Td (delay time) and Ts (switching time) of MOMP, and
+# yfinal (the last value of the IMS-RP trajectory)
+momp_obs_total = model.parameters['Smac_0'].value
+momp_data = np.array([9810.0, 180.0, momp_obs_total])
+momp_var = np.array([7245000.0, 3600.0, 1e4])
+
+
+
+ntimes = len(exp_data['Time'])
+tmul = 10
+tspan = np.linspace(exp_data['Time'][0], exp_data['Time'][-1],
+                    (ntimes-1) * tmul + 1)
+from pysb.bng import generate_network
+#generate_network(model,verbose=True,cleanup=False)
+#for rule in model.rules:
+#    print rule.name
+solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
+#solver = pysb.integrate.Solver(model, tspan, integrator='vode',  rtol=1e-5, atol=1e-5,)
+
 
 rate_params = model.parameters_rules()
-
-tspan = np.linspace(0,5.5 * 3600,len(ydata_norm))  # 5.5 hours, in seconds
-obs_names = ['mBid', 'aSmac', 'cPARP']
-# Initialize solver object
-#solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
-solver = pysb.integrate.Solver(model, tspan, integrator='vode',  with_jacobian=True,rtol=1e-5, atol=1e-5,)
-# Get parameters for rates only
-rate_params = model.parameters_rules()
-
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
-# Build a boolean mask for those params against the entire param list
 k_ids = [p.value for p in model.parameters_rules()]
 
 
-def normalize(trajectories):
-    """Rescale a matrix of model trajectories to 0-1"""
-    ymin = trajectories.min(0)
-    ymax = trajectories.max(0)
-    return (trajectories - ymin) / (ymax - ymin)
 
-def extract_records(recarray, names):
-    """Convert a record-type array and list of names into a float array"""
-    return numpy.vstack([recarray[name] for name in names]).T
-
-def likelihood(x):
-
-    Y=np.copy(x)
+def likelihood(position):
+    Y=np.copy(position)
     param_values[rate_mask] = 10 ** Y
     solver.run(param_values)
-    ysim_array = extract_records(solver.yobs, obs_names)
-    ysim_norm = normalize(ysim_array)
-    err = numpy.sum((ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2))
-    #err = (ydata_norm - ysim_norm) ** 2 / (2 * exp_var ** 2)
-    #err= np.sum(err,axis=0)
-    #print err
-    return np.float(err)
+
+    
+    for obs_name, data_name, var_name, obs_total in \
+            zip(obs_names, data_names, var_names, obs_totals):
+        ysim = solver.yobs[obs_name][::tmul]
+        ysim_norm = ysim / obs_total
+        ydata = exp_data[data_name]
+        yvar = exp_data[var_name]
+        if obs_name == 'mBid':
+            e1 = np.sum((ydata - ysim_norm) ** 2 / (2 * yvar)) / len(ydata)
+        else:
+            e2 = np.sum((ydata - ysim_norm) ** 2 / (2 * yvar)) / len(ydata)
+
+    ysim_momp = solver.yobs[momp_obs]
+    if np.nanmax(ysim_momp) == 0:
+        print 'No aSmac!'
+        ysim_momp_norm = ysim_momp
+        t10 = 0
+        t90 = 0
+    else:
+        ysim_momp_norm = ysim_momp / np.nanmax(ysim_momp)
+        st, sc, sk = scipy.interpolate.splrep(tspan, ysim_momp_norm)
+        try:
+            t10 = scipy.interpolate.sproot((st, sc-0.10, sk))[0]
+            t90 = scipy.interpolate.sproot((st, sc-0.90, sk))[0]
+        except IndexError:
+            t10 = 0
+            t90 = 0
+
+    td = (t10 + t90) / 2
+    ts = t90 - t10
+    yfinal = ysim_momp[-1]
+    momp_sim = [td, ts, yfinal]
+    e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
+
+    error = e1 + e2 +e3
+    return error
 
 
 
-
-data = np.loadtxt("indirect_1.txt")
-for i in range(2,12):
-    tmp = np.loadtxt("indirect_"+str(i)+'.txt')
-    data = np.column_stack((data,tmp))
-#for i in range(27,250):
-#    tmp = np.loadtxt(str(i)+'.txt')
-#    data = np.column_stack((data,tmp))
-#print np.shape(data)
+    
+    
 
 
 scores = np.zeros((np.shape(data)[1],1))
 for i in range(np.shape(data)[1]):
     scores[i]=likelihood(data[:,i])
-    
-avg=np.mean(data,axis=1)
-[pcas,pcab] = np.linalg.eig(np.cov(data.T));
-si = np.argsort(-pcas.ravel());# print si;
-pcas = np.diag(pcas);
-pcab = pcab[si,:];
-cm = plt.cm.get_cmap('RdYlBu')
-pcacoffs = np.dot(pcab.conj().T, data.T-avg);
-pcacoffs =np.real(pcacoffs)
+plt.hist(scores,50)
+plt.show()
+print 'min of scores',min(scores)
+print 'average= %s, std = %s, median = %s ' % (np.average(scores),np.std(scores),np.median(scores))
+#scores = scores[scores[<np.average(scores)]
+above_avg,throw = np.where( scores < np.mean(scores) )
+copy_data = data[:,above_avg]
+print np.shape(data)
+print np.shape(copy_data)
+copy_scores = scores[above_avg]
+print np.shape(scores)
+print np.shape(copy_scores)
+#avg=np.mean(data,axis=1)
+#[pcas,pcab] = np.linalg.eig(np.cov(data.T));
+#si = np.argsort(-pcas.ravel());# print si;
+#pcas = np.diag(pcas);
+#pcab = pcab[si,:];
 #
-from mpl_toolkits.mplot3d import Axes3D
+#pcacoffs = np.dot(pcab.conj().T, data.T-avg);
+#pcacoffs =np.real(pcacoffs)
+#
+#
 #fig = plt.figure()
 #ax = fig.add_subplot(111, projection='3d')
-#cNorm  = plt.matplotlib.colors.Normalize(vmin=0, vmax=np.max(scores))
+#cNorm  = plt.matplotlib.colors.Normalize(vmin=np.min(scores), vmax=np.max(scores))
 #sc = ax.scatter(pcacoffs[:,0],pcacoffs[:,1],pcacoffs[:,2],c=scores,cmap=cm,norm=cNorm)
 #plt.colorbar(sc)
 #plt.show()
 
-#for i in range(105):
-#    tmp= np.std(data[i,:])/np.abs(np.average(data[i,:]))*100
-#    if tmp > 100.:
-#        print np.std(data[i,:]),np.abs(np.average(data[i,:]))
-#        plt.hist(data[i,:],50)
-#        plt.show()
+#for i in range(len(k_ids)):
+#    print np.std(data[i,:]),np.abs(np.average(data[i,:]))
+#    plt.hist(data[i,:],50)
+#    plt.show()
 
-from matplotlib.mlab import PCA as mlabPCA
+
 pca = mlabPCA(data.T)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 cNorm  = plt.matplotlib.colors.Normalize(vmin=0, vmax=np.max(scores))
 sc = ax.scatter(pca.Y[:,0],pca.Y[:,1],pca.Y[:,2],c=scores,cmap=cm,norm=cNorm)
+plt.colorbar(sc)
+plt.show()
+
+pca = mlabPCA(copy_data.T)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+cNorm  = plt.matplotlib.colors.Normalize(vmin=0, vmax=np.max(copy_scores))
+sc = ax.scatter(pca.Y[:,0],pca.Y[:,1],pca.Y[:,2],c=copy_scores,cmap=cm,norm=cNorm)
 plt.colorbar(sc)
 plt.show()
