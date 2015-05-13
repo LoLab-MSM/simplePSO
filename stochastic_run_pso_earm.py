@@ -61,10 +61,10 @@ trail_10ngml  = [  360,    79,   22,   7.7]
 trail_2ngml   = [  660,   170,   19,   10.0]
 
 ntimes = len(exp_data['Time'])
-tmul = 10
+tmul = 1
 tspan = np.linspace(exp_data['Time'][0], exp_data['Time'][-1],
                     (ntimes-1) * tmul + 1)
-
+#tspan = np.linspace(0,100,10)
 #solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
 
 solver = BNGSSASimulator(model,tspan,verbose=False)
@@ -97,14 +97,17 @@ def TOD(ysim_momp):
     return td/60,ts/60, nodeath
 
 def likelihood(position):
+    process_id = mp.current_process()
+    print process_id.pid
+    process_id = str(process_id.pid)
     Y=np.copy(position)
     param_values[rate_mask] = 10 ** Y
     #changes={}
     #changes['Bid_0'] = 0
     
-    
+    #quit()
     #solver.run(param_values,initial_changes=changes,n_runs=3)
-    solver.run(param_values=param_values,n_runs=3)
+    solver.run(param_values=param_values,n_runs=100)
 
     x = np.array([tr[:][momp_obs] for tr in solver.yobs]).T
     timeOfDeath = []
@@ -120,11 +123,12 @@ def likelihood(position):
     avgTS = np.mean(timeSwithching)
     stdTS = np.std(timeSwithching)
     tmp = np.asarray([avgTD,stdTD,avgTS,stdTS])
-    print tmp 
-    error = np.sum((tmp - trail_50ngml)**2)
-    print error
-    print deathCounter
-    return [error,]
+    error = (avgTD-trail_50ngml[0])**2
+    #print tmp 
+    #error = np.sum((tmp - trail_50ngml)**2)
+    #print error
+    #print deathCounter
+    return error,
     
 
 
@@ -237,7 +241,7 @@ creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
 creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, \
     speed=list,smin=list, smax=list, best=None)
 toolbox.register("particle", generate, size=np.shape(rate_params)[0],\
-                 speedmin=-.2,speedmax=.2)
+                 speedmin=-.1,speedmax=.1)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=2, phi2=2)
 toolbox.register("evaluate", likelihood)
@@ -254,8 +258,8 @@ logbook.header = ["gen", "evals"] + stats.fields
 def init(sample,dictionary):
     global Sample
     global Dictionary
-    global solver
-    solver = BNGSSASimulator(model,tspan,verbose=False)
+    #global solver
+    #solver = BNGSSASimulator(model,tspan,verbose=False)
     Sample,Dictionary = sample,dictionary
 
 def OBJ(block):
@@ -263,13 +267,13 @@ def OBJ(block):
 
 if "__main__":# main():
 
-    GEN = 10
-    num_particles = 10
-    
-    best = creator.Particle(xnominal)
+    GEN = 100
+    num_particles = 8
+    best = np.loadtxt("stochastic_best.txt")
+    best = creator.Particle(best)
     best.fitness.values = likelihood(xnominal)
     print best.fitness.values 
-    quit()
+    #quit()
     pop = toolbox.population(n=num_particles)
     best_values =np.zeros((GEN,3))
     evals = np.zeros(GEN)
@@ -279,14 +283,14 @@ if "__main__":# main():
         sample = []
         for p in pop:
             sample.append(p)
-        p = mp.Pool(4,initializer = init, initargs=(sample,obj_values))
+        p = mp.Pool(8,initializer = init, initargs=(sample,obj_values))
         allblocks =range(len(pop))
-        p.imap_unordered(OBJ,allblocks)
+        p.imap_unordered(OBJ,allblocks,chunksize = len(sample)/4)
         p.close()
         p.join()
         count=0
         #fitnesses = toolbox.map(toolbox.evaluate, pop)
-        
+         
         #for ind, fit in zip(pop, fitnesses):
         #    ind.fitness.values = fit
         for part in pop:
@@ -301,14 +305,14 @@ if "__main__":# main():
             else:
                 part.best = creator.Particle(part)
                 part.best.fitness.values = part.fitness.values
-
+ 
             if part.fitness.values < best.fitness.values:
             #if dominates(part.fitness.values,best.fitness.values):
                 best = creator.Particle(part)
                 best.fitness.values = part.fitness.values
         for part in pop:
             toolbox.update(part, best)
- 
+  
         logbook.record(gen=g, evals=len(pop), **stats.compile(pop))
         print(logbook.stream),best.fitness.values
         best_values[g-1,:] = best.fitness.values
@@ -321,9 +325,9 @@ if "__main__":# main():
     #plt.plot(best_values[:,0],best_values[:,1],'o')
     #plt.show()
     #quit()
-    #display(best)
-    #display2(best)
-    np.savetxt('%s_overall_best.txt'% (model.name),best)
+    display(best)
+    display2(best)
+    #np.savetxt('stochastic_best.txt',best)
     quit()
     #np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
     end_states = np.zeros((len(best),num_particles))
@@ -333,42 +337,4 @@ if "__main__":# main():
         end_states[:,i] = part.best
     np.savetxt('%s_%s_populations_best.txt' % (sys.argv[1],model.name),end_states)
     np.savetxt('%s_%s_populations_fitness.txt'% (sys.argv[1],model.name),end_values)
-#@profile
-#main()
-#import profile
-#profile.run('main()')
 
-
-  
-#    scores = []
-#    positions  = []
-#    for part in pop:
-#      scores.append(part.best.fitness.values)
-#      positions.append(part.best)
-#
-#    positions = np.array(positions)
-#    #for i in range(len(positions)):
-#        #plt.title(model.parameters_rules()[i])
-#        #plt.hist(positions[:,i],bins=25,normed=1)
-#        #plt.vlines(np.log10(model.parameters_rules()[i].value), 0, 1)
-#        #plt.show()
-#     avg =np.average(positions,axis=0)
-#     std = np.std(positions,axis=0)
-    #for i in range(0,np.shape(np.average(pop,axis=0))[0]):
-    #    print model.parameters_rules()[i],avg[i],' ',std[i],'  ',xnominal[i],best[i]
-    #np.savetxt('indirect_'+str(sys.argv[1]),np.asarray(best))  
-    #np.savetxt('indirect.txt',np.asarray(best))
-      
-
-#    [pcas,pcab] = numpy.linalg.eig(np.cov(np.array(positions)));
-#     si = np.argsort(-pcas.ravel()); print si;
-#     pcas = numpy.diag(pcas);
-#     pcab = pcab[:,si];
-#     cm = plt.cm.get_cmap('RdYlBu')
-#     pcacoffs = numpy.dot(pcab.conj().T, positions-avg);
-#     pcacoffs =numpy.real(pcacoffs)
-#     scores = np.array(scores)
-#     sc = plt.scatter(pcacoffs[:,0],pcacoffs[:,1],c=scores,s=35,cmap=cm,)
-#     plt.colorbar(sc)
-#     plt.show()
-#main()
