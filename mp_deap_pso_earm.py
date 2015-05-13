@@ -39,7 +39,7 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
 
-earm_path = '/home/pinojc/Projects/earm'
+earm_path = '/home/pinojc/git/earm'
 data_path = os.path.join(earm_path, 'xpdata', 'forfits',
                          'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
@@ -143,10 +143,10 @@ pso = PSO()
 pso.set_cost_function(likelihood)
 pso.set_solver(solver)
 pso.set_start_position(xnominal)
-#pso.set_speed(-0.1,0.1)
+pso.set_speed(-0.1,0.1)
 pso.set_start_position(xnominal)
 best,fitness, population = pso.run(50,100)
-np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
+#np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
 print fitness,pso.get_history_value()
 pso.best_value_history = None
 for i in range(10):

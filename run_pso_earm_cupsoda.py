@@ -38,7 +38,7 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
 
-earm_path = '/home/pinojc/Projects/earm'
+earm_path = '/home/pinojc/git/earm'
 data_path = os.path.join(earm_path, 'xpdata', 'forfits',
                          'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
@@ -224,11 +224,11 @@ for rxn in model.reactions:
 	print rxn
 print len(model.reactions)
 print len(model.parameters)
-quit()
+
 
 solver.verbose=True
 if "__main__":# main():
-    GEN = 1
+    GEN = 10
     num_particles = 1000
     import time    
     best = creator.Particle(xnominal)
@@ -240,22 +240,22 @@ if "__main__":# main():
         
         count=0
         c_matrix = np.zeros((num_particles, len(xnominal)))
-        print np.shape(c_matrix)
-        rate_args = []
-        for rxn in model.reactions:
-            rate_args.append([arg for arg in rxn['rate'].args if not re.match("_*s",str(arg))])
-        output = 0.01*len(sample_batch)
-        output = int(output) if output > 1 else 1
-        for i in range(len(sample_batch)):
-            for j in range(len(model.reactions)):
-                rate = 1.0
-                for r in rate_args[j]:
-                    x = str(r)
-                    if x in par_dict.keys():
-                        rate *= sample_batch[i][par_dict[x]] # model.parameters[x].value
-                    else:
-                        rate *= float(x)
-                c_matrix[i][j] = rate
+        #print np.shape(c_matrix)
+        #rate_args = []
+        #for rxn in model.reactions:
+        #    rate_args.append([arg for arg in rxn['rate'].args if not re.match("_*s",str(arg))])
+        #output = 0.01*len(sample_batch)
+        #output = int(output) if output > 1 else 1
+        #for i in range(len(sample_batch)):
+        #    for j in range(len(model.reactions)):
+        #        rate = 1.0
+        #        for r in rate_args[j]:
+        #            x = str(r)
+        #            if x in par_dict.keys():
+        #                rate *= sample_batch[i][par_dict[x]] # model.parameters[x].value
+        #            else:
+        #                rate *= float(x)
+        #        c_matrix[i][j] = rate
         for i,p in enumerate(pop):
             Y=np.copy(p)
             c_matrix[i] = 10 ** Y	
