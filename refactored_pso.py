@@ -27,40 +27,49 @@ import sys
 from pysb.util import load_params
 
 class PSO():
-    def __init__(self):
-        self.solver = None
+    def __init__(self,solver=None,cost_function=None,start=None,):
+        
+        if solver is None:
+            solver = None
+        self.solver = solver
+        
+        if cost_function is None:
+            cost_function = None
+        self.cost_function = cost_function
+        
+        if start is None:
+            start = None
+        self.start = start
+        
+        self.best = None
         self.speedMax = None
         self.speedMin = None
-        self.cost_function = None
-        self.best = None
         self.size = None
         self.lb = None
         self.ub = None
-        self.best_history = None
-        self.best_value_history = None
+        self.bounds_set = False
         self.range = 2
         self.population = []
-    def generate(self,size):
-        u1 = np.random.uniform(self.lb,self.ub,size)
-        start_position = u1
+        
+    def generate(self):
+        start_position = np.random.uniform(self.lb,self.ub,self.size)
         part = creator.Particle(start_position)
-        part.speed = np.random.uniform(self.speedMin,self.speedMax,size)
+        part.speed = np.random.uniform(self.speedMin,self.speedMax,self.size)
         part.smin = self.speedMin
         part.smax = self.speedMax
         return part
     
-    def get_history_value(self):
-        return self.best_value_history
+    def get_best_value(self):
+        return self.best.fitness.values
     
     def get_history(self):
         return self.best_history
     
-    def updateParticle(self,part, best, phi1, phi2):
-    
+    def updateParticle(self,part, phi1, phi2):
         u1 = numpy.random.uniform(0, 1, len(part))
         u2 = numpy.random.uniform(0, 1, len(part))
         v_u1 = u1 * phi1 * (part.best - part)
-        v_u2 = u2 * phi2 * (best - part)
+        v_u2 = u2 * phi2 * (self.best - part)
         part.speed += v_u1 + v_u2
         np.place(part.speed,part.speed<part.smin,part.smin)
         np.place(part.speed,part.speed>part.smax,part.smax)
@@ -80,7 +89,7 @@ class PSO():
         if self.speedMax == None or self.speedMin == None:
             self.set_speed()
 
-        if self.lb == None or self.ub == None:
+        if self.bounds_set == False:
             self.set_bounds()
             
         if self.size == None:
@@ -95,50 +104,60 @@ class PSO():
             print "Error: Must set a cost function. Use PSO.set_cost_function()."
             print "Exiting due to failure"
             quit()
-        toolbox = base.Toolbox()
+        self.toolbox = base.Toolbox()
         creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
         creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, \
-            speed=list,smin=list, smax=list, best=self.best)
+            speed=list,smin=list, smax=list, best=self.start)
+        self.toolbox.register("particle", self.generate)
+        self.toolbox.register("population", tools.initRepeat, list, self.toolbox.particle)
+        self.toolbox.register("update", self.updateParticle, phi1=2, phi2=2)
+        self.toolbox.register("evaluate", self.cost_function)
+        self.stats = tools.Statistics(lambda ind: ind.fitness.values)
+        self.stats.register("avg", numpy.mean, axis=0)
+        self.stats.register("std", numpy.std, axis=0)
+        self.stats.register("min", numpy.min, axis=0)
+        self.stats.register("max", numpy.max, axis=0)
+        self.logbook = tools.Logbook()
+        self.logbook.header = ["gen", "evals"] + self.stats.fields
+        pool = multiprocessing.Pool()
+        self.toolbox.register("map", pool.map)
         
-        toolbox.register("particle", self.generate, size=self.size)
-        toolbox.register("population", tools.initRepeat, list, toolbox.particle)
-        toolbox.register("update", self.updateParticle, phi1=2, phi2=2)
-        toolbox.register("evaluate", self.cost_function)
-        stats = tools.Statistics(lambda ind: ind.fitness.values)
-        stats.register("avg", numpy.mean, axis=0)
-        stats.register("std", numpy.std, axis=0)
-        stats.register("min", numpy.min, axis=0)
-        stats.register("max", numpy.max, axis=0)
-        logbook = tools.Logbook()
-        logbook.header = ["gen", "evals"] + stats.fields
-        pool = multiprocessing.Pool(processes=4)
-        toolbox.register("map", pool.map)
-        globals().update(locals())
-        return toolbox,stats,logbook,creator
+    def return_ranked_populations(self):
+        positions = np.zeros(np.shape(self.population))
+        fitnesses = np.zeros(len(self.population))
+        for n,part in enumerate(self.population):
+            fitnesses[n] = part.best.fitness.values[0]
+            positions[n] = part.best
+        idx = np.argsort(fitnesses)
+        return positions[idx]
     
     def set_start_position(self,position):
-        self.best = position
+        self.start = position
         self.size = len(position)
         
     def set_speed(self,speedMin=-10000,speedMax=10000):
         self.speedMin = speedMin
         self.speedMax = speedMax
-    
-    def set_bounds(self,range=None):
+        
+    def set_bounds(self,range=None,lower = None, upper = None):
         if range == None:
             range = self.range
-        if len(self.best)==1:
-            if self.best == None:
+        if len(self.start)==1:
+            if self.start == None:
                 print "Error: Please set starting position before setting bounds"
                 quit()
-        self.lb = self.best - range
-        self.ub = self.best + range
-        print self.lb,self.ub
+        if lower==None:
+            lower = self.start - range
+        if upper == None:
+            upper = self.start + range
+        self.lb = lower
+        self.ub = upper
+        self.bounds_set = True
         
     def run(self,num_particles,num_iterations):
-        toolbox, stats, logbook,creator = self.setup_pso()
+        self.setup_pso()
         try:
-            print "Initial cost function value %s" % self.cost_function(self.best)
+            print "Initial cost function value %s" % self.cost_function(self.start)
         except:
             print "Error: Unable to calculate cost function value of initial condition."
             print "Make sure that the cost function is callable and you have set_start_position()."
@@ -148,13 +167,12 @@ class PSO():
                 print "**** PSO.set_solver(solver goes here) ****"
             print "Exiting due to failure"
             quit()
-        num_iterations = num_iterations
-        num_particles = num_particles
-        best = creator.Particle(self.best)
-        best.fitness.values = self.cost_function(self.best)
-        self.population = toolbox.population(num_particles)
+        values = np.zeros(num_iterations)
+        self.best = creator.Particle(self.start)
+        self.best.fitness.values = self.cost_function(self.start)
+        self.population = self.toolbox.population(num_particles)
         for g in range(1,num_iterations+1):
-            fitnesses = toolbox.map(toolbox.evaluate, self.population)
+            fitnesses = self.toolbox.map(self.toolbox.evaluate, self.population)
             for ind, fit in zip(self.population, fitnesses):
                 ind.fitness.values = fit
             for part in self.population:
@@ -165,16 +183,15 @@ class PSO():
                 else:
                     part.best = creator.Particle(part)
                     part.best.fitness.values = part.fitness.values
-    
-                if part.fitness.values < best.fitness.values:
-                    best = creator.Particle(part)
-                    best.fitness.values = part.fitness.values
+                if part.fitness.values < self.best.fitness.values:
+                    self.best = creator.Particle(part)
+                    self.best.fitness.values = part.fitness.values
             for part in self.population:
-                toolbox.update(part, best)
-            logbook.record(gen=g, evals=len(self.population), **stats.compile(self.population))
-            print(logbook.stream),best.fitness.values
-        if self.best_value_history == None or self.best_value_history> best.fitness.values:
-            self.best_value_history = best.fitness.values
-            self.best_history = best
+                self.toolbox.update(part)
+            values[g-1]=self.best.fitness.values[0]
+            self.logbook.record(gen=g, evals=len(self.population), **self.stats.compile(self.population))
+            print(self.logbook.stream),self.best.fitness.values
+        return values
+
         
         
