@@ -4,33 +4,20 @@ Created on Mon Mar 31 16:25:43 2014
 
 @author: james
 """
-
-import operator
-import random
 import scipy.optimize
-import numpy
-import pylab
-from deap import base
-from deap import creator
-from deap import tools
 import pysb.integrate
 import pysb.util
 import numpy as np
-import scipy.optimize
 import scipy.interpolate
 import matplotlib.pyplot as plt
 import os
-import inspect
-import multiprocessing
-import multiprocessing as mp
 import sys
+import earm
+import time
 from earm.lopez_embedded import model
 #from earm.lopez_direct import model
 #from earm.lopez_indirect import model
-import sys
-from pysb.util import load_params
-#print model.name
-import multiprocessing
+
 
 obs_names = ['mBid', 'cPARP']
 data_names = ['norm_ICRP', 'norm_ECRP']
@@ -39,7 +26,8 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
 
-earm_path = '/home/pinojc/Copy/git/earm'
+earm_path = os.path.dirname(earm.__file__).rstrip('earm')
+#earm_path = '/home/pinojc/Copy/git/earm'
 data_path = os.path.join(earm_path, 'xpdata', 'forfits',
                          'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
@@ -138,14 +126,13 @@ def likelihood(position):
 
 
 from refactored_pso import PSO
-import time
 pso = PSO()
 pso.set_cost_function(likelihood)
 pso.set_solver(solver)
 pso.set_start_position(xnominal)
 pso.set_bounds(2)
 pso.set_speed(-0.5,0.5)
-values =pso.run(10,200)
+values =pso.run(100,200)
 #display(pso.best)
 #plt.semilogy(values)
 #np.savetxt('pso_%s.txt'%14,values)
