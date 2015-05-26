@@ -19,29 +19,35 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.mlab import PCA as mlabPCA
 cm = plt.cm.get_cmap('RdYlBu')
 
-opt = sys.argv[1]
-#opt = 'Embedded'
+#opt = sys.argv[1]
+opt = 'Direct'
+
 if opt == 'Direct':
     print opt
     directory = 'Direct'
-    name = 'direct'
     from earm.lopez_direct import model
+    name = model.name
 if opt == 'Indirect':
     print opt
     directory = 'Indirect'
-    name = 'indirect'
     from earm.lopez_indirect import model
+    name = model.name
 if opt =='Embedded':
     print opt
     directory = 'Embedded'
     from earm.lopez_embedded import model
     name = model.name
-
+directory = '/home/pinojc/Projects/ParticleSwarmOptimization/Single_objc/Direct'
 data = np.loadtxt("%s/1_%s_overall_best.txt" % (directory,name))
 for i in range(2,500):
     if os.path.exists("%s/%s_%s_overall_best.txt"% (directory,str(i),name)):
         tmp = np.loadtxt("%s/%s_%s_overall_best.txt"% (directory,str(i),name))
         data = np.column_stack((data,tmp))
+
+#print np.shape(data)
+#for i in range(0,105):
+#    plt.hist(data[i,:])
+#    plt.show()
 
 obs_names = ['mBid', 'cPARP']
 data_names = ['norm_ICRP', 'norm_ECRP']
@@ -88,8 +94,6 @@ def likelihood(position):
     Y=np.copy(position)
     param_values[rate_mask] = 10 ** Y
     solver.run(param_values)
-
-    
     for obs_name, data_name, var_name, obs_total in \
             zip(obs_names, data_names, var_names, obs_totals):
         ysim = solver.yobs[obs_name][::tmul]
@@ -128,19 +132,16 @@ def likelihood(position):
 
 
 
-    
-    
-
-
 scores = np.zeros((np.shape(data)[1],1))
 for i in range(np.shape(data)[1]):
     scores[i]=likelihood(data[:,i])
-plt.hist(scores,50)
-plt.show()
+#plt.hist(scores,50)
+#plt.show()
+d = np.histogram(scores)
 print 'min of scores',min(scores)
 print 'average= %s, std = %s, median = %s ' % (np.average(scores),np.std(scores),np.median(scores))
 #scores = scores[scores[<np.average(scores)]
-above_avg,throw = np.where( scores < np.mean(scores) )
+above_avg,throw = np.where( scores < d[1][1] )
 copy_data = data[:,above_avg]
 print np.shape(data)
 print np.shape(copy_data)

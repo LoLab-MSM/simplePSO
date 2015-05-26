@@ -58,7 +58,7 @@ tmul = 10
 tspan = np.linspace(exp_data['Time'][0], exp_data['Time'][-1],
                     (ntimes-1) * tmul + 1)
 
-#solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
+solver = pysb.integrate.Solver(model, tspan, integrator='lsoda', rtol=1e-6, atol=1e-6, nsteps=20000)
 
 
 
@@ -66,8 +66,8 @@ rate_params = model.parameters_rules()
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
 k_ids = [p.value for p in model.parameters_rules()]
-
-
+print len(model.species)
+quit()
 
 def likelihood(position):
     Y=np.copy(position)
@@ -82,10 +82,10 @@ def likelihood(position):
     else:
         return 100000,
 
-    
+
     solver.run(param_values)
 
-    
+
     for obs_name, data_name, var_name, obs_total in \
             zip(obs_names, data_names, var_names, obs_totals):
         ysim = solver.yobs[obs_name][::tmul]
@@ -153,7 +153,7 @@ def display2(position):
     Y=np.copy(position)
     changes={}
     changes['Bid_0'] = 0
-    
+
     param_values[rate_mask] = 10 ** Y
     solver.run(param_values,initial_changes=changes)
     obs_names_disp = obs_names + ['aSmac']
@@ -171,7 +171,7 @@ def display2(position):
     plt.show()
 
 
-    
+
 def generate(size, speedmin, speedmax):
     u1 = np.random.uniform(-2,2,size)
     tmp = np.log10(k_ids) + u1
@@ -189,7 +189,7 @@ def updateParticle(part, best, phi1, phi2):
     v_u1 = u1 * (part.best - part)
     v_u2 = u2 * (best - part)
     part.speed += v_u1 + v_u2
-    
+
     for i, speed in enumerate(part.speed):
         if speed < part.smin:
             part.speed[i] = part.smin
@@ -206,17 +206,17 @@ def dominates(new, old):
     sum_new = np.sum(new)
     diff = sum_old - sum_new
     change1= old[0] - new[0]
-    change2= old[1] - new[1] 
+    change2= old[1] - new[1]
     change3 = old[2] - new[2]
     if  change1 >= 0. and change2 >= 0. and change3 >=0.:
         return True
-    if change1 >= 0. or change2 >=0. or change3 >=0.: 
+    if change1 >= 0. or change2 >=0. or change3 >=0.:
         if diff >= sum_old*.1:
             return True
         else:
             return False
     else:
-        return False                
+        return False
 toolbox = base.Toolbox()
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rate_mask])
@@ -230,7 +230,7 @@ creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
 creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, \
     speed=list,smin=list, smax=list, best=None)
 toolbox.register("particle", generate, size=np.shape(rate_params)[0],\
-                 speedmin=-.2,speedmax=.2)
+                 speedmin=-.1,speedmax=.1)
 toolbox.register("population", tools.initRepeat, list, toolbox.particle)
 toolbox.register("update", updateParticle, phi1=2, phi2=2)
 toolbox.register("evaluate", likelihood)
@@ -248,7 +248,7 @@ def init(sample,dictionary):
     global Sample
     global Dictionary
     global solver
-    solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6,)
+    solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6)
     Sample,Dictionary = sample,dictionary
 solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6,)
 def OBJ(block):
@@ -257,8 +257,8 @@ def OBJ(block):
 if "__main__":# main():
 
     GEN = 100
-    num_particles = 25
-    
+    num_particles = 50
+
     best = creator.Particle(xnominal)
     best.fitness.values = likelihood(xnominal)
     pop = toolbox.population(n=num_particles)
@@ -277,7 +277,7 @@ if "__main__":# main():
         p.join()
         count=0
         #fitnesses = toolbox.map(toolbox.evaluate, pop)
-        
+
         #for ind, fit in zip(pop, fitnesses):
         #    ind.fitness.values = fit
         for part in pop:
@@ -299,12 +299,12 @@ if "__main__":# main():
                 best.fitness.values = part.fitness.values
         for part in pop:
             toolbox.update(part, best)
- 
+
         logbook.record(gen=g, evals=len(pop), **stats.compile(pop))
         print(logbook.stream),best.fitness.values
         best_values[g-1,:] = best.fitness.values
         evals[g-1] = g*num_particles
-    
+
     #plt.plot(evals,best_values[:,0])
     #plt.show()
     #plt.plot(evals,best_values[:,1])
@@ -314,7 +314,7 @@ if "__main__":# main():
     #quit()
     #display(best)
     #display2(best)
-    
+    #np.savetxt('example.txt',best)
     np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
     end_states = np.zeros((len(best),num_particles))
     end_values = np.zeros((len(pop),3))
@@ -329,7 +329,7 @@ if "__main__":# main():
 #profile.run('main()')
 
 
-  
+
 #    scores = []
 #    positions  = []
 #    for part in pop:
@@ -346,9 +346,9 @@ if "__main__":# main():
 #     std = np.std(positions,axis=0)
     #for i in range(0,np.shape(np.average(pop,axis=0))[0]):
     #    print model.parameters_rules()[i],avg[i],' ',std[i],'  ',xnominal[i],best[i]
-    #np.savetxt('indirect_'+str(sys.argv[1]),np.asarray(best))  
+    #np.savetxt('indirect_'+str(sys.argv[1]),np.asarray(best))
     #np.savetxt('indirect.txt',np.asarray(best))
-      
+
 
 #    [pcas,pcab] = numpy.linalg.eig(np.cov(np.array(positions)));
 #     si = np.argsort(-pcas.ravel()); print si;
