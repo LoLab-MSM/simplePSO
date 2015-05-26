@@ -27,7 +27,7 @@ import sys
 from pysb.util import load_params
 
 class PSO():
-    def __init__(self,solver=None,cost_function=None,start=None,):
+    def __init__(self,solver=None,cost_function=None,start=None,method = 'single_min'):
         
         if solver is None:
             solver = None
@@ -40,7 +40,7 @@ class PSO():
         if start is None:
             start = None
         self.start = start
-        
+        self.method = method
         self.best = None
         self.speedMax = None
         self.speedMin = None
@@ -50,6 +50,8 @@ class PSO():
         self.bounds_set = False
         self.range = 2
         self.population = []
+        self.w = 1
+        self.update_w = True
         
     def generate(self):
         start_position = np.random.uniform(self.lb,self.ub,self.size)
@@ -58,7 +60,8 @@ class PSO():
         part.smin = self.speedMin
         part.smax = self.speedMax
         return part
-    
+    def set_w(self,option):
+        self.update_w = option
     def get_best_value(self):
         return self.best.fitness.values
     
@@ -66,25 +69,25 @@ class PSO():
         return self.best_history
     
     def updateParticle(self,part, phi1, phi2):
-        u1 = numpy.random.uniform(0, 1, len(part))
-        u2 = numpy.random.uniform(0, 1, len(part))
-        v_u1 = u1 * phi1 * (part.best - part)
-        v_u2 = u2 * phi2 * (self.best - part)
-        part.speed += v_u1 + v_u2
-        np.place(part.speed,part.speed<part.smin,part.smin)
-        np.place(part.speed,part.speed>part.smax,part.smax)
+        v_u1 = np.random.uniform(0,1,1)* phi1 * (part.best - part)
+        v_u2 = np.random.uniform(0,1,1)* phi2 * (self.best - part)
+        part.speed = self.w*part.speed + v_u1 + v_u2
+        np.place(part.speed, part.speed < part.smin, part.smin)
+        np.place(part.speed, part.speed > part.smax, part.smax)
         part += part.speed
         for i, pos in enumerate(part):
             if pos < self.lb[i]:
                 part[i] = self.lb[i]
             elif pos > self.ub[i]:
                 part[i] =  self.ub[i]
+                
     def set_cost_function(self,cost_function):
         self.cost_function = cost_function
     
     def set_solver(self,solver_init):
         global solver
-        solver = solver_init        
+        solver = solver_init  
+              
     def setup_pso(self):
         if self.speedMax == None or self.speedMin == None:
             self.set_speed()
@@ -105,12 +108,13 @@ class PSO():
             print "Exiting due to failure"
             quit()
         self.toolbox = base.Toolbox()
-        creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
+        if self.method == 'single_min':
+            creator.create("FitnessMin", base.Fitness,weights=(-1.00,))
         creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, \
-            speed=list,smin=list, smax=list, best=self.start)
+            speed=list,smin=list, smax=list, best=None)
         self.toolbox.register("particle", self.generate)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.particle)
-        self.toolbox.register("update", self.updateParticle, phi1=2, phi2=2)
+        self.toolbox.register("update", self.updateParticle, phi1=2.05, phi2=2.05)
         self.toolbox.register("evaluate", self.cost_function)
         self.stats = tools.Statistics(lambda ind: ind.fitness.values)
         self.stats.register("avg", numpy.mean, axis=0)
@@ -121,7 +125,28 @@ class PSO():
         self.logbook.header = ["gen", "evals"] + self.stats.fields
         pool = multiprocessing.Pool()
         self.toolbox.register("map", pool.map)
+    
+    def update_connected(self):
+        for part in self.population:
+            if part.best is None or part.best.fitness < part.fitness:
+                part.best = creator.Particle(part)
+                part.best.fitness.values = part.fitness.values
+            if self.best is None or self.best.fitness < part.fitness:
+                self.best = creator.Particle(part)
+                self.best.fitness.values = part.fitness.values
+    
+    def update_neighbor(self):
         
+        for i in range(len(self.population)):
+            self.population[i].best
+            if self.population[i].best is None or self.population[i].best.fitness < self.population[i].fitness:
+                self.population[i].best = creator.Particle(self.population[i])
+                self.population[i].best.fitness.values = self.population[i].fitness.values
+            if self.best is None or self.best.fitness < part.fitness:
+                self.best = creator.Particle(part)
+                self.best.fitness.values = part.fitness.values
+    
+    
     def return_ranked_populations(self):
         positions = np.zeros(np.shape(self.population))
         fitnesses = np.zeros(len(self.population))
@@ -168,28 +193,21 @@ class PSO():
             print "Exiting due to failure"
             quit()
         values = np.zeros(num_iterations)
-        self.best = creator.Particle(self.start)
-        self.best.fitness.values = self.cost_function(self.start)
         self.population = self.toolbox.population(num_particles)
         for g in range(1,num_iterations+1):
+            if self.update_w == True:
+                self.w = (num_iterations -g + 1. )/ num_iterations
             fitnesses = self.toolbox.map(self.toolbox.evaluate, self.population)
             for ind, fit in zip(self.population, fitnesses):
                 ind.fitness.values = fit
-            for part in self.population:
-                if not g == 1:
-                    if part.fitness.values < part.best.fitness.values:
-                        part.best = creator.Particle(part)
-                        part.best.fitness.values = part.fitness.values
-                else:
-                    part.best = creator.Particle(part)
-                    part.best.fitness.values = part.fitness.values
-                if part.fitness.values < self.best.fitness.values:
-                    self.best = creator.Particle(part)
-                    self.best.fitness.values = part.fitness.values
+            self.update_connected()
+            #self.update_neighbor()
             for part in self.population:
                 self.toolbox.update(part)
             values[g-1]=self.best.fitness.values[0]
             self.logbook.record(gen=g, evals=len(self.population), **self.stats.compile(self.population))
+            if self.logbook.select('std')[-1] < 1e-6:
+                break
             print(self.logbook.stream),self.best.fitness.values
         return values
 

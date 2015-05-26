@@ -70,7 +70,7 @@ def display(position):
     for exp, exp_err, sim, c in zip(exp_obs_norm, std_norm, sim_obs_norm, colors):
         plt.plot(exp_data['Time'], exp, color=c, marker='.', linestyle=':')
         plt.errorbar(exp_data['Time'], exp, yerr=exp_err, ecolor=c,
-                     elinewidth=0.5, capsize=0, fmt=None)
+                     elinewidth=0.5, capsize=0)
         plt.plot(solver.tspan, sim, color=c)
     plt.plot(solver.tspan, sim_obs_norm[2], color='g')
     plt.vlines(momp_data[0], -0.05, 1.05, color='g', linestyle=':')
@@ -88,7 +88,7 @@ def likelihood(position):
     if np.nanmax(ysim_momp) == 0:
         ysim_momp_norm = ysim_momp
     else:
-        return 100000,
+        return (100000,100000,100000)
     solver.run(param_values)
     for obs_name, data_name, var_name, obs_total in \
             zip(obs_names, data_names, var_names, obs_totals):
@@ -121,7 +121,8 @@ def likelihood(position):
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
     error = e1 + e2 +e3
-    return error,
+    #return error,
+    return (e1, e2, e3,)
 
 
 
@@ -132,8 +133,9 @@ pso.set_solver(solver)
 pso.set_start_position(xnominal)
 pso.set_bounds(2)
 pso.set_speed(-0.5,0.5)
-values =pso.run(100,200)
-#display(pso.best)
+values = pso.run(10,100)
+print values
+display(pso.best)
 #plt.semilogy(values)
 #np.savetxt('pso_%s.txt'%14,values)
 #quit()
