@@ -69,8 +69,8 @@ class PSO():
         return self.best_history
     
     def updateParticle(self,part, phi1, phi2):
-        v_u1 = np.random.uniform(0,1,1)* phi1 * (part.best - part)
-        v_u2 = np.random.uniform(0,1,1)* phi2 * (self.best - part)
+        v_u1 = np.random.uniform(0,1,self.size)* phi1 * (part.best - part)
+        v_u2 = np.random.uniform(0,1,self.size)* phi2 * (self.best - part)
         part.speed = self.w*part.speed + v_u1 + v_u2
         np.place(part.speed, part.speed < part.smin, part.smin)
         np.place(part.speed, part.speed > part.smax, part.smax)
@@ -182,7 +182,7 @@ class PSO():
     def run(self,num_particles,num_iterations):
         self.setup_pso()
         try:
-            print "Initial cost function value %s" % self.cost_function(self.start)
+            print "Initial cost function value " , self.cost_function(self.start)
         except:
             print "Error: Unable to calculate cost function value of initial condition."
             print "Make sure that the cost function is callable and you have set_start_position()."

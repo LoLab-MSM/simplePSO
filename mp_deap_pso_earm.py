@@ -88,7 +88,8 @@ def likelihood(position):
     if np.nanmax(ysim_momp) == 0:
         ysim_momp_norm = ysim_momp
     else:
-        return (100000,100000,100000)
+        return 100000,
+        #return (100000,100000,100000)
     solver.run(param_values)
     for obs_name, data_name, var_name, obs_total in \
             zip(obs_names, data_names, var_names, obs_totals):
@@ -121,8 +122,8 @@ def likelihood(position):
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
     error = e1 + e2 +e3
-    #return error,
-    return (e1, e2, e3,)
+    return error,
+    #return (e1, e2, e3,)
 
 
 
@@ -133,8 +134,8 @@ pso.set_solver(solver)
 pso.set_start_position(xnominal)
 pso.set_bounds(2)
 pso.set_speed(-0.5,0.5)
-values = pso.run(10,100)
-print values
+values = pso.run(25,200)
+#print values
 display(pso.best)
 #plt.semilogy(values)
 #np.savetxt('pso_%s.txt'%14,values)
