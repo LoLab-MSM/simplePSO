@@ -125,6 +125,7 @@ class PSO():
         self.logbook.header = ["gen", "evals"] + self.stats.fields
         pool = multiprocessing.Pool()
         self.toolbox.register("map", pool.map)
+        self.toolbox.register("close", pool.close)
     
     def update_connected(self):
         for part in self.population:
@@ -209,6 +210,7 @@ class PSO():
             if self.logbook.select('std')[-1] < 1e-6:
                 break
             print(self.logbook.stream),self.best.fitness.values
+        self.toolbox.close()
         return values
 
         
