@@ -1,7 +1,0 @@
-In file included from /usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/ndarraytypes.h:1804:0,
-                 from /usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/ndarrayobject.h:17,
-                 from /usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/arrayobject.h:4,
-                 from /home/pinojc/.cache/scipy/python27_compiled/sc_9bade30717731f645b30a512f757f0fa4806.cpp:22:
-/usr/local/lib/python2.7/dist-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: #warning "Using deprecated NumPy API, disable it by " "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
- #warning "Using deprecated NumPy API, disable it by " \
-  ^
