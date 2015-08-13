@@ -127,7 +127,7 @@ def likelihood(position):
 
 
 
-from refactored_pso import PSO
+from pso import PSO
 pso = PSO()
 pso.set_cost_function(likelihood)
 pso.set_solver(solver)
