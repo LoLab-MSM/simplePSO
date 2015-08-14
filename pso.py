@@ -5,26 +5,12 @@ Created on Mon Mar 31 16:25:43 2014
 @author: james
 """
 
-import operator
-import random
-import scipy.optimize
-import numpy
-import pylab
 from deap import base
 from deap import creator
 from deap import tools
-import pysb.integrate
-import pysb.util
 import numpy as np
-import scipy.optimize
-import scipy.interpolate
-import matplotlib.pyplot as plt
-import os
-import inspect
 import multiprocessing
-import multiprocessing as mp
-import sys
-from pysb.util import load_params
+
 
 class PSO():
     def __init__(self,solver=None,cost_function=None,start=None,method = 'single_min'):
@@ -52,6 +38,7 @@ class PSO():
         self.population = []
         self.w = 1
         self.update_w = True
+        self.update_scheme = 'constriction'
         
     def generate(self):
         start_position = np.random.uniform(self.lb,self.ub,self.size)
@@ -60,6 +47,7 @@ class PSO():
         part.smin = self.speedMin
         part.smax = self.speedMax
         return part
+        
     def set_w(self,option):
         self.update_w = option
     def get_best_value(self):
@@ -71,7 +59,10 @@ class PSO():
     def updateParticle(self,part, phi1, phi2):
         v_u1 = np.random.uniform(0,1,self.size)* phi1 * (part.best - part)
         v_u2 = np.random.uniform(0,1,self.size)* phi2 * (self.best - part)
-        part.speed = self.w*part.speed + v_u1 + v_u2
+        if self.update_scheme == 'constriction':
+            fi = phi1 + phi2
+            self.w = 2.0/np.abs(2.0 - fi - np.sqrt(np.power(fi,2) - 4 * fi))
+        part.speed = self.w* (part.speed + v_u1 + v_u2)
         np.place(part.speed, part.speed < part.smin, part.smin)
         np.place(part.speed, part.speed > part.smax, part.smax)
         part += part.speed
@@ -117,10 +108,10 @@ class PSO():
         self.toolbox.register("update", self.updateParticle, phi1=2.05, phi2=2.05)
         self.toolbox.register("evaluate", self.cost_function)
         self.stats = tools.Statistics(lambda ind: ind.fitness.values)
-        self.stats.register("avg", numpy.mean, axis=0)
-        self.stats.register("std", numpy.std, axis=0)
-        self.stats.register("min", numpy.min, axis=0)
-        self.stats.register("max", numpy.max, axis=0)
+        self.stats.register("avg", np.mean, axis=0)
+        self.stats.register("std", np.std, axis=0)
+        self.stats.register("min", np.min, axis=0)
+        self.stats.register("max", np.max, axis=0)
         self.logbook = tools.Logbook()
         self.logbook.header = ["gen", "evals"] + self.stats.fields
         pool = multiprocessing.Pool()
