@@ -13,19 +13,12 @@ import multiprocessing
 
 
 class PSO():
-    def __init__(self,solver=None,cost_function=None,start=None,method = 'single_min'):
+    def __init__(self,cost_function=None,start=None,save_sampled=False,method = 'single_min'):
+
         
-        if solver is None:
-            solver = None
-        self.solver = solver
-        
-        if cost_function is None:
-            cost_function = None
         self.cost_function = cost_function
-        
-        if start is None:
-            start = None
-        self.start = start
+        self.save_sampled = False if save_sampled is None else save_sampled
+        self.start = None if start is None else start
         self.method = method
         self.best = None
         self.speedMax = None
@@ -39,6 +32,9 @@ class PSO():
         self.w = 1
         self.update_w = True
         self.update_scheme = 'constriction'
+        if self.update_scheme == 'constriction':
+            fi = 2.05 + 2.05
+            self.w = 2.0/np.abs(2.0 - fi - np.sqrt(np.power(fi,2) - 4 * fi))
         
     def generate(self):
         start_position = np.random.uniform(self.lb,self.ub,self.size)
@@ -59,9 +55,6 @@ class PSO():
     def updateParticle(self,part, phi1, phi2):
         v_u1 = np.random.uniform(0,1,self.size)* phi1 * (part.best - part)
         v_u2 = np.random.uniform(0,1,self.size)* phi2 * (self.best - part)
-        if self.update_scheme == 'constriction':
-            fi = phi1 + phi2
-            self.w = 2.0/np.abs(2.0 - fi - np.sqrt(np.power(fi,2) - 4 * fi))
         part.speed = self.w* (part.speed + v_u1 + v_u2)
         np.place(part.speed, part.speed < part.smin, part.smin)
         np.place(part.speed, part.speed > part.smax, part.smax)
@@ -74,10 +67,6 @@ class PSO():
                 
     def set_cost_function(self,cost_function):
         self.cost_function = cost_function
-    
-    def set_solver(self,solver_init):
-        global solver
-        solver = solver_init  
               
     def setup_pso(self):
         if self.speedMax == None or self.speedMin == None:
@@ -114,7 +103,7 @@ class PSO():
         self.stats.register("max", np.max, axis=0)
         self.logbook = tools.Logbook()
         self.logbook.header = ["gen", "evals"] + self.stats.fields
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(4)
         self.toolbox.register("map", pool.map)
         self.toolbox.register("close", pool.close)
     
@@ -146,7 +135,7 @@ class PSO():
             fitnesses[n] = part.best.fitness.values[0]
             positions[n] = part.best
         idx = np.argsort(fitnesses)
-        return positions[idx]
+        return fitnesses[idx],positions[idx]
     
     def set_start_position(self,position):
         self.start = position
@@ -184,6 +173,9 @@ class PSO():
                 print "**** PSO.set_solver(solver goes here) ****"
             print "Exiting due to failure"
             quit()
+        history = np.zeros((num_iterations,len(self.start)))
+        if self.save_sampled == True:
+            self.all_history = np.zeros((num_iterations,len(self.start),num_particles))
         values = np.zeros(num_iterations)
         self.population = self.toolbox.population(num_particles)
         for g in range(1,num_iterations+1):
@@ -197,12 +189,15 @@ class PSO():
             for part in self.population:
                 self.toolbox.update(part)
             values[g-1]=self.best.fitness.values[0]
+            history[g-1] = self.best
+            if self.save_sampled == True:
+                self.all_history[:,:,g-1] = self.population
             self.logbook.record(gen=g, evals=len(self.population), **self.stats.compile(self.population))
             if self.logbook.select('std')[-1] < 1e-6:
                 break
             print(self.logbook.stream),self.best.fitness.values
         self.toolbox.close()
-        return values
+        return values,history
 
         
         

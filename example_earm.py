@@ -15,8 +15,6 @@ import sys
 import earm
 import time
 from earm.lopez_embedded import model
-#from earm.lopez_direct import model
-#from earm.lopez_indirect import model
 
 
 obs_names = ['mBid', 'cPARP']
@@ -79,17 +77,8 @@ def display(position):
 
 
 def likelihood(position):
-    Y=np.copy(position)
+    Y = np.copy(position)
     param_values[rate_mask] = 10 ** Y
-    #changes={}
-    #changes['Bid_0'] = 0
-    #solver.run(param_values,initial_changes=changes)
-    #ysim_momp = solver.yobs[momp_obs]
-    #if np.nanmax(ysim_momp) == 0:
-    #    ysim_momp_norm = ysim_momp
-    #else:
-    #    return 100000,
-        #return (100000,100000,100000)
     solver.run(param_values)
     for obs_name, data_name, var_name, obs_total in \
             zip(obs_names, data_names, var_names, obs_totals):
@@ -121,31 +110,23 @@ def likelihood(position):
     yfinal = ysim_momp[-1]
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
-    error = e1 + e2 +e3
+    error = e1 + e2 + e3
     return error,
-    #return (e1, e2, e3,)
 
 
 
 from pso import PSO
-pso = PSO()
+pso = PSO(save_sampled=True)
 pso.set_cost_function(likelihood)
-pso.set_solver(solver)
 pso.set_start_position(xnominal)
 pso.set_bounds(2)
-pso.set_speed(-.1,.1)
-#values = pso.run(10,200)
-#print values
-#display(pso.best)
-#plt.semilogy(values)
-#np.savetxt('pso_%s.txt'%14,values)
-#quit()
-#np.savetxt('%s_%s_overall_best.txt'% (sys.argv[1],model.name),best)
-#print pso.get_best_value()
-#pso.best_value_history = None
-for i in range(0,250):
-    pso.set_start_position(xnominal)
-    pso.best = None
-    values =pso.run(100,200)
-    np.savetxt('pso_%s.txt'%str(i),values)
-    np.savetxt('best_%s.txt'%i,pso.best)
+pso.set_speed(-.25,.25)
+values = pso.run(10,10)
+score,pos_each = pso.return_ranked_populations()
+plt.hist(score)
+plt.show()
+display(pso.best)
+print pso.all_history
+
+
+
