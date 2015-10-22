@@ -175,7 +175,8 @@ class PSO():
             quit()
         history = np.zeros((num_iterations,len(self.start)))
         if self.save_sampled == True:
-            self.all_history = np.zeros((num_iterations,len(self.start),num_particles))
+            self.all_history = np.zeros((num_iterations,num_particles, len(self.start)))
+            self.all_fitness = np.zeros((num_iterations, num_particles))
         values = np.zeros(num_iterations)
         self.population = self.toolbox.population(num_particles)
         for g in range(1,num_iterations+1):
@@ -191,7 +192,9 @@ class PSO():
             values[g-1]=self.best.fitness.values[0]
             history[g-1] = self.best
             if self.save_sampled == True:
-                self.all_history[:,:,g-1] = self.population
+                curr_fit, curr_pop = self.return_ranked_populations()
+                self.all_history[g-1,:,:] = curr_pop
+                self.all_fitness[g-1,:] = curr_fit
             self.logbook.record(gen=g, evals=len(self.population), **self.stats.compile(self.population))
             if self.logbook.select('std')[-1] < 1e-6:
                 break
