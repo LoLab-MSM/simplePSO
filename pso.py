@@ -14,24 +14,25 @@ from deap import tools
 
 
 class PSO:
-    def __init__(self, cost_function=None, start=None, save_sampled=False, method='single_min', verbose=False):
+    def __init__(self, cost_function=None, start=None, save_sampled=False, verbose=False):
         """
 
         :param cost_function:
         :param start:
         :param save_sampled:
-        :param method:
         """
 
         self.cost_function = cost_function
-        self.save_sampled = False if save_sampled is None else save_sampled
-        self.start = None if start is None else start
+        self.save_sampled = save_sampled
+        self.start = start
+        self.size = None
+        if self.start is not None:
+            self.set_start_position(start)
         self.verbose = verbose
-        self.method = method
+        self.method = 'single_min'
         self.best = None
         self.max_speed = None
         self.min_speed = None
-        self.size = None
         self.lb = None
         self.ub = None
         self.bounds_set = False
@@ -90,23 +91,15 @@ class PSO:
         if not self.bounds_set:
             self.set_bounds()
 
-        if self.size is None:
-            try:
-                self.size = len(self.start)
-            except:
-                print("Error: Must provide a starting position in order to set size of each particle\
+        assert self.start is not None, "Error: Must provide a starting position in order to set size of each particle\
                        **** Provide PSO.set_start_position() your initial starting coordinates ****\
-                       Exiting due to failure")
-                quit()
-        if self.cost_function is None:
-            print "Error: Must set a cost function. Use PSO.set_cost_function()."
-            print "Exiting due to failure"
-            quit()
+                       Exiting due to failure"
+
+        assert self.cost_function is not None, "Error: Must set a cost function. Use PSO.set_cost_function()."
 
         if self.method == 'single_min':
             creator.create("FitnessMin", base.Fitness, weights=(-1.00,))
-        creator.create("Particle", np.ndarray, fitness=creator.FitnessMin,
-                       speed=list, smin=list, smax=list, best=None)
+        creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, speed=list, smin=list, smax=list, best=None)
         self.toolbox.register("particle", self.generate)
         self.toolbox.register("population", tools.initRepeat, list, self.toolbox.particle)
         self.toolbox.register("update", self.update_particle_position, phi1=2.05, phi2=2.05)
@@ -153,15 +146,17 @@ class PSO:
         if parameter_range is None:
             assert self.range is not None
             parameter_range = self.range
-        # if len(self.start) == 1:
+
         assert self.start is not None, "Must provide starting array: %r" % self.start
-        if self.start is None:
-            print "Error: Please set starting position before setting bounds"
-            quit()
+
         if lower is None:
             lower = self.start - parameter_range
+        else:
+            assert self.size == len(lower), "If providing array for bounds, must equal length of starting position"
         if upper is None:
             upper = self.start + parameter_range
+        else:
+            assert self.size == len(upper), "If providing array for bounds, must equal length of starting position"
         self.lb = lower
         self.ub = upper
         self.bounds_set = True
@@ -171,6 +166,7 @@ class PSO:
             pass
         else:
             self.setup_pso()
+        assert type(self.cost_function(self.start)) == tuple, "Cost function must return a tuple"
         try:
             print "Initial cost function value ", self.cost_function(self.start)
         except:

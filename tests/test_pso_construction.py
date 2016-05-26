@@ -1,4 +1,5 @@
 import numpy as np
+from nose.tools import raises
 
 from pso import PSO
 
@@ -62,5 +63,15 @@ def test_himmelblau():
         print('True value: {0}. Found:{1}. Error^2 = {2}'.format(found_min, pso.best, error))
 
 
-test_himmelblau()
-# test_population_creation()
+@raises(AssertionError)
+def test_missing_cost_function():
+    pso = PSO(start=[10, 0], verbose=False)
+    pso.set_bounds(lower=[-100, -100], upper=[100, 100])
+    pso.run(num_iterations=100, num_particles=10)
+
+
+@raises(AssertionError)
+def test_mismatched_bounds():
+    pso = PSO(start=[10, 0], cost_function=himmelblau, verbose=False)
+    pso.set_bounds(lower=[-100, 0, -100], upper=[100, 100])
+    pso.run(num_iterations=100, num_particles=10)
