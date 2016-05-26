@@ -43,6 +43,8 @@ class PSO:
         self.logbook = tools.Logbook()
         self.all_history = None
         self.all_fitness = None
+        self.values = []
+        self.history = []
         self.w = 1
         self.update_w = True
         self._is_setup = False
@@ -201,4 +203,6 @@ class PSO:
             if self.verbose:
                 print(self.logbook.stream), self.best.fitness.values
         self.toolbox.close()
-        return values, history
+        self.values = values
+        self.history = history
+
