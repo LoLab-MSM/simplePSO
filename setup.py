@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 _MAJOR               = 0
-_MINOR               = 0
-_MICRO               = 1
+_MINOR               = 1
+_MICRO               = 4
 version              = '%d.%d.%d' % (_MAJOR, _MINOR, _MICRO)
 release              = '%d.%d' % (_MAJOR, _MINOR)
 
@@ -18,7 +18,7 @@ setup(
     author='James C. Pino',
     author_email='james.ch.pino@gmail.com',
     url='https://github.com/LoLab-VU/ParticleSwarmOptimization',
-    download_url='https://github.com/peterldowns/mypackage/tarball/0.1',
+    #download_url='https://github.com/peterldowns/mypackage/tarball/0.1',
 
     keywords=['optimization',
               'systems biology'],

@@ -145,11 +145,14 @@ class PSO:
         self.max_speed = speed_max
 
     def set_bounds(self, parameter_range=None, lower=None, upper=None):
+        assert self.start is not None, "Must provide starting array: %r" % self.start
+        all_set_to_none = False
+        if parameter_range is None and upper is None and lower is None:
+            all_set_to_none = True
+        assert all_set_to_none == False,'Need to provide parameter range or upper and lower bounds'
         if parameter_range is None:
             assert self.range is not None
             parameter_range = self.range
-
-        assert self.start is not None, "Must provide starting array: %r" % self.start
 
         if lower is None:
             lower = self.start - parameter_range
