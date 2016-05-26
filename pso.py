@@ -103,7 +103,7 @@ class PSO():
         self.stats.register("max", np.max, axis=0)
         self.logbook = tools.Logbook()
         self.logbook.header = ["gen", "evals"] + self.stats.fields
-        pool = multiprocessing.Pool(4)
+        pool = multiprocessing.Pool(1)
         self.toolbox.register("map", pool.map)
         self.toolbox.register("close", pool.close)
     

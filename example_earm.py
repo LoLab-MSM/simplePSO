@@ -9,6 +9,8 @@ import pysb.integrate
 import pysb.util
 import numpy as np
 import scipy.interpolate
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import os
 import sys
@@ -127,6 +129,4 @@ plt.hist(score)
 plt.show()
 display(pso.best)
 print pso.all_history
-
-
 
