@@ -46,7 +46,7 @@ class PSO:
         self.values = []
         self.history = []
         self.w = 1
-        self.update_w = True
+        self.update_w = False
         self._is_setup = False
         self.update_scheme = 'constriction'
         if self.update_scheme == 'constriction':

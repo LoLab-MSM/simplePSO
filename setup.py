@@ -12,14 +12,12 @@ with open('README.md') as f:
 
 setup(
     name='simplepso',
-    packages= find_packages(),#['simplepso','simplepso.examples'],
+    packages=find_packages(),
     version=version,
     description='Simple usage particle swarm optimization',
     author='James C. Pino',
     author_email='james.ch.pino@gmail.com',
     url='https://github.com/LoLab-VU/ParticleSwarmOptimization',
-    #download_url='https://github.com/peterldowns/mypackage/tarball/0.1',
-
     keywords=['optimization',
               'systems biology'],
     classifiers=['License :: OSI Approved :: BSD License',

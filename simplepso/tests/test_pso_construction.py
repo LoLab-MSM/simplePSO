@@ -1,7 +1,7 @@
 import numpy as np
 from nose.tools import raises
 
-from pso import PSO
+from simplepso.pso import PSO
 
 
 def h1(individual):
@@ -74,4 +74,9 @@ def test_missing_cost_function():
 def test_mismatched_bounds():
     pso = PSO(start=[10, 0], cost_function=himmelblau, verbose=False)
     pso.set_bounds(lower=[-100, 0, -100], upper=[100, 100])
+    pso.run(num_iterations=100, num_particles=10)
+
+@raises(AssertionError)
+def test_no_bounds():
+    pso = PSO(start=[10, 0], cost_function=himmelblau, verbose=False)
     pso.run(num_iterations=100, num_particles=10)
