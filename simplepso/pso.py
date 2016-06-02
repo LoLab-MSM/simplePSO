@@ -46,7 +46,7 @@ class PSO:
         self.values = []
         self.history = []
         self.w = 1
-        self.update_w = False
+        self.update_w = True
         self._is_setup = False
         self.update_scheme = 'constriction'
         if self.update_scheme == 'constriction':
@@ -113,7 +113,7 @@ class PSO:
         self.stats.register("max", np.max, axis=0)
 
         self.logbook.header = ["gen", "evals"] + self.stats.fields
-        pool = multiprocessing.Pool(1)
+        pool = multiprocessing.Pool(2)
         self.toolbox.register("map", pool.map)
         self.toolbox.register("close", pool.close)
         self._is_setup = True
@@ -201,11 +201,11 @@ class PSO:
                 self.all_history[g - 1, :, :] = curr_pop
                 self.all_fitness[g - 1, :] = curr_fit
             self.logbook.record(gen=g, evals=len(self.population), **self.stats.compile(self.population))
-            if self.logbook.select('std')[-1] < 1e-6:
+            if self.logbook.select('std')[-1] < 1e-12:
                 break
             if self.verbose:
                 print(self.logbook.stream), self.best.fitness.values
         self.toolbox.close()
-        self.values = values
-        self.history = history
+        self.values = values[:g]
+        self.history = history[:g,:]
 
