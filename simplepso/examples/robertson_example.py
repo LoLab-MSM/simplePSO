@@ -1,12 +1,19 @@
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+try:
+    import matplotlib
+
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    plot = True
+except ImportError:
+    plot = False
+    pass
+
 import numpy as np
 from pysb.examples.robertson import model
 from pysb.integrate import Solver
 
 from simplepso.pso import PSO
-
 
 obs_names = ['A_total', 'C_total']
 
@@ -24,20 +31,20 @@ def extract_records(recarray, names):
     return np.vstack([recarray[name] for name in names]).T
 
 t = np.linspace(0, 40, 25)
-solver = Solver(model, t, integrator='vode', rtol=1e-8, atol=1e-8)
+solver = Solver(model, t, integrator='lsoda', rtol=1e-8, atol=1e-8)
 solver.run()
 
 # Creating ideal data
 ysim_array = extract_records(solver.yobs, obs_names)
 norm_data = normalize(ysim_array)
 
-np.random.seed(0)
+# np.random.seed(0)
 
 # Creating noisy data
 noisy_data_A = ysim_array[:, 0]
-norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.2, 0.2, np.shape(ysim_array[:, 0]))
+norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
 noisy_data_C = ysim_array[:, 1]
-norm_noisy_data_C = normalize(noisy_data_C) + np.random.uniform(-0.2, 0.2, np.shape(ysim_array[:, 1]))
+norm_noisy_data_C = normalize(noisy_data_C) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 1]))
 ydata_norm = np.column_stack((norm_noisy_data_A, norm_noisy_data_C))
 
 rate_params = model.parameters_rules()
@@ -50,7 +57,8 @@ original_values = np.array([p.value for p in model.parameters])
 log10_original_values = np.log10(original_values[rate_mask])
 
 # We will use a best guess starting position for the model, up or down 1 order of magnitude
-start_position = log10_original_values + [-1, 1, -1]#np.random.uniform(-1.0, 1.0, size=np.shape(log10_original_values))
+start_position = log10_original_values + [-1.5, 1.3,
+                                          -.75]  # np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values))
 
 # Defining some functions to help plot the output of the parameters
 def display(parameter_1, parameter_2):
@@ -107,20 +115,32 @@ def run_example():
     # We must proivde the cost function and a starting value
     optimizer = PSO(cost_function=obj_function, start=start_position, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=2)
-    optimizer.set_speed(speed_min=-0.1, speed_max=0.1)
+    optimizer.set_bounds(parameter_range=3)
+    optimizer.set_speed(speed_min=-.5, speed_max=.5)
     optimizer.run(num_particles=25, num_iterations=100)
-    plot = True
     if plot:
         display(start_position, optimizer.best)
 
-        print(log10_original_values ** 10)
-        print(start_position ** 10)
-        print(optimizer.best ** 10)
-        plt.scatter(log10_original_values[0],log10_original_values[1],marker='o',color='b',label='ideal')
-        plt.scatter(start_position[0], start_position[1], marker='o', color='r',label='start')
+        print("Original values {0}".format(log10_original_values ** 10))
+        print("Starting values {0}".format(start_position ** 10))
+        print("Best PSO values {0}".format(optimizer.best ** 10))
+        fig = plt.figure()
+        fig.add_subplot(221)
+        plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
+        plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
         plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
 
+        fig.add_subplot(223)
+        plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
+        plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
+        plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+
+        fig.add_subplot(222)
+        plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
+        plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
+        plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+
+        fig.add_subplot(224)
         plt.legend(loc=0)
         plt.colorbar()
         plt.tight_layout()

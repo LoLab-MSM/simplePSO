@@ -4,20 +4,23 @@ Created on Mon Mar 31 16:25:43 2014
 
 @author: james
 """
-import scipy.optimize
-import pysb.integrate
-import pysb.util
 import numpy as np
 import scipy.interpolate
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import os
-import sys
-import earm
-import time
-from earm.lopez_embedded import model
 
+try:
+    import matplotlib
+
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    plot = True
+except ImportError:
+    plot = False
+    pass
+import os
+from pysb.integrate import Solver
+from earm.lopez_embedded import model
+from simplepso.pso import PSO
 
 obs_names = ['mBid', 'cPARP']
 data_names = ['norm_ICRP', 'norm_ECRP']
@@ -26,10 +29,7 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
 
-earm_path = os.path.dirname(earm.__file__).rstrip('earm')
-#earm_path = '/home/pinojc/Copy/git/earm'
-data_path = os.path.join(earm_path, 'xpdata', 'forfits',
-                         'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
+data_path = os.path.join('..', 'data', 'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
 
 # Model observable corresponding to the IMS-RP reporter (MOMP timing)
@@ -52,7 +52,7 @@ k_ids = [p.value for p in model.parameters_rules()]
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rate_mask])
 bounds_radius = 2
-solver = pysb.integrate.Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6,)
+solver = Solver(model, tspan, integrator='vode', rtol=1e-6, atol=1e-6, )
 
 def display(position):
 
@@ -74,6 +74,7 @@ def display(position):
         plt.plot(solver.tspan, sim, color=c)
     plt.plot(solver.tspan, sim_obs_norm[2], color='g')
     plt.vlines(momp_data[0], -0.05, 1.05, color='g', linestyle=':')
+    plt.savefig('earm_trained.png')
     plt.show()
 
 
@@ -113,20 +114,19 @@ def likelihood(position):
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
     error = e1 + e2 + e3
+
     return error,
 
 
+def run_example():
+    pso = PSO(save_sampled=False, verbose=True)
+    pso.set_cost_function(likelihood)
+    pso.set_start_position(xnominal)
+    pso.set_bounds(2)
+    pso.set_speed(-.25, .25)
+    pso.run(20, 100)
+    display(pso.best)
 
-from pso import PSO
-pso = PSO(save_sampled=True)
-pso.set_cost_function(likelihood)
-pso.set_start_position(xnominal)
-pso.set_bounds(2)
-pso.set_speed(-.25,.25)
-values = pso.run(10,10)
-score,pos_each = pso.return_ranked_populations()
-plt.hist(score)
-plt.show()
-display(pso.best)
-print pso.all_history
 
+if __name__ == '__main__':
+    run_example()

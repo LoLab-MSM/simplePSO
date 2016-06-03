@@ -7,7 +7,7 @@ __pycache__/
 .idea
 # C extensions
 *.so
-
+docs/_build
 # Distribution / packaging
 .Python
 env/

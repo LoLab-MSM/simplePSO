@@ -6,12 +6,8 @@ from simplepso.pso import PSO
 
 def h1(individual):
     """ Simple two-dimensional function containing several local maxima.
-    From: The Merits of a Parallel Genetic Algorithm in Solving Hard
-    Optimization Problems, A. J. Knoek van Soest and L. J. R. Richard
-    Casius, J. Biomech. Eng. 125, 141 (2003)
-
     Found in deap.benchmarks.h1
-    Defined range of [-100, 100]`
+    Defined range of [-100, 100]
     minimum is at f(8.6998, 6.7665) = 2
     """
     num = (np.sin(individual[0] - individual[1] / 8)) ** 2 + (np.sin(individual[1] + individual[0] / 8)) ** 2
@@ -21,7 +17,7 @@ def h1(individual):
 
 def himmelblau(individual):
     """The Himmelblau's function is multimodal with 4 defined minimums in
-    :math:`[-6, 6]^2`.
+    :math:`[-6, 6]^2.
 
         range [-6, 6]
         x_1 = (3.0, 2.0), = 0
@@ -44,6 +40,8 @@ def test_population_creation():
 
 
 def test_himmelblau():
+    """ test to see if PSO can find simple minimum
+    """
     minimums = [[3.0, 2.0],
                 [-2.805118, 3.131312],
                 [-3.779310, -3.283186],

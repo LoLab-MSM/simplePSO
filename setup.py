@@ -26,6 +26,6 @@ setup(
     install_requires=['deap >= 1.0.2',
                       'matplotlib >= 1.5.0',
                       'numpy >= 1.11.0',
-                      'scipy >= 0.16.0',
+                      'scipy >= 0.17.1',
                       'pysb >= 1.1.1'],
     )
