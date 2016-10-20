@@ -2,9 +2,7 @@
 
 import multiprocessing
 import numpy as np
-from deap import base
-from deap import creator
-from deap import tools
+from deap import base, creator, tools
 
 
 class PSO:
@@ -33,7 +31,9 @@ class PSO:
 
 
         """
-    def __init__(self, cost_function=None, start=None, save_sampled=False, verbose=False):
+
+    def __init__(self, cost_function=None, start=None, num_proc=1,
+                 save_sampled=False, verbose=False):
         """
 
         :param cost_function:
@@ -43,12 +43,14 @@ class PSO:
 
         self.cost_function = cost_function
         self.save_sampled = save_sampled
-        self.start = start
-        self.size = None
-        if self.start is not None:
+        if start is not None:
             self.set_start_position(start)
+        else:
+            self.start = None
+            self.size = None
         self.verbose = verbose
         self.method = 'single_min'
+        self.num_proc = num_proc
         self.best = None
         self.max_speed = None
         self.min_speed = None
@@ -79,7 +81,8 @@ class PSO:
         """
         start_position = np.random.uniform(self.lb, self.ub, self.size)
         part = creator.Particle(start_position)
-        part.speed = np.random.uniform(self.min_speed, self.max_speed, self.size)
+        part.speed = np.random.uniform(self.min_speed, self.max_speed,
+                                       self.size)
         part.smin = self.min_speed
         part.smax = self.max_speed
         return part
@@ -103,7 +106,7 @@ class PSO:
 
         :return:
         """
-        return self.best_history
+        return self.history
 
     def _update_particle_position(self, part, phi1, phi2):
         """ Updates particles position
@@ -152,10 +155,13 @@ class PSO:
 
         if self.method == 'single_min':
             creator.create("FitnessMin", base.Fitness, weights=(-1.00,))
-        creator.create("Particle", np.ndarray, fitness=creator.FitnessMin, speed=list, smin=list, smax=list, best=None)
+        creator.create("Particle", np.ndarray, fitness=creator.FitnessMin,
+                       speed=list, smin=list, smax=list, best=None)
         self.toolbox.register("particle", self._generate)
-        self.toolbox.register("population", tools.initRepeat, list, self.toolbox.particle)
-        self.toolbox.register("update", self._update_particle_position, phi1=2.05, phi2=2.05)
+        self.toolbox.register("population", tools.initRepeat, list,
+                              self.toolbox.particle)
+        self.toolbox.register("update", self._update_particle_position,
+                              phi1=2.05, phi2=2.05)
         self.toolbox.register("evaluate", self.cost_function)
 
         self.stats.register("avg", np.mean, axis=0)
@@ -164,7 +170,7 @@ class PSO:
         self.stats.register("max", np.max, axis=0)
 
         self.logbook.header = ["iteration", "best"] + self.stats.fields
-        pool = multiprocessing.Pool(4)
+        pool = multiprocessing.Pool(self.num_proc)
         self.toolbox.register("map", pool.map)
         self.toolbox.register("close", pool.close)
         self._is_setup = True
@@ -201,7 +207,7 @@ class PSO:
         :param position: vector of parameters
         :return:
         """
-        self.start = position
+        self.start = np.array(position)
         self.size = len(position)
 
     def set_speed(self, speed_min=-10000, speed_max=10000):
@@ -210,7 +216,7 @@ class PSO:
 
 
         :param speed_min: negative scalar
-        :param speed_max: negative scalar
+        :param speed_max: positive scalar
         :return:
         """
         self.min_speed = speed_min
@@ -231,7 +237,8 @@ class PSO:
         all_set_to_none = False
         if parameter_range is None and upper is None and lower is None:
             all_set_to_none = True
-        assert all_set_to_none == False,'Need to provide parameter range or upper and lower bounds'
+        assert all_set_to_none is False, 'Need to provide parameter range or' \
+                                         ' upper and lower bounds'
         if parameter_range is None:
             assert self.range is not None
             parameter_range = self.range
@@ -239,16 +246,20 @@ class PSO:
         if lower is None:
             lower = self.start - parameter_range
         else:
-            assert self.size == len(lower), "If providing array for bounds, must equal length of starting position"
+            assert self.size == len(lower), "If providing array for " \
+                                            "bounds, must equal length of" \
+                                            " starting position"
         if upper is None:
             upper = self.start + parameter_range
         else:
-            assert self.size == len(upper), "If providing array for bounds, must equal length of starting position"
+            assert self.size == len(
+                    upper), "If providing array for bounds, " \
+                            "must equal length of starting position"
         self.lb = lower
         self.ub = upper
         self.bounds_set = True
 
-    def run(self, num_particles, num_iterations):
+    def run(self, num_particles, num_iterations, save_samples=False):
         """ runs the pso
 
         :param num_particles:
@@ -259,19 +270,22 @@ class PSO:
             pass
         else:
             self.setup_pso()
-        assert type(self.cost_function(self.start)) == tuple, "Cost function must return a tuple. An error " \
-                                                              "is occuring when running your starting position"
+        assert type(self.cost_function(
+                self.start)) == tuple, "Cost function must return a tuple. An error " \
+                                       "is occuring when running your starting position"
 
         history = np.zeros((num_iterations, len(self.start)))
-        if self.save_sampled:
-            self.all_history = np.zeros((num_iterations, num_particles, len(self.start)))
+        if self.save_sampled or save_samples:
+            self.all_history = np.zeros(
+                    (num_iterations, num_particles, len(self.start)))
             self.all_fitness = np.zeros((num_iterations, num_particles))
         values = np.zeros(num_iterations)
         self.population = self.toolbox.population(num_particles)
         for g in range(1, num_iterations + 1):
             if self.update_w:
                 self.w = (num_iterations - g + 1.) / num_iterations
-            population_fitness = self.toolbox.map(self.toolbox.evaluate, self.population)
+            population_fitness = self.toolbox.map(self.toolbox.evaluate,
+                                                  self.population)
             for ind, fit in zip(self.population, population_fitness):
                 ind.fitness.values = fit
             self.update_connected()
@@ -279,16 +293,16 @@ class PSO:
                 self.toolbox.update(part)
             values[g - 1] = self.best.fitness.values[0]
             history[g - 1] = self.best
-            if self.save_sampled:
+            if self.save_sampled or save_samples:
                 curr_fit, curr_pop = self.return_ranked_populations()
                 self.all_history[g - 1, :, :] = curr_pop
                 self.all_fitness[g - 1, :] = curr_fit
-            self.logbook.record(gen=g, best=self.best.fitness.values[0], **self.stats.compile(self.population))
+            self.logbook.record(gen=g, best=self.best.fitness.values[0],
+                                **self.stats.compile(self.population))
             if self.logbook.select('std')[-1] < 1e-12:
                 break
             if self.verbose:
                 print(self.logbook.stream)
         self.toolbox.close()
         self.values = values[:g]
-        self.history = history[:g,:]
-
+        self.history = history[:g, :]
