@@ -28,8 +28,9 @@ var_names = ['nrm_var_ICRP', 'nrm_var_ECRP']
 # Total starting amounts of proteins in obs_names, for normalizing simulations
 obs_totals = [model.parameters['Bid_0'].value,
               model.parameters['PARP_0'].value]
-
-data_path = os.path.join('..', 'data', 'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
+directory = os.path.dirname(__file__)
+data_path = os.path.join(directory, 'data',
+                         'EC-RP_IMS-RP_IC-RP_data_for_models.csv')
 exp_data = np.genfromtxt(data_path, delimiter=',', names=True)
 
 # Model observable corresponding to the IMS-RP reporter (MOMP timing)
@@ -119,7 +120,7 @@ def likelihood(position):
 
 
 def run_example():
-    pso = PSO(save_sampled=False, verbose=True)
+    pso = PSO(save_sampled=False, verbose=True, num_proc=4)
     pso.set_cost_function(likelihood)
     pso.set_start_position(xnominal)
     pso.set_bounds(2)
