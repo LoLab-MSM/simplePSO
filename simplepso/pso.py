@@ -171,8 +171,11 @@ class PSO:
 
         self.logbook.header = ["iteration", "best"] + self.stats.fields
         pool = multiprocessing.Pool(self.num_proc)
+
         self.toolbox.register("map", pool.map)
+        self.toolbox.register("join", pool.join)
         self.toolbox.register("close", pool.close)
+        self.toolbox.register("terminate", pool.terminate)
         self._is_setup = True
 
     def update_connected(self):
@@ -304,5 +307,6 @@ class PSO:
             if self.verbose:
                 print(self.logbook.stream)
         self.toolbox.close()
+        self.toolbox.terminate()
         self.values = values[:g]
         self.history = history[:g, :]
