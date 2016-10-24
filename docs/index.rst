@@ -10,13 +10,13 @@ Contents:
 
 
 .. toctree::
-:maxdepth: 2
+:maxdepth: 3
 
 
-.. automodule:: simplepso
-:members:
+.. automodule:: pso
 
-.. autoclass:: simplepso.pso.PSO
+
+.. autoclass:: pso.PSO
 :members:
 
 Indices and tables
