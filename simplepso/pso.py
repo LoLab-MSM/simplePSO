@@ -297,7 +297,7 @@ class PSO:
                 curr_fit, curr_pop = self.return_ranked_populations()
                 self.all_history[g - 1, :, :] = curr_pop
                 self.all_fitness[g - 1, :] = curr_fit
-            self.logbook.record(gen=g, best=self.best.fitness.values[0],
+            self.logbook.record(iteration=g, best=self.best.fitness.values[0],
                                 **self.stats.compile(self.population))
             if self.logbook.select('std')[-1] < 1e-12:
                 break
