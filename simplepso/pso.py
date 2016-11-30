@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import multiprocessing
+import pathos.multiprocessing as multiprocessing
 import numpy as np
 from deap import base, creator, tools
 
