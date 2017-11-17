@@ -10,7 +10,7 @@ import scipy.interpolate
 try:
     import matplotlib
 
-    matplotlib.use('Agg')
+    # matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
     plot = True
@@ -72,8 +72,8 @@ def display(position):
         plt.plot(exp_data['Time'], exp, color=c, marker='.', linestyle=':')
         plt.errorbar(exp_data['Time'], exp, yerr=exp_err, ecolor=c,
                      elinewidth=0.5, capsize=0)
-        plt.plot(solver.tspan, sim, color=c)
-    plt.plot(solver.tspan, sim_obs_norm[2], color='g')
+        plt.plot(tspan, sim, color=c)
+    plt.plot(tspan, sim_obs_norm[2], color='g')
     plt.vlines(momp_data[0], -0.05, 1.05, color='g', linestyle=':')
     plt.savefig('earm_trained.png')
     plt.show()
@@ -115,7 +115,7 @@ def likelihood(position):
     momp_sim = [td, ts, yfinal]
     e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
     error = e1 + e2 + e3
-
+    print (type(error))
     return error,
 
 
@@ -125,7 +125,7 @@ def run_example():
     pso.set_start_position(xnominal)
     pso.set_bounds(2)
     pso.set_speed(-.25, .25)
-    pso.run(20, 100)
+    pso.run(25, 100)
     display(pso.best)
 
 
