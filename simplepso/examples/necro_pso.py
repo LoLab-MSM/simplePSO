@@ -34,7 +34,7 @@ def extract_records(recarray, names):
     return np.vstack([recarray[name] for name in names]).T
 
 t = np.linspace(0, 720, 13)
-solver = Solver(model, t, integrator='lsoda', rtol=1e-10, atol=1e-10)
+solver = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
 solver.run()
 
 # Creating ideal data
