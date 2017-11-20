@@ -98,7 +98,7 @@ def display(parameter_1,parameter_2):
     # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
     # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
     # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    plt.plot(t, norm_noisy_data_A, label='Noisy Mlklp')
+    plt.plot(t, ydata_norm, label='Noisy Mlklp')
     # plt.plot(t, norm_noisy_data_C, label='Noisy C')
     plt.plot(t, ysim_norm_2[:, 0], 'o', label='Best fit Mlklp')
     # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
