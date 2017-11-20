@@ -12,11 +12,13 @@ except ImportError:
 import numpy as np
 from necro import model
 from pysb.integrate import Solver
+import scipy.interpolate
 
 from simplepso.pso import PSO
 
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
+mlkl_obs = 'MLKLa_obs'
 
 
 # Defining a few helper functions to use
@@ -31,7 +33,7 @@ def extract_records(recarray, names):
     """Convert a record-type array and list of names into a float array"""
     return np.vstack([recarray[name] for name in names]).T
 
-t = np.linspace(0, 1200, 120)
+t = np.linspace(0, 720, 13)
 solver = Solver(model, t, integrator='lsoda', rtol=1e-10, atol=1e-10)
 solver.run()
 
@@ -39,9 +41,15 @@ solver.run()
 ysim_array = extract_records(solver.yobs, obs_names)
 norm_data = normalize(ysim_array)
 
-noisy_data_A = ysim_array[:, 0]
-norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
-ydata_norm = norm_noisy_data_A
+x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+y = np.array([0., 0., 0., 0., 0., 0.5, 1., 1., 1., 1., 1., 1., 1.])
+
+mlkl_obs_total = model.parameters['MLKLa_0'].value
+mlkl_data = np.array([9810.0, 180.0, mlkl_obs_total])
+
+# noisy_data_A = ysim_array[:, 0]
+# norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
+ydata_norm = y
 
 # np.random.seed(0)
 
@@ -111,8 +119,20 @@ def obj_function(params):
     solver.run(param_values)
     ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm = normalize(ysim_array)
-    err = np.sum((ydata_norm - ysim_norm) ** 2)
-    return err,
+    mlkl_var = np.var(y)
+    e1 = np.sum((ydata_norm - ysim_norm) ** 2 / (mlkl_var))
+
+    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
+    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
+    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
+    td = (t10 + t90) / 2
+    ts = t90 - t10
+    yfinal = ysim_array[-1]
+    mlkl_sim = [td, ts, yfinal]
+    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
+
+    error = e1 + e2
+    return error,
 
 
 def run_example():

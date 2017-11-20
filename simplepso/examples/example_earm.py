@@ -79,7 +79,6 @@ def display(position):
     plt.show()
 
 
-
 def likelihood(position):
     Y = np.copy(position)
     param_values[rate_mask] = 10 ** Y
