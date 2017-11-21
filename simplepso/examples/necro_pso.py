@@ -71,7 +71,7 @@ original_values = np.array([p.value for p in model.parameters])
 log10_original_values = np.log10(original_values[rate_mask])
 
 # We will use a best guess starting position for the model, up or down 1 order of magnitude
-start_position = log10_original_values + np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values)) #[-1.5, 1.3,
+start_position = log10_original_values + np.random.uniform(-3., 3., size=np.shape(log10_original_values)) #[-1.5, 1.3,
                                           #-.75]  # np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values))
 
 # Defining some functions to help plot the output of the parameters
@@ -139,11 +139,11 @@ def run_example():
     # print('run_example')
     # Here we initial the class
     # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function, start=start_position, verbose=True)
+    optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
-    optimizer.set_speed(speed_min=-.5, speed_max=.5)
-    optimizer.run(num_particles=25, num_iterations=10000)
+    optimizer.set_speed(speed_min=-.25, speed_max=.25)
+    optimizer.run(num_particles=50, num_iterations=100)
     print('whatever')
     if plot:
         display(start_position, optimizer.best)
