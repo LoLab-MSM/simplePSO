@@ -122,17 +122,17 @@ def obj_function(params):
     mlkl_var = np.var(y)
     e1 = np.sum((ydata_norm - ysim_norm) ** 2 / (mlkl_var))
 
-    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
-    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
-    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
-    td = (t10 + t90) / 2
-    ts = t90 - t10
-    yfinal = ysim_array[-1]
-    mlkl_sim = [td, ts, yfinal]
-    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
+#    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
+#    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
+#    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
+#    td = (t10 + t90) / 2
+#    ts = t90 - t10
+#    yfinal = ysim_array[-1]
+#    mlkl_sim = [td, ts, yfinal]
+#    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
 
-    error = e1 + e2
-    return error,
+#    error = e1 + e2
+    return e1,
 
 
 def run_example():
