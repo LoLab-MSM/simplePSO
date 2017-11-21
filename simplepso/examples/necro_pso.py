@@ -144,35 +144,35 @@ def run_example():
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
     optimizer.run(num_particles=50, num_iterations=100)
-    print('whatever')
-    if plot:
-        display(start_position, optimizer.best)
-
-        print("Original values {0}".format(log10_original_values ** 10))
-        print("Starting values {0}".format(start_position ** 10))
-        print("Best PSO values {0}".format(optimizer.best ** 10))
-        fig = plt.figure()
-        fig.add_subplot(221)
-        plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
-        plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
-        plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
-
-        fig.add_subplot(223)
-        plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
-        plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
-        plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-
-        fig.add_subplot(222)
-        plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
-        plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
-        plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-
-        fig.add_subplot(224)
-        plt.legend(loc=0)
-        plt.colorbar()
-        plt.tight_layout()
-        plt.savefig('population_necro.png')
-        plt.show()
+    # print('whatever')
+    # if plot:
+    #     display(start_position, optimizer.best)
+    #
+    #     print("Original values {0}".format(log10_original_values ** 10))
+    #     print("Starting values {0}".format(start_position ** 10))
+    #     print("Best PSO values {0}".format(optimizer.best ** 10))
+    #     fig = plt.figure()
+    #     fig.add_subplot(221)
+    #     plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
+    #     plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
+    #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
+    #
+    #     fig.add_subplot(223)
+    #     plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
+    #     plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
+    #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+    #
+    #     fig.add_subplot(222)
+    #     plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
+    #     plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
+    #     plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+    #
+    #     fig.add_subplot(224)
+    #     plt.legend(loc=0)
+    #     plt.colorbar()
+    #     plt.tight_layout()
+    #     plt.savefig('population_necro.png')
+    #     plt.show()
 
 
 if '__main__' == __name__:
