@@ -4,7 +4,7 @@ try:
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
-    plot = True
+    # plot = True
 except ImportError:
     plot = False
     pass
