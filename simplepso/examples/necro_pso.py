@@ -143,7 +143,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
+    optimizer.run(num_particles=50, num_iterations=1000)
     # print('whatever')
     # if plot:
     #     display(start_position, optimizer.best)
