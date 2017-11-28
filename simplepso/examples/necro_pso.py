@@ -75,22 +75,22 @@ start_position = log10_original_values + np.random.uniform(-3., 3., size=np.shap
                                           #-.75]  # np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values))
 
 # Defining some functions to help plot the output of the parameters
-def display(parameter_1,parameter_2):
-    Y = np.copy(parameter_1)
-    param_values[rate_mask] = 10 ** Y
-    solver.run(param_values)
-    ysim_array_1 = extract_records(solver.yobs, obs_names)
-    ysim_norm_1 = normalize(ysim_array_1)
+def display(parameter_2):
+    # Y = np.copy(parameter_1)
+    # param_values[rate_mask] = 10 ** Y
+    # solver.run(param_values)
+    # ysim_array_1 = extract_records(solver.yobs, obs_names)
+    # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
     solver.run(param_values)
-    ysim_array_2 = extract_records(solver.yobs, obs_names)
+    ysim_array_2 = solver.yobs['MLKLa_obs']
     ysim_norm_2 = normalize(ysim_array_2)
 
-    param_values[rate_mask] = 10 ** log10_original_values
-    solver.run(param_values)
-    ysim_array_3 = extract_records(solver.yobs, obs_names)
-    ysim_norm_3 = normalize(ysim_array_3)
+    # param_values[rate_mask] = 10 ** log10_original_values
+    # solver.run(param_values)
+    # ysim_array_3 = solver.yobs['MLKLa_obs']
+    # ysim_norm_3 = normalize(ysim_array_3)
 
     plt.figure()
     plt.subplot(111)
@@ -100,7 +100,7 @@ def display(parameter_1,parameter_2):
     # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
     plt.plot(t, ydata_norm, label='Noisy Mlklp')
     # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    plt.plot(t, ysim_norm_2[:, 0], 'o', label='Best fit Mlklp')
+    plt.plot(t, ysim_norm_2, 'o', label='Best fit Mlklp')
     # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
     plt.legend(loc=0)
     plt.ylabel('molecules/cell')
@@ -117,7 +117,8 @@ def obj_function(params):
     params_tmp = np.copy(params)
     param_values[rate_mask] = 10 ** params_tmp
     solver.run(param_values)
-    ysim_array = extract_records(solver.yobs, obs_names)
+    ysim_array = solver.yobs['MLKLa_obs']
+    # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm = normalize(ysim_array)
     mlkl_var = np.var(y)
     mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])	
@@ -140,14 +141,14 @@ def run_example():
     # print('run_example')
     # Here we initial the class
     # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
+    optimizer = PSO(cost_function=obj_function, start=start_position, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=25, num_iterations=500)
+    optimizer.run(num_particles=25, num_iterations=100)
     # print('whatever')
     if plot:
-	 display(start_position, optimizer.best)
+	 display(optimizer.best)
     #
     #     print("Original values {0}".format(log10_original_values ** 10))
     #     print("Starting values {0}".format(start_position ** 10))
