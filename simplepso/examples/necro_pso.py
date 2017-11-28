@@ -4,7 +4,7 @@ try:
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
-    # plot = True
+    plot = True
 except ImportError:
     plot = False
     pass
@@ -106,7 +106,7 @@ def display(parameter_1,parameter_2):
     plt.ylabel('molecules/cell')
     plt.xlabel('time (min)')
     plt.tight_layout()
-    plt.savefig('necroptosis.png')
+    plt.savefig('necroptosis.png', format = 'png')
     plt.show()
     plt.close()
 
@@ -146,8 +146,8 @@ def run_example():
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
     optimizer.run(num_particles=25, num_iterations=500)
     # print('whatever')
-    # if plot:
-    #     display(start_position, optimizer.best)
+    if plot:
+	 display(start_position, optimizer.best)
     #
     #     print("Original values {0}".format(log10_original_values ** 10))
     #     print("Starting values {0}".format(start_position ** 10))
