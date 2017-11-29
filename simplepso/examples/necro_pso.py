@@ -10,7 +10,7 @@ except ImportError:
     pass
 
 import numpy as np
-from necro import model
+from new_necro_pso import model
 from pysb.integrate import Solver
 import scipy.interpolate
 
@@ -62,6 +62,8 @@ ydata_norm = y
 # ydata_norm = prod_norm
 
 rate_params = model.parameters_rules()
+print(len(rate_params))
+quit()
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
 
