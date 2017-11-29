@@ -45,7 +45,7 @@ x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11
 y = np.array([0., 0., 0., 0., 0., 0.5, 1., 1., 1., 1., 1., 1., 1.])
 
 mlkl_obs_total = model.parameters['MLKLa_0'].value
-mlkl_data = np.array([9810.0, 180.0, mlkl_obs_total])
+mlkl_data = np.array([2000.0, 180.0, mlkl_obs_total])
 
 # noisy_data_A = ysim_array[:, 0]
 # norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
@@ -106,7 +106,7 @@ def display(parameter_2):
     plt.ylabel('molecules/cell')
     plt.xlabel('time (min)')
     plt.tight_layout()
-    plt.savefig('necroptosis.png', format = 'png')
+    plt.savefig('necroptosis_switch.png', format = 'png')
     plt.show()
     plt.close()
 
@@ -124,17 +124,17 @@ def obj_function(params):
     mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])	
     e1 = np.sum((ydata_norm - ysim_norm) ** 2 / (mlkl_v))
 
-#    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
-#    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
-#    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
-#    td = (t10 + t90) / 2
-#    ts = t90 - t10
-#    yfinal = ysim_array[-1]
-#    mlkl_sim = [td, ts, yfinal]
-#    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
+    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
+    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
+    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
+    td = (t10 + t90) / 2
+    ts = t90 - t10
+    yfinal = ysim_array[-1]
+    mlkl_sim = [td, ts, yfinal]
+    e2 = np.sum((mlkl_data - mlkl_sim) ** 2/(0.05))
 
-#    error = e1 + e2
-    return e1,
+    error = e1 + e2
+    return error,
 
 
 def run_example():
