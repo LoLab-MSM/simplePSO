@@ -62,8 +62,6 @@ ydata_norm = y
 # ydata_norm = prod_norm
 
 rate_params = model.parameters_rules()
-print(len(rate_params))
-quit()
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
 
@@ -108,7 +106,7 @@ def display(parameter_2):
     plt.ylabel('molecules/cell')
     plt.xlabel('time (min)')
     plt.tight_layout()
-    plt.savefig('necroptosis_switch.png', format = 'png')
+    plt.savefig('necroptosis_new.png', format = 'png')
     plt.show()
     plt.close()
 
@@ -147,7 +145,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=300)
+    optimizer.run(num_particles=25, num_iterations=100)
     print(optimizer.best)
     # print('whatever')
     if plot:
