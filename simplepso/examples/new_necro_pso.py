@@ -27,10 +27,10 @@ Monomer('TAK1', ['brip', 'bmapk'])
 Monomer('NEMO', ['brip', 'btak', 'bikk', 'state'], {'state': ['I', 'A']})
 Monomer('LUBAC', ['brip'])
 
-Parameter('TNF_0', 600) #698 is 30ng/ml of TNF
+Parameter('TNF_0', 2326) #698 is 30ng/ml of TNF
 Parameter('TNFR_0', 4800) #0.00246
 Parameter('TRADD_0', 9000) #
-Parameter('RIP1_0', 20000) #47000 0.04
+Parameter('RIP1_0', 40000) #47000 0.04
 Parameter('TRAF_0', 9000) # 8.3e-4
 Parameter('cIAP_0', 9000) #10000 8.3e-4
 Parameter('A20_0', 9000) #2256
@@ -38,7 +38,7 @@ Parameter('CYLD_0', 9000) #50000 # 0.004
 Parameter('FADD_0', 8030) # 0.0033
 Parameter('flip_L_0', 3900) # 0.004 # 0.09
 Parameter('Lubac_0', 7226)
-Parameter('C8_0', 16000) #10000 # 0.033 # 0.093 # 0.0107
+Parameter('C8_0', 9000) #10000 # 0.033 # 0.093 # 0.0107
 Parameter('RIP3_0', 40000) #20000
 Parameter('NEMO_0', 24000) # 1000000
 Parameter('MLKLa_0', 4800) # 100000 #0.0034
@@ -63,7 +63,7 @@ Initial(MLKL(bRHIM=None, state='unmod'), MLKLa_0)
 #COMPLEX I FORMATION AND RELEASE OF RIP1(K63)
 Parameter('bind_TNF_TNFR_kf', 1e-6)
 Parameter('bind_TNF_TNFR_kr',1e-3)
-Parameter('TNF_deg1', 0.01)
+Parameter('TNF_deg1', 0.001)
 Parameter('bind_TNFRANY_TRADD_kf', 1e-6)
 Parameter('bind_TNFRANY_TRADD_kr',1e-3)
 Parameter('bind_TNFRANY_RIP1unmod_kf', 1e-6)
@@ -139,6 +139,8 @@ Parameter('bind_FADD_proC8_2_kf', 7.27e-06)
 Parameter('bind_FADD_proC8_2_kr', 0.018)
 Parameter('bind_FADDANY_flip_L_kf',7.27e-06)
 Parameter('bind_FADDANY_flip_L_kr', 0.018)
+Parameter('bind_C8_flip_L_kf',7.27e-06)
+Parameter('bind_C8_flip_L_kr', 0.018)
 Parameter('kc_c8_1', 1e-1)
 Parameter('bind_FADDANY_RIP3_kf', 1e-6)
 Parameter('bind_FADDANY_RIP3_kr', 1e-3)
@@ -150,14 +152,15 @@ Rule('bind_TRADDANYRIP1ANY_FADD', TRADD(brec = None, brip = 3, bDD1=None, bDD2=N
      <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None), bind_TRADDANYRIP1ANY_FADD_kf, bind_TRADDANYRIP1ANY_FADD_kr)
 
 
-Rule('bind_FADD_proC8_2', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) + C8(bf=None, flip = None, state='A')
-     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = None, state='A'), bind_FADD_proC8_2_kf, bind_FADD_proC8_2_kr)
+Rule('bind_FADD_proC8_2', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) + C8(bf=None, flip = None, state='I')
+     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = None, state='I'), bind_FADD_proC8_2_kf, bind_FADD_proC8_2_kr)
 
 
-Rule('bind_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2, flip = None,state='A') + flip_L(bDED=None, state = 'A')
-     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_FADDANY_flip_L_kf, bind_FADDANY_flip_L_kr)
+Rule('bind_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2, flip = None,state='I') + flip_L(bDED=None, state = 'A')
+     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A'), bind_FADDANY_flip_L_kf, bind_FADDANY_flip_L_kr)
 
-
+Rule('activate_C8', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A')
+     >> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf, bind_C8_flip_L_kr)
 
 #@TODO ADDED THESE REACTION
 Rule('catalyze_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=2,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = None, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A') >>
@@ -184,9 +187,9 @@ Rule('C8_activation2', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1
 
 Parameter('bind_RIP1_RIP3po4_kf', 1e-2)
 Parameter('RIP1po4_RIP3po4_kf', 1e-2)
-Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kf', 1e-6)
-Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kr', 1e-3)
-Parameter('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc', 0.01)
+Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kf', 1e-3)
+Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kr', 1e-6)
+Parameter('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc', 1)
 
 Rule('bind_FADDANYANYflip_LANYproC8ANY_RIP1unmod', RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'deub')% RIP3(bRHIM=5, bDD = None, state='unmod')
      >> RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'deub')% RIP3(bRHIM=5, bDD = None, state='po4'), bind_RIP1_RIP3po4_kf)
@@ -195,9 +198,9 @@ Rule('Rip1_PO4lation', RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, 
      >> RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4'), RIP1po4_RIP3po4_kf)
 
 Rule('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod', RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') + MLKL(bRHIM=None, state='unmod')
-     <> RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = 1, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') % MLKL(bRHIM=1, state='unmod'), bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kf,bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kr)
+     <> RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = 1, state='po4') % MLKL(bRHIM=1, state='unmod'), bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kf,bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kr)
 
-Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = 1, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') % MLKL(bRHIM=1, state='unmod')
+Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = 1, state='po4') % MLKL(bRHIM=1, state='unmod')
      >>  MLKL(bRHIM=None, state='active') + RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') , catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc)
 
 
@@ -222,3 +225,57 @@ Observable('A20_obs', A20(brip = None))
 Observable('C8i_obs', C8(state = 'I'))
 Observable('C8a_obs', C8(state = 'A'))
 Observable('flip_obs', flip_L())
+
+# Parameter('TNF_0', 2326) #698 is 30ng/ml of TNF
+# Parameter('TNFR_0', 4800) #0.00246
+# Parameter('TRADD_0', 9000) #
+# Parameter('RIP1_0', 40000) #47000 0.04
+# Parameter('TRAF_0', 9000) # 8.3e-4
+# Parameter('cIAP_0', 9000) #10000 8.3e-4
+# Parameter('A20_0', 9000) #2256
+# Parameter('CYLD_0', 9000) #50000 # 0.004
+# Parameter('FADD_0', 8030) # 0.0033
+# Parameter('flip_L_0', 3900) # 0.004 # 0.09
+# Parameter('Lubac_0', 7226)
+# Parameter('C8_0', 9000) #10000 # 0.033 # 0.093 # 0.0107
+# Parameter('RIP3_0', 40000) #20000
+# Parameter('NEMO_0', 24000) # 1000000
+# Parameter('MLKLa_0', 4800) # 100000 #0.0034
+
+# print(len(model.parameters))
+# print(len(model.parameters_rules()))
+# print(model.parameters)
+# print(model.parameters_rules())
+# quit()
+# #2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 4800,
+# params = np.array([
+#             -5.35958193, -2.44645455, -3.67496492, -4.03363007, -0.12770523, -5.75531172,
+#            -3.82257372, -3.88933494, -0.29141231, -5.50417801, -2.76435863, -1.71358552,
+#            -5.64657099, -1.29242888, -3.94131499, -1.73861215,  2.        , -6.3967278 ,
+#            -2.51372906,  0.9961207 , -2.30724548, -4.17312932, -5.22992234, -0.55118456,
+#            -4.65935054, -3.21356214, -1.33307069, -3.31128076, -1.02698157, -1.88445244,
+#            -1.87678634, -1.89851486, -3.        , -3.58667063, -0.09375467])
+# pars = np.array([2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 4800,
+#                    4.36936243e-06,   3.57721835e-03,   2.11365976e-0,   9.25486163e-05,
+#                    7.45237620e-01 ,  1.75666230e-06 ,  1.50461809e-04,  1.29022383e-04 ,
+#                    5.11196286e-01 ,  3.13200171e-06 ,  1.72044728e-03,  1.93381302e-02 ,
+#                    2.25646712e-06 ,  5.10001108e-02 ,  1.14468241e-04,  1.82552527e-02 ,
+#                    1.00000000e+02 ,  4.01118045e-07 ,  3.06387427e-03,  9.91107357e+00 ,
+#                    4.92895122e-03 ,  6.71228951e-05 ,  5.88948961e-06,  2.81070612e-01 ,
+#                    2.19103573e-05 ,  6.11558293e-04 ,  4.64439672e-02,  4.88336560e-04 ,
+#                    9.39763190e-02 ,  1.30481085e-02 ,  1.32804766e-02,  1.26323788e-02 ,
+#                    1.00000000e-03 ,  2.59017657e-04 ,  8.05833523e-01])
+#
+#
+tspan = np.linspace(0, 720, 721)
+sim4 =ScipyOdeSimulator(model, tspan=tspan)
+L4 = sim4.run()
+
+plt.figure()
+plt.plot(tspan/60, L4.observables['MLKL_obs'],label = 'MLKL100s')
+plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLa100s')
+# plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("Concentration uM", fontsize=15)
+plt.legend(loc = 0)
+plt.show()
