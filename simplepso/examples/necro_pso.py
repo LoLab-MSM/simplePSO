@@ -86,7 +86,7 @@ def display(parameter_2):
     solver.run(param_values)
     ysim_array_2 = solver.yobs['MLKLa_obs']
     ysim_norm_2 = normalize(ysim_array_2)
-
+      
     # param_values[rate_mask] = 10 ** log10_original_values
     # solver.run(param_values)
     # ysim_array_3 = solver.yobs['MLKLa_obs']
@@ -124,17 +124,17 @@ def obj_function(params):
     mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])	
     e1 = np.sum((ydata_norm - ysim_norm) ** 2 / (mlkl_v))
 
-    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
-    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
-    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
-    td = (t10 + t90) / 2
-    ts = t90 - t10
-    yfinal = ysim_array[-1]
-    mlkl_sim = [td, ts, yfinal]
-    e2 = np.sum((mlkl_data - mlkl_sim) ** 2/(0.05))
+#    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
+#    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
+#    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
+#    td = (t10 + t90) / 2
+#    ts = t90 - t10
+#    yfinal = ysim_array[-1]
+#    mlkl_sim = [td, ts, yfinal]
+#    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
 
-    error = e1 + e2
-    return error,
+#    error = e1 + e2
+    return e1,
 
 
 def run_example():
@@ -145,7 +145,8 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
+    optimizer.run(num_particles=50, num_iterations=300)
+    print(optimizer.best)
     # print('whatever')
     if plot:
 	 display(optimizer.best)
