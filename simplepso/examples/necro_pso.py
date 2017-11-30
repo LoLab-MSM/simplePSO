@@ -10,7 +10,7 @@ except ImportError:
     pass
 
 import numpy as np
-from new_necro_pso import model
+from correct_necro_molecules import model
 from pysb.integrate import Solver
 import scipy.interpolate
 
@@ -42,7 +42,7 @@ ysim_array = extract_records(solver.yobs, obs_names)
 norm_data = normalize(ysim_array)
 
 x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-y = np.array([0., 0., 0., 0., 0., 0.5, 1., 1., 1., 1., 1., 1., 1.])
+y = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
 
 mlkl_obs_total = model.parameters['MLKLa_0'].value
 mlkl_data = np.array([2000.0, 180.0, mlkl_obs_total])
@@ -145,7 +145,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
+    optimizer.run(num_particles=25, num_iterations=100)
     print(optimizer.best)
     # print('whatever')
     if plot:
