@@ -106,7 +106,7 @@ def display(parameter_2):
     plt.ylabel('molecules/cell')
     plt.xlabel('time (min)')
     plt.tight_layout()
-    plt.savefig('necroptosis__new.png', format = 'png')
+    plt.savefig('necroptosis_30_new.png', format = 'png')
     plt.show()
     plt.close()
 
@@ -145,7 +145,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=25, num_iterations=100)
+    optimizer.run(num_particles=50, num_iterations=100)
     print(optimizer.best)
     # print('whatever')
     if plot:
