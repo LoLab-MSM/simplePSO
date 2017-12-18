@@ -3,10 +3,10 @@ from pysb.bng import *
 from pysb.integrate import *
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.backends.backend_pdf import PdfPages
+# from matplotlib.backends.backend_pdf import PdfPages
 # from QQSB.numtools import simulatortools as st
 from pysb.util import alias_model_components
-from correct_necro_molecules import model
+from new_necro_pso import model
 
 
 # pars = np.array([2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 4800,
@@ -23,10 +23,11 @@ from correct_necro_molecules import model
 
 model.enable_synth_deg()
 # print(len((model.parameters)))
+# print(len(pars))
 # print(pars.shape)
 # quit()
 
-tspan = np.linspace(0, 1440, 1441)
+tspan = np.linspace(0, 720, 721)
 sim1 = ScipyOdeSimulator(model, tspan=tspan)
 # sim2 = ScipyOdeSimulator(model, tspan=tspan)
 L4 = sim1.run()
@@ -78,43 +79,21 @@ plt.subplot(234)
 # plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
 # plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
 # plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLa10d')
-plt.plot(tspan/60, L4.observables['CIIa_obs'],label = 'CIIa')
-# plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLa100s')
-# plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
-plt.xlabel("Time (in hr)", fontsize=15)
-plt.ylabel("Molecules/Cell", fontsize=15)
-plt.legend(loc = 0)
-
-plt.subplot(235)
-# plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
-# plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
-# plt.plot(tspan/60, L3.observables['MLKLa_obs'],label = 'MLKLa10d')
-plt.plot(tspan/60, L4.observables['RIP13po4_obs'],label = 'RIP13po4_obs')
-# plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLa100s')
-# plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
-plt.xlabel("Time (in hr)", fontsize=15)
-plt.ylabel("Molecules/Cell", fontsize=15)
-plt.legend(loc = 0)
-
-plt.subplot(236)
-# plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
-# plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
-# plt.plot(tspan/60, L3.observables['MLKLa_obs'],label = 'MLKLa10d')
-plt.plot(tspan/60, L4.observables['MLKL_obs'],label = 'MLKL100s')
+# plt.plot(tspan/60, L4.observables['CIIa_obs'],label = 'CIIa')
 plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLa100s')
-# plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
+# # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
 plt.ylabel("Molecules/Cell", fontsize=15)
 plt.legend(loc = 0)
-
+#
 plt.tight_layout()
 plt.show()
-
+#
 # plt.figure()
-# plt.plot(tspan/60, L5.observables['MLKLa_obs'],color = 'black',label = 'MLKLp')
-# plt.plot(tspan/60, L4.observables['MLKLa_obs'],color = 'black',label = 'MLKLp_cal')
-# plt.plot(tspan/60, L5.observables['MLKL_obs'],color = 'red',label = 'MLKL')
-# plt.plot(tspan/60, L4.observables['MLKL_obs'],color = 'red',label = 'MLKL_cal')
+# plt.plot(tspan/60, L4.observables['MLKLa_obs'],color = 'black',label = 'MLKLp')
+# plt.plot(tspan/60, L5.observables['MLKLa_obs'],color = 'black',label = 'MLKLp_cal')
+# plt.plot(tspan/60, L4.observables['MLKL_obs'],color = 'red',label = 'MLKL')
+# plt.plot(tspan/60, L5.observables['MLKL_obs'],color = 'red',label = 'MLKL_cal')
 # # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 # plt.xlabel("Time (in hr)", fontsize=15)
 # plt.ylabel("Molecules/Cell", fontsize=15)
