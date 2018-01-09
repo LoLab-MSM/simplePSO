@@ -42,7 +42,7 @@ Parameter('Lubac_0', 7226)
 Parameter('C8_0', 9000) #10000 # 0.033 # 0.093 # 0.0107
 Parameter('RIP3_0', 40000) #20000
 Parameter('NEMO_0', 24000) # 1000000
-Parameter('MLKLa_0', 4800) # 100000 #0.0034
+Parameter('MLKLa_0', 10000) # 100000 #0.0034
 
 Initial(TNF(brec=None), TNF_0)
 Initial(TNFR(blig=None, brip=None, bDD = None), TNFR_0)
@@ -136,11 +136,11 @@ Rule('A20_1', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec = 2, brip = 3, b
 #Initiating Necroptosis
 Parameter('bind_TRADDANYRIP1ANY_FADD_kf', 1e-1)
 Parameter('bind_TRADDANYRIP1ANY_FADD_kr', 3.11e-7)
-Parameter('bind_FADD_proC8_2_kf', 7.27e-06)
+Parameter('bind_FADD_proC8_2_kf', 3.27e-06)
 Parameter('bind_FADD_proC8_2_kr', 0.018)
-Parameter('bind_FADDANY_flip_L_kf',7.27e-06)
+Parameter('bind_FADDANY_flip_L_kf',3.27e-06)
 Parameter('bind_FADDANY_flip_L_kr', 0.018)
-Parameter('bind_C8_flip_L_kf',7.27e-2)
+Parameter('bind_C8_flip_L_kf',3.27e-2)
 Parameter('bind_C8_flip_L_kr', 0.018)
 Parameter('kc_c8_1', 1e-1)
 Parameter('bind_FADDANY_RIP3_kf', 1e-6)
@@ -187,7 +187,7 @@ Rule('C8_activation2', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1
 
 
 Parameter('bind_RIP1_RIP3po4_kf', 1e-2)
-Parameter('RIP1po4_RIP3po4_kf', 1e-2)
+Parameter('RIP1po4_RIP3po4_kf', 1e-3)
 Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kf', 1e-3)
 Parameter('bind_RIP1po4_MLKLunmod_to_RIP1po4MLKLunmod_kr', 1e-6)
 Parameter('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc', 1)
