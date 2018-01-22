@@ -34,24 +34,51 @@ def extract_records(recarray, names):
     return np.vstack([recarray[name] for name in names]).T
 
 t = np.linspace(0, 720, 13)
-solver = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-solver.run()
+solver1 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
+solver2 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
+solver3 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
+solver4 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
+solver5 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
+
+solver1.run()
+solver2.run()
+solver3.run()
+solver4.run()
+solver5.run()
 
 # Creating ideal data
-ysim_array = extract_records(solver.yobs, obs_names)
+ysim_array = extract_records(solver1.yobs, obs_names)
 norm_data = normalize(ysim_array)
 
 
-#make an array for
-x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-y = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+#make an array for each of the kd made up data for mlklp
+wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+wty = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+
+#A20 data
+a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+a20y = np.array([0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
+
+#Tradd data
+tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+tdy = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+
+#Fadd Data
+fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+fdy = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+
+#C8 Data
+c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+c8y = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+
+
 
 mlkl_obs_total = model.parameters['MLKLa_0'].value
 mlkl_data = np.array([2000.0, 180.0, mlkl_obs_total])
 
 # noisy_data_A = ysim_array[:, 0]
 # norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
-ydata_norm = y
+ydata_norm = wty
 
 # np.random.seed(0)
 
@@ -65,6 +92,7 @@ ydata_norm = y
 
 rate_params = model.parameters_rules()
 param_values = np.array([p.value for p in model.parameters])
+
 rate_mask = np.array([p in rate_params for p in model.parameters])
 
 original_values = np.array([p.value for p in model.parameters])
@@ -118,26 +146,52 @@ def display(parameter_2):
 def obj_function(params):
     params_tmp = np.copy(params)
     param_values[rate_mask] = 10 ** params_tmp #don't need to change
+    #make a new parameter value set for each of the KD
+    a20_params = np.copy(param_values)
+    a20_params[6] = 2700
+    tradd_params = np.copy(param_values)
+    tradd_params[2] = 2700
+    fadd_params = np.copy(param_values)
+    fadd_params[8] = 2424
+    c8_params = np.copy(param_values)
+    c8_params[11] = 2700
 
-    solver.run(param_values)
-    ysim_array = solver.yobs['MLKLa_obs']
+    solver1.run(param_values)
+    solver2.run(a20_params)
+    solver3.run(tradd_params)
+    solver4.run(fadd_params)
+    solver5.run(c8_params)
+
+    # list = [y1, y2, y3, y4, y5]
+    # for i in list:
+    ysim_array1 = solver1.yobs['MLKLa_obs']
+    ysim_array2 = solver2.yobs['MLKLa_obs']
+    ysim_array3 = solver3.yobs['MLKLa_obs']
+    ysim_array4 = solver4.yobs['MLKLa_obs']
+    ysim_array5 = solver5.yobs['MLKLa_obs']
+
     # ysim_array = extract_records(solver.yobs, obs_names)
-    ysim_norm = normalize(ysim_array)
-    mlkl_var = np.var(y)
-    mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])	
-    e1 = np.sum((ydata_norm - ysim_norm) ** 2 / (mlkl_v))
+    ysim_norm1 = normalize(ysim_array1)
+    ysim_norm2 = normalize(ysim_array2)
+    ysim_norm3 = normalize(ysim_array3)
+    ysim_norm4 = normalize(ysim_array4)
+    ysim_norm5 = normalize(ysim_array5)
 
-#    st, sc, sk = scipy.interpolate.splrep(t, ysim_norm)
-#    t10 = scipy.interpolate.sproot((st, sc - 0.10, sk))[0]
-#    t90 = scipy.interpolate.sproot((st, sc - 0.90, sk))[0]
-#    td = (t10 + t90) / 2
-#    ts = t90 - t10
-#    yfinal = ysim_array[-1]
-#    mlkl_sim = [td, ts, yfinal]
-#    e2 = np.sum((mlkl_data - mlkl_sim) ** 2)
+    # mlkl_var = np.var(y)
+    mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
-#    error = e1 + e2
-    return e1,
+    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_v))
+    e2 = np.sum((a20y - ysim_norm2) ** 2 )
+    e3 = np.sum((tdy - ysim_norm3) ** 2 )
+    e4 = np.sum((fdy - ysim_norm4) ** 2 )
+    e5 = np.sum((c8y - ysim_norm5) ** 2 )
+
+    error = e1 + e2 + e3 + e4 + e5
+    return error,
 
 
 def run_example():
@@ -148,7 +202,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
+    optimizer.run(num_particles=25, num_iterations=100)
     print(optimizer.best)
     # print('whatever')
     if plot:

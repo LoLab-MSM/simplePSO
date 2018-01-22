@@ -9,6 +9,25 @@ from pysb.util import alias_model_components
 from correct_necro_molecules import model
 
 
+# pars = np.array([-5.46774398, -2.60184267, -3.12073463, -4.31653794, -2.23669114, -5.28107178,
+#                  -3.79688244, -4.27828926, -1.95684989, -6.52415156, -4.03994837, -0.7192964 ,
+#                  -5.96853617, -3.77692131, -6.34104252, -3.69201844, -1.49511334, -4.20121292,
+#                  -2.63041475, -1.24124118, -0.58964676, -7.3424675 , -6.16308612, -2.64858185,
+#                  -5.35010387, -1.36125674, -2.21808402, -1.99465669, -0.79578398, -4.69971761,
+#                  -2.99007416, -1.75841718, -1.90863638, -2.03532575, -3.99256982, -6.20617955,
+#                   0.24089193])
+
+pars = np.array([  2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 10000,
+                    3.40608922e-06,   2.50125132e-03,   7.57295489e-04,   4.82460830e-05,
+                   5.79840919e-03,   5.23513903e-06,   1.59631120e-04,   5.26878819e-05,
+                   1.10446030e-02,   2.99122058e-07,   9.12119268e-05,   1.90855025e-01,
+                   1.07513705e-06,   1.67139343e-04,   4.55992269e-07,   2.03227072e-04,
+                   3.19806039e-02,   6.29197633e-05,   2.34199115e-03,   5.73797722e-02,
+                   2.57248730e-01,   4.54498548e-08,   6.86932209e-07,   2.24604343e-05,
+                   4.46576772e-06,   4.35254490e-03,   6.05223775e-03,   3.01237942e-02,
+                   1.60035385e-01,   1.99656011e-02,   1.02311827e-03,   1.74414593e-02,
+                   1.23413770e-02,   9.21879696e-03,   1.01725581e-04,   6.22043061e-07,
+                   1.74137350e+00, 1.0])
 
 # pars = np.array([2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 4800,
 #           2.26216506e-06,  5.03882772e-04,   1.71088800e-03,   9.25954827e-07,
@@ -69,15 +88,15 @@ from correct_necro_molecules import model
 
 
 model.enable_synth_deg()
-print(len((model.parameters_rules())))
+# print(len((model.parameters)))
 # print(len(pars))
-# print(pars.shape)
+# # print(pars.shape)
 # quit()
 
-tspan = np.linspace(0, 720, 721)
-# sim1 = ScipyOdeSimulator(model, tspan=tspan)
+tspan = np.linspace(0, 1200, 1201)
+sim1 = ScipyOdeSimulator(model, tspan=tspan)
 sim2 = ScipyOdeSimulator(model, tspan=tspan)
-# L4 = sim1.run(param_values=pars)
+L4 = sim1.run(param_values=pars)
 L3 = sim2.run()
 # sim_df = L3.dataframe
 
@@ -92,7 +111,7 @@ plt.subplot(231)
 # # plt.plot(tspan/60, L1.observables['TNF_obs'],label = 'TNF.1')
 # # plt.plot(tspan/60, L2.observables['TNF_obs'],label = 'TNF1')
 plt.plot(tspan/60, L3.observables['TNF_obs'],label = 'TNF')
-# plt.plot(tspan/60, L4.observables['TNF_obs'],label = 'TNFcal')
+plt.plot(tspan/60, L4.observables['TNF_obs'],label = 'TNFcal')
 #
 # plt.plot(tspan/60, simulation_result.observables['TNF_obs'], color = 'r', label = 'TNF_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
@@ -106,7 +125,7 @@ plt.subplot(232)
 # # plt.plot(tspan/60, L1.observables['CI_k63_obs'],label = 'CI_k63.1')
 # # plt.plot(tspan/60, L2.observables['CI_k63_obs'],label = 'CI_k631')
 plt.plot(tspan/60, L3.observables['CI_k63_obs'],label = 'CI_k63')
-# plt.plot(tspan/60, L4.observables['CI_k63_obs'],label = 'CI_k63cal')
+plt.plot(tspan/60, L4.observables['CI_k63_obs'],label = 'CI_k63cal')
 # plt.plot(tspan/60, simulation_result.observables['CI_k63_obs'],label = 'CI_k63')
 # plt.plot(tspan/60, simulation_result.observables['CI_k63_obs'],label = 'CI_k63')
 # plt.plot(tspan/60, simulation_result.observables['TNFR_obs'], color = 'r', label = 'TNFR_mat')
@@ -118,9 +137,9 @@ plt.legend(loc=0)
 # # plt.figure()
 plt.subplot(233)
 # plt.plot(tspan/60, L1.observables['RIP13po4_obs'],label = 'RIP13po4.1')
-plt.plot(tspan/60, L3.observables['RIP13po4_obs'],label = 'RIP13po4_obs')
+# plt.plot(tspan/60, L3.observables['RIP13po4_obs'],label = 'RIP13po4_obs')
 plt.plot(tspan/60, L3.observables['RIP13_obs'],label = 'RIP13')
-# plt.plot(tspan/60, L4.observables['RIP13_obs'],label = 'RIP13cal')
+plt.plot(tspan/60, L4.observables['RIP13_obs'],label = 'RIP13cal')
 
 # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
@@ -129,10 +148,10 @@ plt.ylabel("Molecules/Cell", fontsize=15)
 plt.legend(loc=0)
 
 plt.subplot(234)
-# plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
-# plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
-plt.plot(tspan/60, L3.observables['MLKLa_obs'],label = 'MLKLp')
-# plt.plot(tspan/60, L4.observables['CIIa_obs'],label = 'CIIa')
+# plt.plot(tspan/60, L3.observables['RIP1deub_obs'],label = 'RIP1deub_obs')
+# plt.plot(tspan/60, L3.observables['RIP1k63_obs'],label = 'RIP1k63_obs')
+plt.plot(tspan/60, L3.observables['CI'],label = 'CI')
+plt.plot(tspan/60, L4.observables['CI'],label = 'CIcal')
 # plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLpcal')
 # # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
@@ -142,8 +161,8 @@ plt.legend(loc = 0)
 plt.subplot(235)
 # plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
 # plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
-plt.plot(tspan/60, L3.observables['C8a_obs'],label = 'C8a_obs')
-# plt.plot(tspan/60, L4.observables['CIIa_obs'],label = 'CIIa')
+# plt.plot(tspan/60, L3.observables['C8a_obs'],label = 'C8a')
+plt.plot(tspan/60, L4.observables['C8a_obs'],label = 'C8acal')
 # plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLpcal')
 # # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
@@ -152,16 +171,72 @@ plt.legend(loc = 0)
 
 
 plt.subplot(236)
-plt.plot(tspan/60, L3.observables['RIP1deub_obs'],label = 'RIP1deub_obs')
-plt.plot(tspan/60, L3.observables['RIP1k63_obs'],label = 'RIP1k63_obs')
-plt.plot(tspan/60, L3.observables['RIP1_obs'],label = 'RIP1_obs')
+# plt.plot(tspan/60, L1.observables['MLKLa_obs'],label = 'MLKLa.1')
+# plt.plot(tspan/60, L2.observables['MLKLa_obs'],label = 'MLKLa1')
+plt.plot(tspan/60, L3.observables['MLKLa_obs'],label = 'MLKLp')
 # plt.plot(tspan/60, L4.observables['CIIa_obs'],label = 'CIIa')
+plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLpcal')
+# # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("Molecules/Cell", fontsize=15)
+plt.legend(loc = 0)
+
+
+
+plt.figure(figsize = (18,7))
+# # plt.figure()
+plt.subplot(221)
+# # plt.plot(tspan/60, L1.observables['TNF_obs'],label = 'TNF.1')
+# # plt.plot(tspan/60, L2.observables['TNF_obs'],label = 'TNF1')
+plt.plot(tspan/60, L3.observables['A20_obs'],label = 'A20')
+plt.plot(tspan/60, L4.observables['A20_obs'],label = 'A20cal')
+#
+# plt.plot(tspan/60, simulation_result.observables['TNF_obs'], color = 'r', label = 'TNF_mat')
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("Molecules/Cell", fontsize=15)
+# plt.ylim(ymin = -10, ymax =100)
+plt.legend(loc=0)
+#
+# # plt.figure()
+plt.subplot(222)
+# # plt.plot(tspan/60, simulation_result.observables['CI_k63_obs'],label = 'CI_k63')
+# # plt.plot(tspan/60, L1.observables['CI_k63_obs'],label = 'CI_k63.1')
+# # plt.plot(tspan/60, L2.observables['CI_k63_obs'],label = 'CI_k631')
+plt.plot(tspan/60, L3.observables['Fadd_obs'],label = 'Fadd')
+plt.plot(tspan/60, L4.observables['Fadd_obs'],label = 'Faddcal')
+# plt.plot(tspan/60, simulation_result.observables['CI_k63_obs'],label = 'CI_k63')
+# plt.plot(tspan/60, simulation_result.observables['CI_k63_obs'],label = 'CI_k63')
+# plt.plot(tspan/60, simulation_result.observables['TNFR_obs'], color = 'r', label = 'TNFR_mat')
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("Molecules/Cell", fontsize=15)
+# plt.ylim(ymin = -10, ymax =100)
+plt.legend(loc=0)
+# #
+# # plt.figure()
+plt.subplot(223)
+# plt.plot(tspan/60, L1.observables['RIP13po4_obs'],label = 'RIP13po4.1')
+# plt.plot(tspan/60, L3.observables['RIP13po4_obs'],label = 'RIP13po4_obs')
+plt.plot(tspan/60, L3.observables['Tradd_obs'],label = 'Tradd')
+plt.plot(tspan/60, L4.observables['Tradd_obs'],label = 'Traddcal')
+
+# plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("Molecules/Cell", fontsize=15)
+# plt.ylim(ymin = -10, ymax =100)
+plt.legend(loc=0)
+
+plt.subplot(224)
+# plt.plot(tspan/60, L3.observables['RIP1deub_obs'],label = 'RIP1deub_obs')
+# plt.plot(tspan/60, L3.observables['RIP1k63_obs'],label = 'RIP1k63_obs')
+plt.plot(tspan/60, L3.observables['C8i_obs'],label = 'C8a')
+plt.plot(tspan/60, L4.observables['C8i_obs'],label = 'C8acal')
 # plt.plot(tspan/60, L4.observables['MLKLa_obs'],label = 'MLKLpcal')
 # # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
 plt.xlabel("Time (in hr)", fontsize=15)
 plt.ylabel("Molecules/Cell", fontsize=15)
 plt.legend(loc = 0)
-#
+
+
 plt.tight_layout()
 plt.show()
 #

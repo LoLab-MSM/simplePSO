@@ -221,12 +221,20 @@ Observable('RIPk63_obs',  RIP1(bscf=None, bub1=None, state='K63ub'))
 Observable('TNFR_TRADD', TNFR(blig=None, brip=1) % TRADD(brec=1, brip=None))
 Observable('CI_k63_obs', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec = 2, brip = 3, bDD1=None, bDD2=None) %
            RIP1(bscf=3, btraf=4, bub1=None, bub2=None, bub3=None,bDD = None,bRHIM=None,bMLKL=None, state='K63ub') % TRAF(brip=4, bciap=5, bcyld =None, state='unmod') % cIAP(btraf = 5))
-Observable('CI', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec=2, brip=3) % RIP1(bscf=3, btraf=4, bub1=None, bub2=None, bub3=None, state='K63ub') % TRAF(brip=4, bciap=5, state='unmod') % cIAP(btraf = 5))
-Observable('A20_obs', A20(brip = None))
+Observable('CI', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec = 2, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=4, bub1=None, bub2=None, bub3=None,bDD = None,bRHIM=None,bMLKL=None, state='unmod')
+           % TRAF(brip=4, bciap=5, bcyld = None, state='unmod') % cIAP(btraf = 5))
+# Observable('A20_obs', A20(brip = None))
 Observable('C8i_obs', C8(state = 'I'))
 Observable('C8a_obs', C8(state = 'A'))
 Observable('flip_obs', flip_L(state = 'A'))
 
+
+Observable('A20_obs', A20(brip = None))
+Observable('Fadd_obs', FADD(bDD=None, bDED1=None, bDED2=None))
+Observable('Tradd_obs', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
+
+
+# print(model.parameters_rules())
 
 
 # Model()
