@@ -11,8 +11,9 @@ except ImportError:
 
 import numpy as np
 from correct_necro_molecules import model
-from pysb.integrate import Solver
+# from pysb.integrate import Solver
 import scipy.interpolate
+from pysb.integrate import *
 
 from simplepso.pso import PSO
 
@@ -34,61 +35,34 @@ def extract_records(recarray, names):
     return np.vstack([recarray[name] for name in names]).T
 
 t = np.linspace(0, 720, 13)
-solver1 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-solver2 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-solver3 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-solver4 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-solver5 = Solver(model, t, integrator='lsoda', rtol=1e-6, atol=1e-6)
-
-solver1.run()
-solver2.run()
-solver3.run()
-solver4.run()
-solver5.run()
-
-# Creating ideal data
-ysim_array = extract_records(solver1.yobs, obs_names)
-norm_data = normalize(ysim_array)
+solver1 = ScipyOdeSimulator(model, tspan=t,rtol=1e-6, atol=1e-6)
 
 
 #make an array for each of the kd made up data for mlklp
+#switching at 6 hours
 wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 wty = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
 
-#A20 data
+#A20 data switching at 2 hours
 a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-a20y = np.array([0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
+a20y = np.array([0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1., 1.])
 
-#Tradd data
+#Tradd data switching at 5
 tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-tdy = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+tdy = np.array([0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.])
 
-#Fadd Data
+#Fadd Data switching at 3 hours
 fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-fdy = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
-#C8 Data
+#C8 Data switching at 3
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-c8y = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+c8y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 
+data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
 
-
-mlkl_obs_total = model.parameters['MLKLa_0'].value
-mlkl_data = np.array([2000.0, 180.0, mlkl_obs_total])
-
-# noisy_data_A = ysim_array[:, 0]
-# norm_noisy_data_A = normalize(noisy_data_A) + np.random.uniform(-0.1, 0.1, np.shape(ysim_array[:, 0]))
 ydata_norm = wty
 
-# np.random.seed(0)
-
-# Creating noisy data
-# prod = np.array([ 0.,   7.,  13.,  24.,  30.,  39.,  43.,  46.,  49.,  57.,  59.,  63.,  65.,  68.,  73.,
-#           77.,  79.,  82.,  83.,  85.,  88.,  88.,  88.,  88.,  90.,  90.,  91.,  91.,  91.,  91.,
-#           92.,  93.,  93.,  93.,  94.,  95.,  96.,  97.,  98.,  98.,  99.,  99.,  99.,  99.,  99.,
-#           99.,  99.,  99.,  99.,  99.,  99.])
-# prod_norm = normalize(prod)
-# ydata_norm = prod_norm
 
 rate_params = model.parameters_rules()
 param_values = np.array([p.value for p in model.parameters])
@@ -113,158 +87,63 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
-    solver.run(param_values)
-    ysim_array_2 = solver.yobs['MLKLa_obs']
-    ysim_norm_2 = normalize(ysim_array_2)
+
+    a20_params = np.copy(param_values)
+    a20_params[6] = 2700
+    tradd_params = np.copy(param_values)
+    tradd_params[2] = 2700
+    fadd_params = np.copy(param_values)
+    fadd_params[8] = 2424
+    c8_params = np.copy(param_values)
+    c8_params[11] = 2700
+    ko_pars = [param_values, a20_params, tradd_params, fadd_params, c8_params]
+
+    result = solver1.run(param_values=ko_pars)
+
+    ysim_array11 = result.observables[0]['MLKLa_obs']
+    ysim_array22 = result.observables[1]['MLKLa_obs']
+    ysim_array33 = result.observables[2]['MLKLa_obs']
+    ysim_array44 = result.observables[3]['MLKLa_obs']
+    ysim_array55 = result.observables[4]['MLKLa_obs']
+
+    # ysim_array = extract_records(solver.yobs, obs_names)
+    ysim_norm11 = normalize(ysim_array11)
+    ysim_norm22 = normalize(ysim_array22)
+    ysim_norm33 = normalize(ysim_array33)
+    ysim_norm44 = normalize(ysim_array44)
+    ysim_norm55 = normalize(ysim_array55)
+    ysim = {'wt_sim': ysim_norm11, 'a20_sim': ysim_norm22, 'td_sim': ysim_norm33, 'fd_sim': ysim_norm44, 'c8_sim': ysim_norm55}
+
+    # solver1.run(param_values)
+    # ysim_array_2 = solver.yobs['MLKLa_obs']
+    # ysim_norm_2 = normalize(ysim_array_2)
 
     # param_values[rate_mask] = 10 ** log10_original_values
     # solver.run(param_values)
     # ysim_array_3 = solver.yobs['MLKLa_obs']
     # ysim_norm_3 = normalize(ysim_array_3)
 
+    # colors = [cmap(i) for i in np.linspace(0, 1, 5)]
     plt.figure()
-    plt.subplot(111)
-    # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    plt.plot(t, ydata_norm, label='Noisy Mlklp')
-    # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    plt.plot(t, ysim_norm_2, label='Best fit Mlklp')
-    # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    plt.legend(loc=0)
-    plt.ylabel('molecules/cell')
-    plt.xlabel('time (min)')
-    plt.tight_layout()
-    plt.savefig('necroptosis_30_new.png', format='png')
+    c = ['red', 'green', 'blue', 'black', 'orange']
+    d = ['red', 'green', 'blue', 'black', 'orange']
+    # colors = ['red', 'black', 'green', 'purple', 'orange']
+    for i,j,k,l, in zip(data, ysim,c, d):
+        # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
+        # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
+        # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
+        # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
+        plt.plot(t/60, data[i], 'o',color = k,label='Noisy Mlklp{}'.format(i))
+        # plt.plot(t, norm_noisy_data_C, label='Noisy C')
+        plt.plot(t/60, ysim[j],color = l,label='Best fit Mlklp{}'.format(j) )
+        # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
+        plt.legend(loc=0)
+        plt.ylabel('molecules/cell')
+        plt.xlabel('time (min)')
+        plt.tight_layout()
+        plt.savefig('necroptosis_kds.png', format='png')
     plt.show()
     plt.close()
-
-
-
-    # param_values[rate_mask] = 10 ** Y
-
-    # a20_params = np.copy(param_values)
-    # a20_params[6] = 2700
-    # tradd_params = np.copy(param_values)
-    # tradd_params[2] = 2700
-    # fadd_params = np.copy(param_values)
-    # fadd_params[8] = 2424
-    # c8_params = np.copy(param_values)
-    # c8_params[11] = 2700
-
-    # solver1.run(param_values)
-    # # solver2.run(a20_params)
-    # # solver3.run(tradd_params)
-    # # solver4.run(fadd_params)
-    # # solver5.run(c8_params)
-    #
-    # # solver.run(param_values)
-    # ysim_array11 = solver1.yobs['MLKLa_obs']
-    # # ysim_array22 = solver2.yobs['MLKLa_obs']
-    # # ysim_array33 = solver3.yobs['MLKLa_obs']
-    # # ysim_array44 = solver4.yobs['MLKLa_obs']
-    # # ysim_array55 = solver5.yobs['MLKLa_obs']
-    #
-    # ysim_norm_11 = normalize(ysim_array_11)
-    # # ysim_norm_22 = normalize(ysim_array_22)
-    # # ysim_norm_33 = normalize(ysim_array_33)
-    # # ysim_norm_44 = normalize(ysim_array_44)
-    # # ysim_norm_55 = normalize(ysim_array_55)
-    #
-    #
-    # # ysim_array_2 = solver.yobs['MLKLa_obs']
-    # # ysim_norm_2 = normalize(ysim_array_2)
-    #
-    # # param_values[rate_mask] = 10 ** log10_original_values
-    # # solver.run(param_values)
-    # # ysim_array_3 = solver.yobs['MLKLa_obs']
-    # # ysim_norm_3 = normalize(ysim_array_3)
-    #
-    # plt.figure()
-    # # plt.subplot(111)
-    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    # plt.plot(t, wty, label='Noisy Mlklp')
-    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    # plt.plot(t, ysim_norm_11, label='Best fit Mlklp')
-    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    # plt.legend(loc=0)
-    # plt.ylabel('molecules/cell')
-    # plt.xlabel('time (min)')
-    # plt.tight_layout()
-    # plt.savefig('necroptosis_wt.png', format = 'png')
-    #
-    # plt.figure()
-    # # plt.subplot(111)
-    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    # plt.plot(t, a20y, label='Noisy Mlklp_a20')
-    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    # plt.plot(t, ysim_norm_22, label='Best fit Mlklp')
-    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    # plt.legend(loc=0)
-    # plt.ylabel('molecules/cell')
-    # plt.xlabel('time (min)')
-    # plt.tight_layout()
-    # plt.savefig('necroptosis_a20.png', format = 'png')
-    #
-    # plt.figure()
-    # # plt.subplot(111)
-    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    # plt.plot(t, tdy, label='Noisy Mlklp_td')
-    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    # plt.plot(t, ysim_norm_33, label='Best fit Mlklp')
-    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    # plt.legend(loc=0)
-    # plt.ylabel('molecules/cell')
-    # plt.xlabel('time (min)')
-    # plt.tight_layout()
-    # plt.savefig('necroptosis_td.png', format = 'png')
-    #
-    # plt.figure()
-    # # plt.subplot(111)
-    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    # plt.plot(t, fdy, label='Noisy Mlklp_fd')
-    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    # plt.plot(t, ysim_norm_44, label='Best fit Mlklp')
-    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    # plt.legend(loc=0)
-    # plt.ylabel('molecules/cell')
-    # plt.xlabel('time (min)')
-    # plt.tight_layout()
-    # plt.savefig('necroptosis_fd.png', format = 'png')
-    #
-    # plt.figure()
-    # # plt.subplot(111)
-    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    # plt.plot(t, c8y, label='Noisy Mlklp_c8')
-    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    # plt.plot(t, ysim_norm_55, label='Best fit Mlklp')
-    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    # plt.legend(loc=0)
-    # plt.ylabel('molecules/cell')
-    # plt.xlabel('time (min)')
-    # plt.tight_layout()
-    # plt.savefig('necroptosis_c8.png', format = 'png')
-
-    # plt.show()
-    # plt.close()
-
-
 
 # Here we define the cost function. We pass it the parameter vector, unlog it, and pass it to the solver.
 # We choose a chi square cost function, but you can provide any metric of you choosing
@@ -281,20 +160,21 @@ def obj_function(params):
     fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
+    ko_pars = [param_values, a20_params, tradd_params, fadd_params, c8_params]
 
-    solver1.run(param_values)
-    solver2.run(a20_params)
-    solver3.run(tradd_params)
-    solver4.run(fadd_params)
-    solver5.run(c8_params)
+    result = solver1.run(param_values=ko_pars)
+    # solver2.run(param_values=a20_params)
+    # solver3.run(param_values=tradd_params)
+    # solver4.run(param_values=fadd_params)
+    # solver5.run(param_values=c8_params)
 
     # list = [y1, y2, y3, y4, y5]
     # for i in list:
-    ysim_array1 = solver1.yobs['MLKLa_obs']
-    ysim_array2 = solver2.yobs['MLKLa_obs']
-    ysim_array3 = solver3.yobs['MLKLa_obs']
-    ysim_array4 = solver4.yobs['MLKLa_obs']
-    ysim_array5 = solver5.yobs['MLKLa_obs']
+    ysim_array1 = result.observables[0]['MLKLa_obs']
+    ysim_array2 = result.observables[1]['MLKLa_obs']
+    ysim_array3 = result.observables[2]['MLKLa_obs']
+    ysim_array4 = result.observables[3]['MLKLa_obs']
+    ysim_array5 = result.observables[4]['MLKLa_obs']
 
     # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm1 = normalize(ysim_array1)
@@ -304,17 +184,17 @@ def obj_function(params):
     ysim_norm5 = normalize(ysim_array5)
 
     # mlkl_var = np.var(y)
-    mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    # mlkl_v = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_wt = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_a20= np.array([0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_td = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
-    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_v))
-    e2 = np.sum((a20y - ysim_norm2) ** 2 )
-    e3 = np.sum((tdy - ysim_norm3) ** 2 )
-    e4 = np.sum((fdy - ysim_norm4) ** 2 )
-    e5 = np.sum((c8y - ysim_norm5) ** 2 )
+    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_wt))
+    e2 = np.sum((a20y - ysim_norm2) ** 2 / (mlkl_a20))
+    e3 = np.sum((tdy - ysim_norm3) ** 2 / (mlkl_td))
+    e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
+    e5 = np.sum((c8y - ysim_norm5) ** 2 / (mlkl_c8))
 
     error = e1 + e2 + e3 + e4 + e5
     return error,
@@ -328,8 +208,9 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=25, num_iterations=100)
+    optimizer.run(num_particles=30, num_iterations=200)
     print(optimizer.best)
+    np.savetxt('optimizer_best',optimizer.best)
     # print('whatever')
     if plot:
 	 display(optimizer.best)
