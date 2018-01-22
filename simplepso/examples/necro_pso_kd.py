@@ -113,6 +113,36 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
+    solver.run(param_values)
+    ysim_array_2 = solver.yobs['MLKLa_obs']
+    ysim_norm_2 = normalize(ysim_array_2)
+
+    # param_values[rate_mask] = 10 ** log10_original_values
+    # solver.run(param_values)
+    # ysim_array_3 = solver.yobs['MLKLa_obs']
+    # ysim_norm_3 = normalize(ysim_array_3)
+
+    plt.figure()
+    plt.subplot(111)
+    # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
+    # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
+    # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
+    # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
+    plt.plot(t, ydata_norm, label='Noisy Mlklp')
+    # plt.plot(t, norm_noisy_data_C, label='Noisy C')
+    plt.plot(t, ysim_norm_2, label='Best fit Mlklp')
+    # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
+    plt.legend(loc=0)
+    plt.ylabel('molecules/cell')
+    plt.xlabel('time (min)')
+    plt.tight_layout()
+    plt.savefig('necroptosis_30_new.png', format='png')
+    plt.show()
+    plt.close()
+
+
+
+    # param_values[rate_mask] = 10 ** Y
 
     # a20_params = np.copy(param_values)
     # a20_params[6] = 2700
@@ -123,49 +153,49 @@ def display(parameter_2):
     # c8_params = np.copy(param_values)
     # c8_params[11] = 2700
 
-    solver1.run(param_values)
-    # solver2.run(a20_params)
-    # solver3.run(tradd_params)
-    # solver4.run(fadd_params)
-    # solver5.run(c8_params)
-
-    # solver.run(param_values)
-    ysim_array11 = solver1.yobs['MLKLa_obs']
-    # ysim_array22 = solver2.yobs['MLKLa_obs']
-    # ysim_array33 = solver3.yobs['MLKLa_obs']
-    # ysim_array44 = solver4.yobs['MLKLa_obs']
-    # ysim_array55 = solver5.yobs['MLKLa_obs']
-
-    ysim_norm_11 = normalize(ysim_array_11)
-    # ysim_norm_22 = normalize(ysim_array_22)
-    # ysim_norm_33 = normalize(ysim_array_33)
-    # ysim_norm_44 = normalize(ysim_array_44)
-    # ysim_norm_55 = normalize(ysim_array_55)
-
-
-    # ysim_array_2 = solver.yobs['MLKLa_obs']
-    # ysim_norm_2 = normalize(ysim_array_2)
-      
-    # param_values[rate_mask] = 10 ** log10_original_values
-    # solver.run(param_values)
-    # ysim_array_3 = solver.yobs['MLKLa_obs']
-    # ysim_norm_3 = normalize(ysim_array_3)
-
-    plt.figure()
-    # plt.subplot(111)
-    # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
-    # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
-    # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
-    # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-    plt.plot(t, wty, label='Noisy Mlklp')
-    # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-    plt.plot(t, ysim_norm_11, label='Best fit Mlklp')
-    # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
-    plt.legend(loc=0)
-    plt.ylabel('molecules/cell')
-    plt.xlabel('time (min)')
-    plt.tight_layout()
-    plt.savefig('necroptosis_wt.png', format = 'png')
+    # solver1.run(param_values)
+    # # solver2.run(a20_params)
+    # # solver3.run(tradd_params)
+    # # solver4.run(fadd_params)
+    # # solver5.run(c8_params)
+    #
+    # # solver.run(param_values)
+    # ysim_array11 = solver1.yobs['MLKLa_obs']
+    # # ysim_array22 = solver2.yobs['MLKLa_obs']
+    # # ysim_array33 = solver3.yobs['MLKLa_obs']
+    # # ysim_array44 = solver4.yobs['MLKLa_obs']
+    # # ysim_array55 = solver5.yobs['MLKLa_obs']
+    #
+    # ysim_norm_11 = normalize(ysim_array_11)
+    # # ysim_norm_22 = normalize(ysim_array_22)
+    # # ysim_norm_33 = normalize(ysim_array_33)
+    # # ysim_norm_44 = normalize(ysim_array_44)
+    # # ysim_norm_55 = normalize(ysim_array_55)
+    #
+    #
+    # # ysim_array_2 = solver.yobs['MLKLa_obs']
+    # # ysim_norm_2 = normalize(ysim_array_2)
+    #
+    # # param_values[rate_mask] = 10 ** log10_original_values
+    # # solver.run(param_values)
+    # # ysim_array_3 = solver.yobs['MLKLa_obs']
+    # # ysim_norm_3 = normalize(ysim_array_3)
+    #
+    # plt.figure()
+    # # plt.subplot(111)
+    # # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
+    # # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
+    # # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
+    # # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
+    # plt.plot(t, wty, label='Noisy Mlklp')
+    # # plt.plot(t, norm_noisy_data_C, label='Noisy C')
+    # plt.plot(t, ysim_norm_11, label='Best fit Mlklp')
+    # # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
+    # plt.legend(loc=0)
+    # plt.ylabel('molecules/cell')
+    # plt.xlabel('time (min)')
+    # plt.tight_layout()
+    # plt.savefig('necroptosis_wt.png', format = 'png')
     #
     # plt.figure()
     # # plt.subplot(111)
@@ -231,8 +261,8 @@ def display(parameter_2):
     # plt.tight_layout()
     # plt.savefig('necroptosis_c8.png', format = 'png')
 
-    plt.show()
-    plt.close()
+    # plt.show()
+    # plt.close()
 
 
 
