@@ -16,6 +16,7 @@ import scipy.interpolate
 from pysb.integrate import *
 
 from simplepso.pso import PSO
+import collections
 
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
@@ -59,7 +60,11 @@ fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 c8y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 
-data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
+data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy) ,('fd', fdy), ('c8', c8y)])
+# data = collections.OrderedDict()
+# data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
+# data = collections.OrderedDict(sorted(data.items(), key = lambda t:t[1]))
+
 
 ydata_norm = wty
 
@@ -112,7 +117,10 @@ def display(parameter_2):
     ysim_norm33 = normalize(ysim_array33)
     ysim_norm44 = normalize(ysim_array44)
     ysim_norm55 = normalize(ysim_array55)
-    ysim = {'wt_sim': ysim_norm11, 'a20_sim': ysim_norm22, 'td_sim': ysim_norm33, 'fd_sim': ysim_norm44, 'c8_sim': ysim_norm55}
+
+
+    ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22), ('td_sim', ysim_norm33), ('fd_sim', ysim_norm44), ('c8_sim', ysim_norm55)])
+    # ysim = collections.OrderedDict(sorted(ysim.items(), key=lambda t: t[1]))
 
     # solver1.run(param_values)
     # ysim_array_2 = solver.yobs['MLKLa_obs']
