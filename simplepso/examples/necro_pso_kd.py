@@ -44,15 +44,15 @@ solver1 = ScipyOdeSimulator(model, tspan=t,rtol=1e-6, atol=1e-6)
 wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 wty = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
 
-#A20 data switching at 2 hours
+#A20 data switching at 3 hours
 a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-a20y = np.array([0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1., 1.])
+a20y = np.array([0.,0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 
 #Tradd data switching at 5
 tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 tdy = np.array([0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.])
 
-#Fadd Data switching at 3 hours
+#Fadd Data switching at 4 hours
 fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
@@ -216,7 +216,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=30, num_iterations=1000)
+    optimizer.run(num_particles=50, num_iterations=1000)
     print(optimizer.best)
     np.savetxt('optimizer_best',optimizer.best)
     # print('whatever')
