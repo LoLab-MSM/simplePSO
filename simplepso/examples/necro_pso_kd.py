@@ -40,13 +40,13 @@ solver1 = ScipyOdeSimulator(model, tspan=t,rtol=1e-6, atol=1e-6)
 
 
 #make an array for each of the kd made up data for mlklp
-#switching at 6 hours
+#switching at 5 hours
 wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-wty = np.array([0., 0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.])
+wty = np.array([0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
 
 #A20 data switching at 3 hours
 a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-a20y = np.array([0.,0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
+a20y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 
 #Tradd data switching at 5
 # tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
@@ -149,7 +149,7 @@ def display(parameter_2):
         plt.ylabel('molecules/cell')
         plt.xlabel('time (min)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_td_5000.png', format='png')
+        plt.savefig('necroptosis_kds_td_65.png', format='png')
     plt.show()
     plt.close()
 
@@ -192,8 +192,8 @@ def obj_function(params):
     ysim_norm5 = normalize(ysim_array5)
 
     # mlkl_var = np.var(y)
-    mlkl_wt = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    mlkl_a20= np.array([0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_wt = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_a20= np.array([0.05, 0.05,0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     # mlkl_td = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
@@ -216,7 +216,7 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=5000)
+    optimizer.run(num_particles=65, num_iterations=5000)
     print(optimizer.best)
     np.savetxt('optimizer_best',optimizer.best)
     # print('whatever')
