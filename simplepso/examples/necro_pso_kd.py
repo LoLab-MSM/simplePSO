@@ -56,11 +56,11 @@ a20y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
-#C8 Data switching at 3
+#C8 Data switching at 4
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-c8y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
+c8y = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
-data = collections.OrderedDict([('wt', wty), ('a20', a20y),('fd', fdy), ('c8', c8y)])
+data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('c8', c8y)])
 # data = collections.OrderedDict()
 # data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
 # data = collections.OrderedDict(sorted(data.items(), key = lambda t:t[1]))
@@ -108,18 +108,18 @@ def display(parameter_2):
     ysim_array11 = result.observables[0]['MLKLa_obs']
     ysim_array22 = result.observables[1]['MLKLa_obs']
     # ysim_array33 = result.observables[2]['MLKLa_obs']
-    ysim_array44 = result.observables[2]['MLKLa_obs']
-    ysim_array55 = result.observables[3]['MLKLa_obs']
+    # ysim_array44 = result.observables[2]['MLKLa_obs']
+    ysim_array55 = result.observables[2]['MLKLa_obs']
 
     # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm11 = normalize(ysim_array11)
     ysim_norm22 = normalize(ysim_array22)
     # ysim_norm33 = normalize(ysim_array33)
-    ysim_norm44 = normalize(ysim_array44)
+    # ysim_norm44 = normalize(ysim_array44)
     ysim_norm55 = normalize(ysim_array55)
 
 
-    ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22), ('fd_sim', ysim_norm44), ('c8_sim', ysim_norm55)])
+    ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22),('c8_sim', ysim_norm55)])
     # ysim = collections.OrderedDict(sorted(ysim.items(), key=lambda t: t[1]))
 
     # solver1.run(param_values)
@@ -133,8 +133,8 @@ def display(parameter_2):
 
     # colors = [cmap(i) for i in np.linspace(0, 1, 5)]
     plt.figure()
-    c = ['red', 'green', 'black', 'orange']
-    d = ['red', 'green', 'black', 'orange']
+    c = ['red', 'green', 'black']
+    d = ['red', 'green', 'black']
     # colors = ['red', 'black', 'green', 'purple', 'orange']
     for i,j,k,l, in zip(data, ysim,c, d):
         # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
@@ -149,7 +149,7 @@ def display(parameter_2):
         plt.ylabel('molecules/cell')
         plt.xlabel('time (min)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_td_65_5000.png', format='png')
+        plt.savefig('necroptosis_kds_td_50_5000.png', format='png')
     plt.show()
     plt.close()
 
@@ -195,8 +195,8 @@ def obj_function(params):
     mlkl_wt = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     mlkl_a20= np.array([0.05, 0.05,0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     # mlkl_td = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
     e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_wt))
     e2 = np.sum((a20y - ysim_norm2) ** 2 / (mlkl_a20))
@@ -204,7 +204,7 @@ def obj_function(params):
     e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
     e5 = np.sum((c8y - ysim_norm5) ** 2 / (mlkl_c8))
 
-    error = e1 + e2 + e4 + e5
+    error = e1 + e2 + e5
     return error,
 
 
