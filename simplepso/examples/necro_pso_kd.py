@@ -58,7 +58,7 @@ fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
 #C8 Data switching at 4
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-c8y = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
+c8y = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.,1.])
 
 data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('c8', c8y)])
 # data = collections.OrderedDict()
@@ -97,11 +97,11 @@ def display(parameter_2):
     a20_params[6] = 2700
     # tradd_params = np.copy(param_values)
     # tradd_params[2] = 2700
-    fadd_params = np.copy(param_values)
-    fadd_params[8] = 2424
+    #fadd_params = np.copy(param_values)
+    #fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
-    ko_pars = [param_values, a20_params, fadd_params, c8_params]
+    ko_pars = [param_values, a20_params, c8_params]
 
     result = solver1.run(param_values=ko_pars)
 
@@ -164,11 +164,11 @@ def obj_function(params):
     a20_params[6] = 2700
     # tradd_params = np.copy(param_values)
     # tradd_params[2] = 2700
-    fadd_params = np.copy(param_values)
-    fadd_params[8] = 2424
+   # fadd_params = np.copy(param_values)
+   # fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
-    ko_pars = [param_values, a20_params, fadd_params, c8_params]
+    ko_pars = [param_values, a20_params, c8_params]
 
     result = solver1.run(param_values=ko_pars)
     # solver2.run(param_values=a20_params)
@@ -181,14 +181,14 @@ def obj_function(params):
     ysim_array1 = result.observables[0]['MLKLa_obs']
     ysim_array2 = result.observables[1]['MLKLa_obs']
     # ysim_array3 = result.observables[2]['MLKLa_obs']
-    ysim_array4 = result.observables[2]['MLKLa_obs']
-    ysim_array5 = result.observables[3]['MLKLa_obs']
+   # ysim_array4 = result.observables[2]['MLKLa_obs']
+    ysim_array5 = result.observables[2]['MLKLa_obs']
 
     # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm1 = normalize(ysim_array1)
     ysim_norm2 = normalize(ysim_array2)
     # ysim_norm3 = normalize(ysim_array3)
-    ysim_norm4 = normalize(ysim_array4)
+    #ysim_norm4 = normalize(ysim_array4)
     ysim_norm5 = normalize(ysim_array5)
 
     # mlkl_var = np.var(y)
@@ -196,12 +196,12 @@ def obj_function(params):
     mlkl_a20= np.array([0.05, 0.05,0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     # mlkl_td = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     # mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
-    mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
     e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_wt))
     e2 = np.sum((a20y - ysim_norm2) ** 2 / (mlkl_a20))
     # e3 = np.sum((tdy - ysim_norm3) ** 2 / (mlkl_td))
-    e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
+    #e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
     e5 = np.sum((c8y - ysim_norm5) ** 2 / (mlkl_c8))
 
     error = e1 + e2 + e5
