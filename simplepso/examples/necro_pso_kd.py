@@ -61,6 +61,7 @@ c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 
 c8y = np.array([0., 0., 0.10,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.,1.])
 
 data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy), ('fd', fdy), ('c8', c8y)])
+# data = collections.OrderedDict([('wt', wty), ('fd', fdy)])
 # data = collections.OrderedDict()
 # data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
 # data = collections.OrderedDict(sorted(data.items(), key = lambda t:t[1]))
@@ -70,17 +71,32 @@ ydata_norm = wty
 
 
 rate_params = model.parameters_rules()
+# old_params = np.load('optimizer_best_10000.npy')
 param_values = np.array([p.value for p in model.parameters])
+# param_values = np.array([2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 10000,
+#                            1.00000000e-03,   1.49058079e-06,   3.41254725e-01,   1.37494872e-05,
+#                            1.00000000e+00,   1.00000000e-03,   1.12987664e-04,   9.99986801e-04,
+#                            4.29495670e-03,   9.90083941e-04,   9.92938495e-04,   1.00000000e+02,
+#                            1.00000000e-03,   4.91696714e-04,   1.00000000e-03,   1.06147031e-06,
+#                            5.79561663e-04,   2.69964860e-05,   1.00000000e+00,   2.20354932e+00,
+#                            5.45193686e-01,   3.85373736e-06,   3.26998676e-03,   6.33489328e-03,
+#                            1.42499773e-08,   3.72314271e-04,   2.65587180e-01,   1.80000000e-05,
+#                            1.29823879e-02,   1.00000000e-03,   7.64903182e-04,   3.16085171e+01,
+#                            9.13877716e-02,   5.04306217e-03,   2.75495453e-04,   4.16041187e-06,
+#                            5.53888911e-01,1.0])
 
 rate_mask = np.array([p in rate_params for p in model.parameters])
+# rate_mask = np.array([p in rate_params for p in param_values])
 
 original_values = np.array([p.value for p in model.parameters])
+# original_values = np.array([p in param_values])
 
 # We search in log10 space for the parameters
 log10_original_values = np.log10(original_values[rate_mask])
+# log10_original_values = np.log10(rate_params)
 
 # We will use a best guess starting position for the model, up or down 1 order of magnitude
-start_position = log10_original_values + np.random.uniform(-3., 3., size=np.shape(log10_original_values)) #[-1.5, 1.3,
+# start_position = old_params #+ np.random.uniform(-3., 3., size=np.shape(log10_original_values)) #[-1.5, 1.3,
                                           #-.75]  # np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values))
 
 # Defining some functions to help plot the output of the parameters
@@ -92,6 +108,7 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
+    # rate_params = 10 ** Y
 
     a20_params = np.copy(param_values)
     a20_params[6] = 2700
@@ -101,7 +118,7 @@ def display(parameter_2):
     fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
-    ko_pars = [param_values, a20_params, c8_params]
+    ko_pars = [param_values, a20_params, tradd_params, fadd_params, c8_params]
 
     result = solver1.run(param_values=ko_pars)
 
@@ -120,12 +137,13 @@ def display(parameter_2):
 
 
     ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22), ('td_sim', ysim_norm33), ('fd_sim', ysim_norm44), ('c8_sim', ysim_norm55)])
+    # ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('fd_sim', ysim_norm44)])
     # ysim = collections.OrderedDict(sorted(ysim.items(), key=lambda t: t[1]))
 
     # solver1.run(param_values)
     # ysim_array_2 = solver.yobs['MLKLa_obs']
     # ysim_norm_2 = normalize(ysim_array_2)
-
+# ['red', 'green', 'black', 'purple', 'orange']
     # param_values[rate_mask] = 10 ** log10_original_values
     # solver.run(param_values)
     # ysim_array_3 = solver.yobs['MLKLa_obs']
@@ -133,9 +151,9 @@ def display(parameter_2):
 
     # colors = [cmap(i) for i in np.linspace(0, 1, 5)]
     plt.figure()
-    c = ['red', 'green', 'black','purple', 'orange']
-    d = ['red', 'green', 'black','purple', 'orange']
-    # colors = ['red', 'black', 'green', 'purple', 'orange']
+    c = ['red', 'green', 'black', 'purple', 'orange']
+    d = ['red', 'green', 'black', 'purple', 'orange']
+    # colors = ['red', 'green', 'black', 'purple', 'orange']
     for i,j,k,l, in zip(data, ysim,c, d):
         # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
         # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
@@ -147,9 +165,9 @@ def display(parameter_2):
         # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
         plt.legend(loc=0)
         plt.ylabel('molecules/cell')
-        plt.xlabel('time (min)')
+        plt.xlabel('time (hrs)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_td_50_5000.png', format='png')
+        plt.savefig('necroptosis_kds_all_new.png', format='png')
     plt.show()
     plt.close()
 
@@ -158,7 +176,8 @@ def display(parameter_2):
 # It must return a tuple
 def obj_function(params):
     params_tmp = np.copy(params)
-    param_values[rate_mask] = 10 ** params_tmp #don't need to change
+    rate_params = 10 ** params_tmp #don't need to change
+    # param_values[rate_mask] = 10 ** params_tmp  # don't need to change
     #make a new parameter value set for each of the KD
     a20_params = np.copy(param_values)
     a20_params[6] = 2700
@@ -212,13 +231,13 @@ def run_example():
     # print('run_example')
     # Here we initial the class
     # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function, start= log10_original_values, verbose=True)
+    optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=3)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=10000)
-    print(optimizer.best)
-    np.save('optimizer_best_10000',optimizer.best)
+    optimizer.run(num_particles=65, num_iterations=10000)
+    # print(optimizer.best)
+    np.save('optimizer_best_5000_all_new',optimizer.best)
     # print('whatever')
     if plot:
 	 display(optimizer.best)
