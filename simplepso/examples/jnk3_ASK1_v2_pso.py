@@ -60,7 +60,7 @@ def display(position):
     plt.xlabel('Arrestin (microM)')
     plt.ylabel('pJNK3 (microM)')
     plt.legend()
-    plt.savefig('jnk3_ASK1_released_trained.png')
+    plt.savefig('jnk3_ASK1_released_trained_mkk4good.png')
     plt.show()
 
 
@@ -84,7 +84,7 @@ def likelihood(position):
         jnk3_mkk7_sim[i] = sim['mkk7_pjnk3'][-1]
 
     e_mkk4 = np.sum((mkk4_data[:, 1] - jnk3_mkk4_sim) ** 2 / (2 * sd_mkk4_data[:, 1])) / len(sd_mkk4_data[:, 1])
-    e_mkk7 = np.sum((mkk7_data[:, 1] - jnk3_mkk4_sim) ** 2 / (2 * sd_mkk7_data[:, 1])) / len(sd_mkk7_data[:, 1])
+    e_mkk7 = np.sum((mkk7_data[:, 1] - jnk3_mkk7_sim) ** 2 / (2 * sd_mkk7_data[:, 1])) / len(sd_mkk7_data[:, 1])
     error = e_mkk4 + e_mkk7
     return error,
 
