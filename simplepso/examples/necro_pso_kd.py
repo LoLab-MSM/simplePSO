@@ -60,7 +60,7 @@ fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
 c8y = np.array([0., 0., 0.10,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.,1.])
 
-data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy), ('fd', fdy), ('c8', c8y)])
+data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy),('fd', fdy), ('c8', c8y)])
 # data = collections.OrderedDict([('wt', wty), ('fd', fdy)])
 # data = collections.OrderedDict()
 # data = {'wt': wty, 'a20': a20y, 'td': tdy, 'fd': fdy, 'c8': c8y}
@@ -69,10 +69,10 @@ data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy), ('fd', 
 
 ydata_norm = wty
 
-
 rate_params = model.parameters_rules()
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
+
 
 original_values = np.array([p.value for p in model.parameters])
 
@@ -80,7 +80,7 @@ original_values = np.array([p.value for p in model.parameters])
 log10_original_values = np.log10(original_values[rate_mask])
 
 # We will use a best guess starting position for the model, up or down 1 order of magnitude
-start_position = log10_original_values + np.random.uniform(-3., 3., size=np.shape(log10_original_values)) #[-1.5, 1.3,
+#start_position = log10_original_values #+ np.random.uniform(-3., 3., size=np.shape(log10_original_values)) #[-1.5, 1.3,
                                           #-.75]  # np.random.uniform(-1.5, 1.5, size=np.shape(log10_original_values))
 
 # Defining some functions to help plot the output of the parameters
@@ -102,7 +102,7 @@ def display(parameter_2):
     fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
-    ko_pars = [param_values, a20_params, tradd_params, fadd_params, c8_params]
+    ko_pars = [param_values, a20_params, tradd_params,fadd_params, c8_params]
 
     result = solver1.run(param_values=ko_pars)
 
@@ -120,7 +120,7 @@ def display(parameter_2):
     ysim_norm55 = normalize(ysim_array55)
 
 
-    ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22), ('td_sim', ysim_norm33), ('fd_sim', ysim_norm44), ('c8_sim', ysim_norm55)])
+    ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('a20_sim', ysim_norm22), ('td_sim', ysim_norm33), ('fd_sim', ysim_norm44),('c8_sim', ysim_norm55)])
     # ysim = collections.OrderedDict([('wt_sim', ysim_norm11), ('fd_sim', ysim_norm44)])
     # ysim = collections.OrderedDict(sorted(ysim.items(), key=lambda t: t[1]))
 
@@ -135,8 +135,8 @@ def display(parameter_2):
 
     # colors = [cmap(i) for i in np.linspace(0, 1, 5)]
     plt.figure()
-    c = ['red', 'green', 'black', 'purple', 'orange']
-    d = ['red', 'green', 'black', 'purple', 'orange']
+    c = ['red', 'green', 'black','purple', 'orange']
+    d = ['red', 'green', 'black','purple', 'orange']
     # colors = ['red', 'green', 'black', 'purple', 'orange']
     for i,j,k,l, in zip(data, ysim,c, d):
         # plt.plot(t, ysim_norm_3[:, 0], '-^', linewidth=5, label='Ideal P')
@@ -151,7 +151,7 @@ def display(parameter_2):
         plt.ylabel('molecules/cell')
         plt.xlabel('time (hrs)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_all_new.png', format='png')
+        plt.savefig('necroptosis_kds_all_75_10000.png', format='png')
     plt.show()
     plt.close()
 
@@ -159,9 +159,12 @@ def display(parameter_2):
 # We choose a chi square cost function, but you can provide any metric of you choosing
 # It must return a tuple
 def obj_function(params):
+    # print('obj function')
+    # Y = np.copy(parameter_2)
+    # param_values[rate_mask] = 10 ** Y
     params_tmp = np.copy(params)
-    rate_params = 10 ** params_tmp #don't need to change
-    # param_values[rate_mask] = 10 ** params_tmp  # don't need to change
+    # rate_params = 10 ** params_tmp #don't need to change
+    param_values[rate_mask] = 10 ** params_tmp  # don't need to change
     #make a new parameter value set for each of the KD
     a20_params = np.copy(param_values)
     a20_params[6] = 2700
@@ -171,7 +174,7 @@ def obj_function(params):
     fadd_params[8] = 2424
     c8_params = np.copy(param_values)
     c8_params[11] = 2700
-    ko_pars = [param_values, a20_params, tradd_params, fadd_params, c8_params]
+    ko_pars = [param_values, a20_params, tradd_params,fadd_params, c8_params]
 
     result = solver1.run(param_values=ko_pars)
     # solver2.run(param_values=a20_params)
@@ -207,51 +210,67 @@ def obj_function(params):
     e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
     e5 = np.sum((c8y - ysim_norm5) ** 2 / (mlkl_c8))
 
-    error = e1 + e2 + e3 + e4 +e5
+    error = e1 + e2 + e3 + e4 + e5
     return error,
 
-
 def run_example():
-    # print('run_example')
-    # Here we initial the class
-    # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
-    # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=3)
-    optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
-    print(optimizer.best)
-    np.save('optimizer_best_5000_all_new',optimizer.best)
-    # print('whatever')
+    pso = PSO(verbose=True)
+    pso.set_cost_function(obj_function)
+    pso.set_start_position(log10_original_values)
+    pso.set_bounds(parameter_range=3)
+    pso.set_speed(-.25, .25)
+    pso.run(75, 10000)
     if plot:
-	 display(optimizer.best)
-    #
-    #     print("Original values {0}".format(log10_original_values ** 10))
-    #     print("Starting values {0}".format(start_position ** 10))
-    #     print("Best PSO values {0}".format(optimizer.best ** 10))
-    #     fig = plt.figure()
-    #     fig.add_subplot(221)
-    #     plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
-    #     plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
-    #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
-    #
-    #     fig.add_subplot(223)
-    #     plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
-    #     plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
-    #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-    #
-    #     fig.add_subplot(222)
-    #     plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
-    #     plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
-    #     plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-    #
-    #     fig.add_subplot(224)
-    #     plt.legend(loc=0)
-    #     plt.colorbar()
-    #     plt.tight_layout()
-    #     plt.savefig('population_necro.png')
-    #     plt.show()
+        display(pso.best)
+    display(pso.best)
+    np.save('optimizer_best_5000_all_new_', pso.best)
 
 
-if '__main__' == __name__:
+if __name__ == '__main__':
     run_example()
+
+
+# def run_example():
+#     # print('run_example')
+#     # Here we initial the class
+#     # We must proivde the cost function and a starting value
+#     optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
+#     # We also must set bounds. This can be a single scalar or an array of len(start_position)
+#     optimizer.set_bounds(parameter_range=3)
+#     optimizer.set_speed(speed_min=-.25, speed_max=.25)
+#     optimizer.run(num_particles=50, num_iterations=1000)
+#     print(optimizer.best)
+#     np.save('optimizer_best_5000_all_new',optimizer.best)
+#     # print('whatever')
+#     if plot:
+# 	 display(optimizer.best)
+#     #
+#     #     print("Original values {0}".format(log10_original_values ** 10))
+#     #     print("Starting values {0}".format(start_position ** 10))
+#     #     print("Best PSO values {0}".format(optimizer.best ** 10))
+#     #     fig = plt.figure()
+#     #     fig.add_subplot(221)
+#     #     plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
+#     #     plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
+#     #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
+#     #
+#     #     fig.add_subplot(223)
+#     #     plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
+#     #     plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
+#     #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+#     #
+#     #     fig.add_subplot(222)
+#     #     plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
+#     #     plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
+#     #     plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
+#     #
+#     #     fig.add_subplot(224)
+#     #     plt.legend(loc=0)
+#     #     plt.colorbar()
+#     #     plt.tight_layout()
+#     #     plt.savefig('population_necro.png')
+#     #     plt.show()
+#
+#
+# if '__main__' == __name__:
+#     run_example()
