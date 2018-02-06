@@ -219,7 +219,7 @@ def run_example():
     pso.set_start_position(log10_original_values)
     pso.set_bounds(parameter_range=3)
     pso.set_speed(-.25, .25)
-    pso.run(75, 10000)
+    pso.run(75, 5000)
     if plot:
         display(pso.best)
     display(pso.best)
