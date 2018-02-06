@@ -9,9 +9,7 @@ sd_mkk4_data = np.loadtxt('data/sd_mkk4_data.csv', delimiter=',')
 mkk7_data = np.loadtxt('data/mkk7_data.csv', delimiter=',')
 sd_mkk7_data = np.loadtxt('data/sd_mkk7_data.csv', delimiter=',')
 
-rates_of_interest_mask = [False, True, False, True, False, True, False, True, True, True,
-                          False, True, True, True, True, True, True, True, True, False, True,
-                          False, False, False, False, False]
+rates_of_interest_mask = [('kr' in par.name) or ('kcat' in par.name) or ('keq' in par.name) for par in model.parameters]
 
 # rates_of_interest_mask = [False, False, False, False, False, False, False, False,
 #                           True, True, True, True, True, True, True,
@@ -23,13 +21,12 @@ rates_of_interest_mask = [False, True, False, True, False, True, False, True, Tr
 # Initial conditions of mkk4, mkk7, uJNK3 respectively
 initials_experiment_mkk4 = [0.05, 0, 0.5]
 initials_experiment_mkk7 = [0, 0.05, 0.5]
-initials_exps_idxs = [23, 24, 25]
-arrestin_idx = [22]
+initials_exps_idxs = [33, 34, 35]
+arrestin_idx = [32]
 
 param_values = np.array([p.value for p in model.parameters])
 nominal_values = np.array([p.value for p in model.parameters])
 xnominal = np.log10(nominal_values[rates_of_interest_mask])
-bounds_radius = 2
 tspan = np.linspace(0, 10, 50)
 solver = ScipyOdeSimulator(model, tspan=tspan)
 
@@ -68,27 +65,31 @@ def likelihood(position):
     Y = np.copy(position)
     param_values[rates_of_interest_mask] = 10 ** Y
 
-    jnk3_mkk4_sim = np.zeros(13, dtype='float64')
-    jnk3_mkk7_sim = np.zeros(13, dtype='float64')
+    jnk3_mkk4_pars = [0] * 13
+    jnk3_mkk7_pars = [0] * 13
 
     param_values[initials_exps_idxs] = initials_experiment_mkk4
     for i, arr_conc in enumerate(mkk4_data[:, 0]):
         param_values[arrestin_idx] = arr_conc
-        sim = solver.run(param_values=param_values).all
-        jnk3_mkk4_sim[i] = sim['mkk4_pjnk3'][-1]
+        jnk3_mkk4_pars[i] = np.copy(param_values)
 
     param_values[initials_exps_idxs] = initials_experiment_mkk7
     for i, arr_conc in enumerate(mkk7_data[:, 0]):
         param_values[arrestin_idx] = arr_conc
-        sim = solver.run(param_values=param_values).all
-        jnk3_mkk7_sim[i] = sim['mkk7_pjnk3'][-1]
+        jnk3_mkk7_pars[i] = np.copy(param_values)
+
+    all_pars = jnk3_mkk4_pars + jnk3_mkk7_pars
+
+    sims = solver.run(param_values=all_pars).all
+    jnk3_mkk4_sim = [sim['mkk4_pjnk3'][-1] for sim in sims[:13]]
+    jnk3_mkk7_sim = [sim['mkk7_pjnk3'][-1] for sim in sims[13:26]]
 
     e_mkk4 = np.sum((mkk4_data[:, 1] - jnk3_mkk4_sim) ** 2 / (2 * sd_mkk4_data[:, 1])) / len(sd_mkk4_data[:, 1])
     e_mkk7 = np.sum((mkk7_data[:, 1] - jnk3_mkk7_sim) ** 2 / (2 * sd_mkk7_data[:, 1])) / len(sd_mkk7_data[:, 1])
     error = e_mkk4 + e_mkk7
     return error,
 
-# new_nominal = np.load('jnk3_ASK1_released_calibrated_pars3.npy')
+# new_nominal = np.load('jnk3_ASK1_released_calibrated_pars.npy')
 
 def run_example():
     pso = PSO(save_sampled=False, verbose=True, num_proc=4)
@@ -96,7 +97,7 @@ def run_example():
     pso.set_start_position(xnominal)
     pso.set_bounds(2)
     pso.set_speed(-.25, .25)
-    pso.run(25, 100)
+    pso.run(50, 200)
     display(pso.best)
     Y = np.copy(pso.best)
     param_values[rates_of_interest_mask] = 10 ** Y
