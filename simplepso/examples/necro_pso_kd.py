@@ -18,6 +18,8 @@ from pysb.integrate import *
 from simplepso.pso import PSO
 import collections
 
+new_start =  np.load('optimizer_best_5000_all_new_.npy')
+
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
 mlkl_obs = 'MLKLa_obs'
@@ -50,11 +52,11 @@ a20y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
 
 #Tradd data switching at 5
 tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-tdy = np.array([0., 0., 0., 0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.])
+tdy = np.array([0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
 
 #Fadd Data switching at 4 hours
 fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-fdy = np.array([0., 0., 0.,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
+fdy = np.array([0., 0., 0.10,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1.])
 
 #C8 Data switching at 4
 c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
@@ -151,7 +153,7 @@ def display(parameter_2):
         plt.ylabel('molecules/cell')
         plt.xlabel('time (hrs)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_all_75_10000.png', format='png')
+        plt.savefig('necroptosis_kds_all_75_5000_start.png', format='png')
     plt.show()
     plt.close()
 
@@ -216,7 +218,7 @@ def obj_function(params):
 def run_example():
     pso = PSO(verbose=True)
     pso.set_cost_function(obj_function)
-    pso.set_start_position(log10_original_values)
+    pso.set_start_position(new_start)
     pso.set_bounds(parameter_range=3)
     pso.set_speed(-.25, .25)
     pso.run(75, 5000)
