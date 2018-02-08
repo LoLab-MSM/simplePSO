@@ -145,7 +145,7 @@ def display(parameter_2):
         # plt.plot(t, ysim_norm_3[:, 1], '-^', linewidth=5, label='Ideal C')
         # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
         # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
-        plt.plot(t/60, data[i], 'o',color = k,label='Noisy Mlklp{}'.format(i))
+        plt.plot(t/60, data[i], '--',color = k,label='Noisy Mlklp{}'.format(i))
         # plt.plot(t, norm_noisy_data_C, label='Noisy C')
         plt.plot(t/60, ysim[j],color = l,label='Best fit Mlklp{}'.format(j) )
         # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
@@ -153,7 +153,7 @@ def display(parameter_2):
         plt.ylabel('molecules/cell')
         plt.xlabel('time (hrs)')
         plt.tight_layout()
-        plt.savefig('necroptosis_kds_all_75_5000_start.png', format='png')
+        plt.savefig('necroptosis_kds_all_75_5000_start2.png', format='png')
     plt.show()
     plt.close()
 
@@ -221,11 +221,11 @@ def run_example():
     pso.set_start_position(new_start)
     pso.set_bounds(parameter_range=3)
     pso.set_speed(-.25, .25)
-    pso.run(75, 5000)
+    pso.run(75, 10000)
     if plot:
         display(pso.best)
     display(pso.best)
-    np.save('optimizer_best_5000_all_new_', pso.best)
+    np.save('optimizer_best_5000_all_new_2', pso.best)
 
 
 if __name__ == '__main__':

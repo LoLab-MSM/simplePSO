@@ -11,8 +11,19 @@ from correct_necro_molecules import model
 
 from necro_pso_kd import display
 
+model.enable_synth_deg()
 
-# pars =  np.load('optimizer_best_10000.npy')
+
+# initials = np.array([2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 10000])
+pars =  np.load('optimizer_best_5000_all_new_.npy')
+display(pars)
+quit()
+pars = np.append(pars, 1.0)
+params = 10 ** pars
+
+params = np.concatenate([initials, params])
+# print(len(model.parameters))
+# print(len(params))
 # print(10 ** pars)
 # quit()
 
@@ -167,8 +178,8 @@ from necro_pso_kd import display
 # pars = 10**params
 # print(pars)
 # quit()
-display(pars)
-quit()
+# display(pars)
+# quit()
 
 # params = np.array([  2326, 4800, 9000, 40000, 9000, 9000, 2070, 9000, 8030, 3900, 7226, 9000, 40000, 2400, 10000,
 #                      1.39827142e-05,   7.84751944e-03,   9.51836183e-05,   5.88487293e-05,
@@ -261,7 +272,7 @@ quit()
 # quit()
 
 
-model.enable_synth_deg()
+
 # print(len((model.parameters)))
 # print(len(pars))
 # # print(pars.shape)
@@ -273,12 +284,13 @@ sim1 = ScipyOdeSimulator(model, tspan=tspan)
 sim2 = ScipyOdeSimulator(model, tspan=tspan)
 L4 = sim1.run(param_values=params)
 L3 = sim2.run()
-# sim_df = L3.dataframe
+sim_df = L4.dataframe
+
 
 # print(L3.observables['C8a_obs'][:])
-# print(sim_df.observables['C8i_obs'].iloc[:])
+print(L4.observables['RIP13_obs'][:])
 
-# quit()
+quit()
 
 plt.figure(figsize = (18,7))
 # # plt.figure()
