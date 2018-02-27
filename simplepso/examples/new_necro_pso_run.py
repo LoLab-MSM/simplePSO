@@ -4,7 +4,7 @@ from pysb.integrate import *
 import matplotlib.pyplot as plt
 import numpy as np
 from pysb.util import alias_model_components
-from correct_necro_molecules import model
+from necroptosismodule import model
 
 from necro_pso_kd_plot import display
 
