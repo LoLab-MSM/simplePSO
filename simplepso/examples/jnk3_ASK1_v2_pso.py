@@ -52,14 +52,16 @@ def display(position):
         sim = solver.run(param_values=param_values).all
         jnk3_mkk7_sim[i] = sim['mkk7_pjnk3'][-1]
 
-    plt.plot(mkk4_data[:, 0], jnk3_mkk4_sim, 'x', label='pJNK3 by MKK4 sim')
-    plt.plot(mkk4_data[:, 0], mkk4_data[:, 1], '*', label='pJNK3 by MKK4 exp')
-    plt.plot(mkk7_data[:, 0], jnk3_mkk7_sim, 'x', label='pJNK3 by MKK7 sim')
-    plt.plot(mkk7_data[:, 0], mkk7_data[:, 1], '*', label='pJNK3 by MKK7 exp')
+    plt.plot(mkk4_data[:, 0], jnk3_mkk4_sim, 'x', color='red', label='pJNK3 by MKK4 sim')
+    plt.errorbar(mkk4_data[:, 0], mkk4_data[:, 1], sd_mkk4_data[:, 1], linestyle='None', marker='o',
+                 capsize=5, color='red', label='pJNK3 by MKK4 exp')
+    plt.plot(mkk7_data[:, 0], jnk3_mkk7_sim, 'x', color='blue', label='pJNK3 by MKK7 sim')
+    plt.errorbar(mkk7_data[:, 0], mkk7_data[:, 1], sd_mkk7_data[:, 1], linestyle='None', marker='o',
+                 capsize=5, color='blue', label='pJNK3 by MKK7 exp')
     plt.xlabel('Arrestin (microM)')
     plt.ylabel('pJNK3 (microM)')
     plt.legend()
-    plt.savefig('jnk3_ASK1_released_trained_mkk4good.png')
+    plt.savefig('jnk3_ASK1_trained1.png')
     plt.show()
 
 
@@ -96,9 +98,10 @@ def run_example():
     pso.set_cost_function(likelihood)
     pso.set_start_position(xnominal)
     pso.set_bounds(2)
-    pso.set_speed(-.25, .25)
-    pso.run(25, 30)
+    pso.set_speed(-.825, .825)
+    pso.run(25, 100)
     display(pso.best)
+    np.save('jnk3_ASK1_calibrated_pars', pso.best)
 
 if __name__ == '__main__':
     run_example()

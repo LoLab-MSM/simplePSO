@@ -141,8 +141,11 @@ Rule('pMKK7DissArrComplex', ASK1(b=1, state='P') % Arrestin(b1=1, b2=None, b3=No
      ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK7(b=2, state='P'), kf_pMKK7_Arr, kr_pMKK7_Arr)
 
 # EquilibrateUMKK4And7
-equilibrate(ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK4(b=2, state='U'),
-            ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK7(b=2, state='U'), [keq_uMKK4_to_uMKK7, keq_uMKK7_to_uMKK4])
+Rule('EqUMKK4And7', ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK4(b=2, state='U') + MKK7(b=None, state='U') |
+     ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK7(b=2, state='U') +  MKK4(b=None, state='U'),
+     keq_uMKK4_to_uMKK7, keq_uMKK7_to_uMKK4)
+# equilibrate(ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK4(b=2, state='U'),
+#             ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK7(b=2, state='U'), [keq_uMKK4_to_uMKK7, keq_uMKK7_to_uMKK4])
 
 Rule('MKK4Ask1Release', ASK1(b=1, state='P') % Arrestin(b1=1, b2=2, b3=None) % MKK4(b=2, state='P') >>
       Arrestin(b1=None, b2=2, b3=None) % MKK4(b=2, state='P') + ASK1(b=None, state='P'), kr_MKK4_Ask1_release)
@@ -163,22 +166,29 @@ Rule('MKK4catJNK3', Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(
 Rule('pJNK3_MKK4complex_diss', Arrestin(b1=None, b2=2, b3=None) % MKK4(b=2, state='P') + JNK3(b=None, tyro='P') |
      Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, tyro='P'), kf_pJNK3_MKK4complex, kr_pJNK3_MKK4complex)
 
-# JNK3 has to get dissociated because otherwise it wouldnt be possible to have more pJNK3 than the value of MKK4 or MKK7
-Rule('pJNK3_MKK7complex_diss', Arrestin(b1=None, b2=2, b3=None) % MKK7(b=2, state='P') + JNK3(b=None, threo='P') |
-     Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P'), kf_pJNK3_MKK7complex, kr_pJNK3_MKK7complex)
-
 Rule('MKK7BindJNK3', Arrestin(b1=None, b2=2, b3=None) % MKK7(b=2, state='P') + JNK3(b=None, threo='U') |
      Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U'), kf_MKK7_uJNK3_Arr, kr_MKK7_uJNK3_Arr)
 
 Rule('MKK7catJNK3', Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U') >>
      Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P'), kcat_pMKK7_JNK3)
 
-# EquilibratePMKK4and7
-Rule('complex_pMKK4topMKK7', Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') >>
-     Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U', tyro='P'), keq_pMKK4_to_pMKK7)
+# JNK3 has to get dissociated because otherwise it wouldnt be possible to have more pJNK3 than the value of MKK4 or MKK7
+Rule('pJNK3_MKK7complex_diss', Arrestin(b1=None, b2=2, b3=None) % MKK7(b=2, state='P') + JNK3(b=None, threo='P') |
+     Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P'), kf_pJNK3_MKK7complex, kr_pJNK3_MKK7complex)
 
-Rule('complex_pMKK7toMKK4', Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P', tyro='U') >>
-     Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='P', tyro='U'), keq_pMKK7_to_pMKK4)
+# EquilibratePMKK4and7
+Rule('EqpMKK4And7', Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') + MKK7(b=None, state='P') >>
+     Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') + MKK4(b=None, state='P'),
+     keq_pMKK4_to_pMKK7)
+
+Rule('EqpMKK7And4', Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P', tyro='U') + MKK4(b=None, state='P') >>
+     Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='P', tyro='U') + MKK7(b=None, state='P'),
+     keq_pMKK7_to_pMKK4)
+# Rule('complex_pMKK4topMKK7', Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') >>
+#      Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U', tyro='P'), keq_pMKK4_to_pMKK7)
+#
+# Rule('complex_pMKK7toMKK4', Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='P', tyro='U') >>
+#      Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='P', tyro='U'), keq_pMKK7_to_pMKK4)
 
 Observable('mkk4_pjnk3', JNK3(b=None, threo='U', tyro='P'))
 Observable('mkk7_pjnk3', JNK3(b=None, threo='P', tyro='U'))
