@@ -187,6 +187,13 @@ Rule('ppJNK3Arr_MKK7_diss', Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P')
      Arrestin(b1=None, b2=2, b3=None) % MKK7(b=2, state='P') + JNK3(b=None, threo='P', tyro='P')
      , kr_ppJNK3_Arr, kf_ppJNK3_Arr)
 
+# MKK4/7 release from Arrestin complex
+Rule('MKK4DissArr_JNK3', Arrestin(b1=None, b2=None, b3=3) % JNK3(b=3) + MKK4(b=None, state='P')|
+      Arrestin(b1=None, b2=2, b3=3) % JNK3(b=3) % MKK4(b=2, state='P'), kf_pMKK4_Arr, kr_pMKK4_Arr)
+
+Rule('MKK7DissArr_JNK3', Arrestin(b1=None, b2=None, b3=3) % JNK3(b=3) + MKK7(b=None, state='P')|
+      Arrestin(b1=None, b2=2, b3=3) % JNK3(b=3) % MKK7(b=2, state='P'), kf_pMKK7_Arr, kr_pMKK7_Arr)
+
 # EquilibratePMKK4and7
 Rule('EqpMKK4And7', Arrestin(b1=None, b2=2, b3=3) % MKK4(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') + MKK7(b=None, state='P') >>
      Arrestin(b1=None, b2=2, b3=3) % MKK7(b=2, state='P') % JNK3(b=3, threo='U', tyro='P') + MKK4(b=None, state='P'),
@@ -219,6 +226,6 @@ Rule('MKK7catJNK3', MKK7(b=1, state='P') % JNK3(b=1, threo='U') >>
 Rule('pJNK3_MKK7complex_diss', MKK7(b=1, state='P') % JNK3(b=1, threo='P') |
      MKK7(b=None, state='P') + JNK3(b=None, threo='P') , kr_pJNK3_MKK7complex, kf_pJNK3_MKK7complex)
 
-
+# Unbound JNK3
 Observable('pTyr_jnk3', JNK3(b=None, tyro='P'))
 Observable('pThr_jnk3', JNK3(b=None, threo='P'))
