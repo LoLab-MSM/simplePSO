@@ -80,7 +80,7 @@ def likelihood(position):
     error = error1 + error2
     return error,
 
-new_nominal = np.load('jnk3_noASK1_calibrated_pars3.npy')
+# new_nominal = np.load('jnk3_noASK1_calibrated_pars3.npy')
 
 def run_example():
     best_pars = np.zeros((20, len(model.parameters)))
@@ -88,7 +88,7 @@ def run_example():
     for i in range(20):
         pso = PSO(save_sampled=False, verbose=False, num_proc=4)
         pso.set_cost_function(likelihood)
-        pso.set_start_position(new_nominal)
+        pso.set_start_position(xnominal)
         pso.set_bounds(2)
         pso.set_speed(-.25, .25)
         pso.run(25, 100)
