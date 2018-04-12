@@ -9,6 +9,8 @@ from pysb.util import alias_model_components
 
 Model()
 
+model.enable_synth_deg()
+
 Monomer('TNF', ['brec'])
 Monomer('TNFR', ['blig', 'brip', 'bDD'])
 Monomer('TRADD', ['brec', 'brip', 'state','bDD1', 'bDD2'], {'state': ['unmod', 'K63ub']})
@@ -231,7 +233,19 @@ Observable('Fadd_obs', FADD(bDD=None, bDED1=None, bDED2=None))
 Observable('Tradd_obs', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
 
 generate_equations(model)
-print(len(model.parameters))
-print(len(model.parameters_rules()))
-print(len(model.species))
-quit()
+#
+# for i,ode in enumerate(list(model.odes)):
+#     print i,":",ode
+# quit()
+#
+# for i,sp in enumerate(model.species):
+#     print i,":",sp
+# # print(model.species)
+#
+# print(list(model.odes))
+# quit()
+#
+# print(len(model.parameters))
+# print(len(model.parameters_rules()))
+# print(len(model.species))
+# quit()

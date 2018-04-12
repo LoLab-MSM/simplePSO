@@ -10,7 +10,7 @@ except ImportError:
     pass
 
 import numpy as np
-from correct_necro_molecules import model
+from necroptosismodule import model
 # from pysb.integrate import Solver
 import scipy.interpolate
 from pysb.integrate import *
@@ -93,9 +93,12 @@ data = collections.OrderedDict([('wt', wty), ('a20', a20y), ('td', tdy),('fd', f
 ydata_norm = wty
 
 rate_params = model.parameters_rules()
+# print(len(rate_params))
 param_values = np.array([p.value for p in model.parameters])
+# print(len(param_values))
 rate_mask = np.array([p in rate_params for p in model.parameters])
-
+# print(len(rate_mask))
+# quit()
 
 original_values = np.array([p.value for p in model.parameters])
 
@@ -115,6 +118,8 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
+    # print(len(param_values[rate_mask]))
+    # quit()
     # rate_params = 10 ** Y
 
     a20_params = np.copy(param_values)
@@ -202,6 +207,8 @@ def obj_function(params):
     params_tmp = np.copy(params)
     # rate_params = 10 ** params_tmp #don't need to change
     param_values[rate_mask] = 10 ** params_tmp  # don't need to change
+    # print(len(param_values[rate_mask]))
+    # quit()
     #make a new parameter value set for each of the KD
     a20_params = np.copy(param_values)
     a20_params[6] = 2700
@@ -251,16 +258,38 @@ def obj_function(params):
     return error,
 
 def run_example():
-    pso = PSO(verbose=True)
-    pso.set_cost_function(obj_function)
-    pso.set_start_position(new_start)
-    pso.set_bounds(parameter_range=3)
-    pso.set_speed(-.25, .25)
-    pso.run(75, 5000)
-    if plot:
-        display(pso.best)
-    display(pso.best)
-    np.save('optimizer_best_5000_all_new_2_l', pso.best)
+    best_pars = np.zeros((10000, len(model.parameters)))
+
+    counter = 0
+    for i in range(10000):
+         pso = PSO(save_sampled=False, verbose=False, num_proc=25)
+         pso.set_cost_function(obj_function)
+         pso.set_start_position(log10_original_values)
+         pso.set_bounds(2)
+         pso.set_speed(-.25, .25)
+         pso.run(25, 100)
+         Y=np.copy(pso.best)
+         param_values[rate_mask] = 10 ** Y
+         print(len(param_values[rate_mask]))
+         if pso.values.min() < 0.03:
+            best_pars[counter] = param_values
+            counter += 1
+         print (i, counter)
+
+
+    np.save('/Users/geenaildefonso/Projects/ParticleSwarmOptimization/new_pars', best_pars)
+
+# def run_example():
+#     pso = PSO(verbose=True)
+#     pso.set_cost_function(obj_function)
+#     pso.set_start_position(new_start)
+#     pso.set_bounds(parameter_range=2)
+#     pso.set_speed(-.25, .25)
+#     pso.run(75, 5000)
+#     if plot:
+#         display(pso.best)
+#     display(pso.best)
+#     np.save('optimizer_best_5000_all_new_2_l', pso.best)
 
 
 if __name__ == '__main__':
