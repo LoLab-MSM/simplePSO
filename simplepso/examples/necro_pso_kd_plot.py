@@ -262,7 +262,7 @@ def run_example():
 
     counter = 0
     for i in range(10000):
-         pso = PSO(save_sampled=False, verbose=False, num_proc=25)
+         pso = PSO(save_sampled=False, verbose=False, num_proc=8)
          pso.set_cost_function(obj_function)
          pso.set_start_position(log10_original_values)
          pso.set_bounds(2)
@@ -271,13 +271,13 @@ def run_example():
          Y=np.copy(pso.best)
          param_values[rate_mask] = 10 ** Y
          print(len(param_values[rate_mask]))
-         if pso.values.min() < 0.03:
+         if pso.values.min() < 2.0:
             best_pars[counter] = param_values
             counter += 1
          print (i, counter)
 
 
-    np.save('/Users/geenaildefonso/Projects/ParticleSwarmOptimization/new_pars', best_pars)
+    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
 
 # def run_example():
 #     pso = PSO(verbose=True)
