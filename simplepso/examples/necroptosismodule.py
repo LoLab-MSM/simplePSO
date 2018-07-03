@@ -240,7 +240,7 @@ generate_equations(model)
 #
 # for i,sp in enumerate(model.species):
 #     print i,":",sp
-# # print(model.species)
+# print(model.species)
 #
 # print(list(model.odes))
 # quit()

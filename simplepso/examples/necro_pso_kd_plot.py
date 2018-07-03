@@ -118,8 +118,8 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
-    # print(len(param_values[rate_mask]))
-    # quit()
+    print(len(param_values[rate_mask]))
+    quit()
     # rate_params = 10 ** Y
 
     a20_params = np.copy(param_values)
@@ -182,12 +182,12 @@ def display(parameter_2):
         # plt.plot(t, ysim_norm_1[:, 0], '->', label='Starting P')
         # plt.plot(t, ysim_norm_1[:, 1], '->', label='Starting C')
         # plt.plot(t/60, data[i], color = 'purple',label='Noisy Mlklp{}'.format(i))
-        plt.plot(t / 60, wty,'--', color='black', label='WT Mlklp')
+        plt.plot(t / 60, wty,'--', color='black', label='Ctrl Mlklp')
         # plt.errorbar(t/60,data[i] , yerr=var_data[m],fmt='o', capsize=5, label='Noisy Mlklp{}'.format(i))
-        plt.fill_between(t/60, data[i] - var_data[m], data[i] + var_data[m], facecolor='purple', label = 'var data', interpolate=True, alpha=.3)
+        plt.fill_between(t/60, data[i] - var_data[m], data[i] + var_data[m], facecolor='purple', label = '{}'.format(m), interpolate=True, alpha=.3)
 
         # plt.plot(t, norm_noisy_data_C, label='Noisy C')
-        plt.plot(t/60, ysim[j],color = 'black',label='Best fit Mlklp{}'.format(j))
+        plt.plot(t/60, ysim[j],color = 'black',label='Best fit Mlklp {}'.format(j))
         # plt.plot(t, ysim_norm_2[:, 1], 'o', label='Best fit C')
         plt.legend(loc=0)
         plt.ylabel('molecules/cell')
@@ -270,14 +270,15 @@ def run_example():
          pso.run(25, 100)
          Y=np.copy(pso.best)
          param_values[rate_mask] = 10 ** Y
-         print(len(param_values[rate_mask]))
-         if pso.values.min() < 2.0:
-            best_pars[counter] = param_values
-            counter += 1
+         display(pso_best)
+         # print(len(param_values[rate_mask]))
+         # if pso.values.min() < 2.0:
+         #    best_pars[counter] = param_values
+         #    counter += 1
          print (i, counter)
 
 
-    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
+    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/', pso_best)
 
 # def run_example():
 #     pso = PSO(verbose=True)
