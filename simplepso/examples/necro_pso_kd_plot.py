@@ -257,39 +257,46 @@ def obj_function(params):
     error = e1 + e2 + e3 + e4 + e5
     return error,
 
-def run_example():
-    best_pars = np.zeros((10000, len(model.parameters)))
-
-    counter = 0
-    for i in range(10000):
-         pso = PSO(save_sampled=False, verbose=False, num_proc=8)
-         pso.set_cost_function(obj_function)
-         pso.set_start_position(log10_original_values)
-         pso.set_bounds(2)
-         pso.set_speed(-.25, .25)
-         pso.run(25, 100)
-         Y=np.copy(pso.best)
-         param_values[rate_mask] = 10 ** Y
-         print(len(param_values[rate_mask]))
-         if pso.values.min() < 10.0:
-            best_pars[counter] = param_values
-            counter += 1
-         print (i, counter)
-
-
-    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
-
 # def run_example():
-#     pso = PSO(verbose=True)
-#     pso.set_cost_function(obj_function)
-#     pso.set_start_position(new_start)
-#     pso.set_bounds(parameter_range=2)
-#     pso.set_speed(-.25, .25)
-#     pso.run(75, 5000)
-#     if plot:
-#         display(pso.best)
-#     display(pso.best)
-#     np.save('optimizer_best_5000_all_new_2_l', pso.best)
+#     best_pars = np.zeros((10000, len(model.parameters)))
+#
+#     counter = 0
+#     for i in range(10000):
+#          pso = PSO(save_sampled=False, verbose=False, num_proc=8)
+#          pso.set_cost_function(obj_function)
+#          pso.set_start_position(log10_original_values)
+#          pso.set_bounds(2)
+#          pso.set_speed(-.25, .25)
+#          pso.run(1000, 500)
+#          # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/pso_vals', pso.values) #cost function for PSO runs
+#          # ranked_values = PSO.return_ranked_populations() #at end of PSO for all # particles, rank by cost function value
+#          #
+#          # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', )
+#
+#          Y=np.copy(pso.best)
+#          param_values[rate_mask] = 10 ** Y
+#          print(param_values)
+#          if pso.values.min() < 10.0:
+#             best_pars[counter,:] = param_values
+#             print(best_pars[0:10,:])
+#             counter += 1
+#          print (i, counter)
+#
+#     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
+
+def run_example():
+    pso = PSO(verbose=True)
+    pso.set_cost_function(obj_function)
+    pso.set_start_position(new_start)
+    pso.set_bounds(parameter_range=2)
+    pso.set_speed(-.25, .25)
+    pso.run(1000, 500)
+    ranked_values = PSO.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+    if plot:
+        display(pso.best)
+    display(pso.best)
+    np.save('ranked_values_pso', ranked_values) # param vectors for 1000 particles
+    np.save('values_cost_pso', pso.values) #cost function for each iteration of 1000 particles
 
 
 if __name__ == '__main__':

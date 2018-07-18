@@ -13,8 +13,11 @@ from necro_pso_kd_plot import display
 # model.enable_synth_deg()
 
 pars =  np.load('optimizer_best_5000_all_new_2.npy')
+# print(pars)
+# quit()
 ex = np.load('examples.npy')
-print(ex[0:])
+# print(ex.shape)
+print(ex[:,:])
 quit()
 
 print(len(pars))
