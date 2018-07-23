@@ -287,7 +287,7 @@ def obj_function(params):
 def run_example():
     pso = PSO(verbose=True)
     pso.set_cost_function(obj_function)
-    pso.set_start_position(new_start)
+    pso.set_start_position(log10_original_values)
     pso.set_bounds(parameter_range=2)
     pso.set_speed(-.25, .25)
     pso.run(1000, 500)
