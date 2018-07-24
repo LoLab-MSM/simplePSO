@@ -290,7 +290,7 @@ def run_example():
     pso.set_start_position(log10_original_values)
     pso.set_bounds(parameter_range=2)
     pso.set_speed(-.25, .25)
-    pso.run(1000, 1)
+    pso.run(25, 5)
     ranked_values = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
     if plot:
         display(pso.best)
