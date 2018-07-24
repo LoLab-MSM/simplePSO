@@ -290,13 +290,13 @@ def run_example():
     pso.set_start_position(log10_original_values)
     pso.set_bounds(parameter_range=2)
     pso.set_speed(-.25, .25)
-    pso.run(1000, 500)
+    pso.run(1000, 1)
     ranked_values = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
     if plot:
         display(pso.best)
     display(pso.best)
-    np.save('ranked_values_pso', ranked_values) # param vectors for 1000 particles
-    np.save('values_cost_pso', pso.values) #cost function for each iteration of 1000 particles
+    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/ranked_values_pso', ranked_values) # param vectors for 1000 particles
+    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/values_cost_pso', pso.values) #cost function for each iteration of 1000 particles
 
 
 if __name__ == '__main__':
