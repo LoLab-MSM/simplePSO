@@ -293,8 +293,6 @@ def run_example():
     if plot:
         display(pso.best)
     display(pso.best)
-    print(ranked_values)
-    print(pso.values)
     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/ranked_values_pso', ranked_values) # param vectors for 1000 particles
     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/values_cost_pso', pso.values) #cost function for each iteration of 1000 particles
 
