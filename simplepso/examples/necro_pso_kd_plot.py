@@ -118,8 +118,6 @@ def display(parameter_2):
     # ysim_norm_1 = normalize(ysim_array_1)
     Y = np.copy(parameter_2)
     param_values[rate_mask] = 10 ** Y
-    print(len(param_values[rate_mask]))
-    quit()
     # rate_params = 10 ** Y
 
     a20_params = np.copy(param_values)
