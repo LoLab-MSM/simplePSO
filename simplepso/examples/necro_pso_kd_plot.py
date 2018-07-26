@@ -283,18 +283,30 @@ def obj_function(params):
 #     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
 
 def run_example():
-    pso = PSO(verbose=True)
+    pso = PSO(verbose=True, save_sampled=True)
     pso.set_cost_function(obj_function)
     pso.set_start_position(log10_original_values)
     pso.set_bounds(parameter_range=2)
     pso.set_speed(-.25, .25)
     pso.run(25, 5)
-    ranked_values = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+    fitness,positions = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+    hist_all = pso.all_history
+    fit_all = pso.all_fitness
+    # print('fitness, particles')
+    # print(fitness)
+    # print('position rank')
+    # print(positions)
+    # print('all history')
+    # print(hist_all)
+    # print('fit all iterations')
+    # print(fit_all)
     if plot:
         display(pso.best)
     display(pso.best)
-    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/ranked_values_pso', ranked_values) # param vectors for 1000 particles
-    np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/values_cost_pso', pso.values) #cost function for each iteration of 1000 particles
+    np.save('position_pso', positions) # param vectors for 1000 particles
+    np.save('values_cost_pso', fitness) #cost function for each iteration of 1000 particles
+    np.save('his_all_pso', hist_all)
+    np.save('fit_all_pso', fit_all)
 
 
 if __name__ == '__main__':
