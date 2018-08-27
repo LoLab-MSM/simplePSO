@@ -40,28 +40,6 @@ def extract_records(recarray, names):
 t = np.linspace(0, 720, 13)
 solver1 = ScipyOdeSimulator(model, tspan=t,rtol=1e-6, atol=1e-6)
 
-
-# #make an array for each of the kd made up data for mlklp
-# #switching at 7 hours
-# wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-# wty = np.array([0., 0., 0., 0., 0., 0.10, 0.25, 0.5, 0.85, 1., 1., 1., 1.])
-#
-# #A20 data switching at 3 hours
-# a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-# a20y = np.array([0.,0., 0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1., 1., 1.])
-#
-# #Tradd data switching at 7
-# tdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-# tdy = np.array([0., 0., 0., 0., 0., 0.10, 0.25, 0.5, 0.85, 1., 1., 1., 1.])
-#
-# #Fadd Data switching at 5 hours
-# fdx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-# fdy = np.array([0., 0.,0., 0.10,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.])
-#
-# #C8 Data switching at 5
-# c8x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-# c8y = np.array([0., 0.,0., 0.10,0.25, 0.5, 0.75, 1., 1., 1., 1., 1., 1.])
-
 #make an array for each of the kd made up data for mlklp
 #switching at 5 hours
 wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
