@@ -10,6 +10,87 @@ Model()
 
 model.enable_synth_deg()
 
+params = [
+2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
+1.223347573677009020e-07,
+1.847763641629712739e-02,
+3.000388537507257813e-02,
+2.001077439052020398e-05,
+1.219295486333531707e-02,
+4.943717334826855457e-05,
+2.624725680910927617e-02,
+1.991351857905033468e-05,
+4.488812697741692559e-03,
+1.041577480241394007e-05,
+3.473936580568400597e-03,
+1.072217409826840662e+00,
+1.506747791022632791e-05,
+4.360182640163040406e-03,
+1.792572991490754334e-05,
+2.642504878427706302e-02,
+3.558771687312299870e-01,
+1.106213891407066866e-06,
+2.101813258955530922e-02,
+4.020551464879950743e+00,
+2.458525808081724495e+00,
+3.153989353897445407e-06,
+1.676074001871189672e-04,
+1.631660435291963120e-03,
+3.264925281087857373e-05,
+1.555466530711384077e-01,
+4.656082056292588645e-01,
+7.442659427818243412e-01,
+1.663505513158469062e+00,
+2.393601347545811427e-05,
+5.997125487854754709e-03,
+5.270384065069513291e-01,
+7.442196406911848194e-02,
+4.354575919268037498e-02,
+2.466300351383134983e-04,
+2.046932131600806510e-05,
+2.107029175494326978e+01]
+
+new = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
+5.090352718964910340e-05,
+8.846681140663302523e-02,
+7.688925127286951045e-02,
+4.718531991263202608e-05,
+2.480645592309011632e-02,
+2.634730892196591635e-05,
+7.994366563229754474e-02,
+8.004684705208197151e-05,
+2.787447426045872381e-02,
+2.528487936602940290e-05,
+5.965677558019213955e-02,
+2.605672790260717964e+00,
+8.794418149861516561e-05,
+7.695471791403299400e-02,
+7.898521723337450790e-05,
+4.694350552814404581e-02,
+6.550932796050894069e+00,
+8.186365727139884572e-05,
+6.872144915868418080e-02,
+1.112414613253134510e+00,
+1.497407583427553535e+00,
+2.679386619274433570e-06,
+1.252840334405051683e-04,
+2.142769060164864958e-01,
+7.132599412461731482e-05,
+1.733224145970182262e+00,
+2.345217685036323108e+00,
+6.735732655693388304e-01,
+5.176940275194190200e+00,
+5.364253277853003110e-06,
+6.539060406153636429e-02,
+7.377928959306133017e+00,
+7.512669157064747472e-01,
+5.520988157998800439e-02,
+8.772775867498763813e-02,
+1.123578955588378102e-05,
+1.062391316471664356e-02,
+
+]
+
 Monomer('TNF', ['brec'])
 Monomer('TNFR', ['blig', 'brip', 'bDD'])
 Monomer('TRADD', ['brec', 'brip', 'state','bDD1', 'bDD2'], {'state': ['unmod', 'K63ub']})
@@ -135,12 +216,16 @@ Rule('A20_1', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec = 2, brip = 3, b
 #Initiating Necroptosis
 Parameter('bind_TRADDANYRIP1ANY_FADD_kf', 1e-1)
 Parameter('bind_TRADDANYRIP1ANY_FADD_kr', 3.11e-7)
+
 Parameter('bind_FADD_proC8_2_kf', 3.27e-06)
 Parameter('bind_FADD_proC8_2_kr', 0.018)
+
 Parameter('bind_FADDANY_flip_L_kf',3.27e-06)
 Parameter('bind_FADDANY_flip_L_kr', 0.018)
+
 Parameter('bind_C8_flip_L_kf',3.27e-2)
 Parameter('bind_C8_flip_L_kr', 0.018) #not used
+
 Parameter('kc_c8_1', 1e-1)
 Parameter('bind_FADDANY_RIP3_kf', 1e-6)
 Parameter('bind_FADDANY_RIP3_kr', 1e-3)
@@ -160,7 +245,7 @@ Rule('bind_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) %
      <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A'), bind_FADDANY_flip_L_kf, bind_FADDANY_flip_L_kr)
 
 Rule('activate_C8', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A')
-     >> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf)
+     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf,bind_C8_flip_L_kr)
 
 Rule('catalyze_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A') >>
      TRADD(brec = None, brip = None, bDD1=None, bDD2=None) + RIP1(bscf=None, btraf=None, bub1=None, bub2=None, bub3=None,bDD = None,bRHIM=None,bMLKL=None, state='trunc') + FADD(bDD=None,bDED1 = None, bDED2 = None) + C8(bf=None,flip = None, state='I') + flip_L(bDED=None, state = 'I') , kc_c8_1)
@@ -193,16 +278,33 @@ Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 =
      >>  MLKL(bRHIM=None, state='active') + RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') , catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc)
 
 generate_equations(model)
-print(model.species)
-print('end')
 
+print(len(model.odes))
+print(len(model.parameters_rules()))
+print(len(model.parameters))
+print(len(model.rules))
+print(len(model.reactions))
+for i,sp in enumerate(model.species):
+    print(i,":",sp)
+for i,ode in enumerate(model.odes):
+    print(i,":",ode)
+quit()
+
+Observable('mlklp', MLKL(bRHIM=None, state='active'))
+tnf = [2326, 233, 23, 2]
 tspan = np.linspace(0, 1440, 1441)
 sim = BngSimulator(model, tspan=tspan)
-result = sim.run()
+result = sim.run(method='ode', param_values=new, initials={TNF(brec=None): tnf})
+df = result.dataframe
 
-plt.figure()
-plt.plot(tspan/60, result.species[:,1],label = 'S1')
-plt.xlabel("Time (in hr)", fontsize=15)
-plt.ylabel("Amount [Molecules/Cell]", fontsize=15)
-plt.legend(loc ='best')
+
+# result = sim.run(method='ode', param_values=params)
+
+for n in range(0,4):
+    plt.plot(tspan/60, df.loc[n]['mlklp'].iloc[:], lw =1)
+plt.xlabel('Time in Hr', fontsize=16)
+plt.ylabel('Mlklp Molecules per Cell ', fontsize=16)
+plt.title('TNF Doses')
+plt.legend(tnf, title = 'TNF', loc=0, fontsize = 5)
+# plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 plt.show()

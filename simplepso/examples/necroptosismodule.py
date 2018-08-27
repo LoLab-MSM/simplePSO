@@ -27,7 +27,7 @@ Monomer('flip_L', ['bDED', 'state'], {'state': ['A', 'I']})
 Monomer('RIP3', ['bRHIM', 'bDD', 'state'], {'state': ['unmod', 'po4', 'trunc', 'N']})
 Monomer('MLKL', ['bRHIM', 'state'], {'state': ['unmod', 'active', 'inactive']})
 Monomer('TAK1', ['brip', 'bmapk'])
-Monomer('NEMO', ['brip', 'btak', 'bikk', 'state'], {'state': ['I', 'A']})
+# Monomer('NEMO', ['brip', 'btak', 'bikk', 'state'], {'state': ['I', 'A']})
 Monomer('LUBAC', ['brip'])
 
 Parameter('TNF_0', 2326) #698 is 30ng/ml of TNF
@@ -43,7 +43,7 @@ Parameter('flip_L_0', 3900) # 0.004 # 0.09
 Parameter('Lubac_0', 7226)
 Parameter('C8_0', 9000) #10000 # 0.033 # 0.093 # 0.0107
 Parameter('RIP3_0', 40000) #20000
-Parameter('NEMO_0', 24000) # 1000000
+# Parameter('NEMO_0', 24000) # 1000000
 Parameter('MLKLa_0', 10000) # 100000 #0.0034
 
 Initial(TNF(brec=None), TNF_0)
@@ -58,7 +58,7 @@ Initial(FADD(bDD=None, bDED1=None, bDED2=None), FADD_0)
 Initial(RIP3(bRHIM=None, bDD = None, state='unmod'), RIP3_0)
 Initial(flip_L(bDED=None, state = 'A'), flip_L_0)
 Initial(LUBAC(brip=None), Lubac_0)
-Initial(NEMO(brip = None, btak = None, bikk = None, state = 'I'), NEMO_0)
+# Initial(NEMO(brip = None, btak = None, bikk = None, state = 'I'), NEMO_0)
 Initial(C8(bf=None, flip = None, state='I'), C8_0)
 Initial(MLKL(bRHIM=None, state='unmod'), MLKLa_0)
 
@@ -163,7 +163,7 @@ Rule('bind_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) %
      <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A'), bind_FADDANY_flip_L_kf, bind_FADDANY_flip_L_kr)
 
 Rule('activate_C8', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A')
-     >> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf)
+     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf,bind_C8_flip_L_kr)
 
 Rule('catalyze_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A') >>
      TRADD(brec = None, brip = None, bDD1=None, bDD2=None) + RIP1(bscf=None, btraf=None, bub1=None, bub2=None, bub3=None,bDD = None,bRHIM=None,bMLKL=None, state='trunc') + FADD(bDD=None,bDED1 = None, bDED2 = None) + C8(bf=None,flip = None, state='I') + flip_L(bDED=None, state = 'I') , kc_c8_1)

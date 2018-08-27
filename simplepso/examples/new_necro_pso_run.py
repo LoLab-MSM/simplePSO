@@ -9,80 +9,110 @@ from tropical.dynamic_signatures_range import run_tropical_multi
 # from tropical.examples.double_enzymatic.mm_two_paths_model import model
 # from tropical import clustering
 from necro_pso_kd_plot import display
+from operator import itemgetter
 
 # model.enable_synth_deg()
 
-pars =  np.load('optimizer_best_5000_all_new_2.npy')
-# print(pars)
-# quit()
-ex = np.load('examples.npy')
-# print(ex.shape)
-print(ex[:,:])
-quit()
+pos = np.load('position_pso.npy')
 
+
+pars =  np.load('optimizer_best_5000_all_new_2.npy')
+print(pars)
+pars = pars.remove(pars[26])
 print(len(pars))
+print(pars)
+# print(pars)
+quit()
+# ex = np.load('examples.npy')
+# # print(ex.shape)
+# print(ex[:,:])
+# quit()
+
+print(len(model.parameters))
+print(len(pars))
+print(len(model.parameters_rules()))
+print(len(model.initial_conditions))
+quit()
 
 initials1 = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000]
 params = 10 ** pars
+print(len(model.parameters_rules()))
+print(params)
 # print(len(params))
-pars = np.concatenate([1.0, pars])
-params = np.concatenate([initials1, params])
-
-
-print(len(params))
-print(len(model.parameters))
+params1 = np.concatenate([[1.0], params])
+print(params1)
 quit()
 
-tspan = np.linspace(0, 1200, 1201)
-sim1 = ScipyOdeSimulator(model, tspan=tspan, param_values=params).run()
-tro = run_tropical_multi(model, simulations=sim, passengers_by='imp_nodes', diff_par=1.0, cpu_cores=25)
 
+params = np.concatenate([initials1, params])
+# print(params)
 
-with open('necro_signatures.pickle', 'wb') as handle:
-    pickle.dump(tro, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#
+# print(len(params))
+# print(len(model.parameters))
+# quit()
 
-signatures_23 = tro[23]['production']
-clus = clustering.ClusterSequences(seqdata=signatures_23, unique_sequences=False)
-
-#property of the sequences of the class
-clus.diss_matrix(n_jobs=25)
-sil_df = clus.silhouette_score_spectral_range(cluster_range=range(2, 20), n_jobs=cpus, random_state=1234)
-print (sil_df) #dataframe w/ # of clusters and sil score
-best_silh, n_clus = sil_df.loc[sil_df['cluster_silhouette'].idxmax()]
-n_clus = int(n_clus)
-
-
-clus.spectral_clustering(n_clusters=n_clus, n_jobs=cpus, random_state=1234)
-np.save('labels_rip1.npy', clus.labels)
-b = clustering.PlotSequences(clus)
-b.modal_plot(title='RIP1')
-b.all_trajectories_plot(title='RIP1')
+tspan = np.linspace(0, 480, 481)
+# sim1 = ScipyOdeSimulator(model, tspan=tspan, param_values=params).run()
+#
+#
+# tro = run_tropical_multi(model, simulations=sim, passengers_by='imp_nodes', diff_par=1.0, cpu_cores=25)
+#
+#
+# with open('necro_signatures.pickle', 'wb') as handle:
+#     pickle.dump(tro, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#
+# signatures_23 = tro[23]['production']
+# clus = clustering.ClusterSequences(seqdata=signatures_23, unique_sequences=False)
+#
+# #property of the sequences of the class
+# clus.diss_matrix(n_jobs=25)
+# sil_df = clus.silhouette_score_spectral_range(cluster_range=range(2, 20), n_jobs=cpus, random_state=1234)
+# print (sil_df) #dataframe w/ # of clusters and sil score
+# best_silh, n_clus = sil_df.loc[sil_df['cluster_silhouette'].idxmax()]
+# n_clus = int(n_clus)
+#
+#
+# clus.spectral_clustering(n_clusters=n_clus, n_jobs=cpus, random_state=1234)
+# np.save('labels_rip1.npy', clus.labels)
+# b = clustering.PlotSequences(clus)
+# b.modal_plot(title='RIP1')
+# b.all_trajectories_plot(title='RIP1')
 
 
 #
 #
 #
 #
-# sim2 = ScipyOdeSimulator(model, tspan=tspan)
-# L4 = sim1.run(param_values=params)
+sim2 = ScipyOdeSimulator(model, tspan=tspan)
+L4 = sim2.run(param_values=params)
+a = [0, 1*60, 2*60, 3*60, 4*60, 5*60, 6*60, 7*60, 8*60]
+print(L4.observables['MLKLa_obs'][a[1]])
+print(L4.observables['MLKLa_obs'][a[2]])
+print(L4.observables['MLKLa_obs'][a[3]])
+print(L4.observables['MLKLa_obs'][a[4]])
+print(L4.observables['MLKLa_obs'][a[5]])
+print(L4.observables['MLKLa_obs'][a[6]])
+print(L4.observables['MLKLa_obs'][a[7]])
+print(L4.observables['MLKLa_obs'][a[8]])
 # L3 = sim2.run()
 #
 #
-# plt.figure()
+plt.figure()
 # # plt.plot(tspan/60, L3.observables['MLKLa_obs'],color = 'purple',label = 'MLKLp')
 # plt.plot(tspan/60, sim_result1.observables['MLKLa_obs'],label = '100 ng/ml TNF')
 # plt.plot(tspan/60, sim_result2.observables['MLKLa_obs'],label = '10 ng/ml TNF')
 # plt.plot(tspan/60, sim_result3.observables['MLKLa_obs'],label = '1 ng/ml TNF')
 # plt.plot(tspan/60, sim_result4.observables['MLKLa_obs'],label = '0.1 ng/ml TNF')
 # # plt.plot(tspan/60, L3.observables['MLKL_obs'],color = 'red',label = 'MLKL')
-# # plt.plot(tspan/60, L4.observables['MLKL_obs'],color = 'red',label = 'MLKL_cal')
+plt.plot(tspan/60, L4.observables['MLKLa_obs'],color = 'red',label = 'MLKLp_cal')
 # # plt.plot(tspan/60, simulation_result.observables['IKKa_obs'], color = 'r', label = 'IKKa_mat')
-# plt.xlabel("Time (in hr)", fontsize=15)
-# plt.ylabel("MLKLp [Molecules/Cell]", fontsize=15)
+plt.xlabel("Time (in hr)", fontsize=15)
+plt.ylabel("MLKLp [Molecules/Cell]", fontsize=15)
 # plt.title('MLKLp Trajectories')
-# plt.legend(loc ='best')
-# # plt.show()
-#
+# plt.legend(loc ='best')x
+plt.show()
+
 #
 # print(L3.observables['C8a_obs'][:])
 # print(L4.observables['RIP13_obs'][:])
