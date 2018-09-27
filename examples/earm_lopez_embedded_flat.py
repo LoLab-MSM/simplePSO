@@ -166,7 +166,7 @@ Rule('bind_L_R_to_LR', L(bf=None) + R(bf=None) | L(bf=1) % R(bf=1),
 Rule('convert_LR_to_DISC', L(bf=1) % R(bf=1) >> DISC(bf=None),
      convert_LR_to_DISC_kc)
 Rule('bind_DISC_C8pro_to_DISCC8pro',
-     DISC(bf=None) + C8(bf=None, state='pro') <> DISC(bf=1) % C8(bf=1,
+     DISC(bf=None) + C8(bf=None, state='pro') | DISC(bf=1) % C8(bf=1,
                                                                  state='pro'),
      bind_DISC_C8pro_to_DISCC8pro_kf, bind_DISC_C8pro_to_DISCC8pro_kr)
 Rule('catalyze_DISCC8pro_to_DISC_C8A',
