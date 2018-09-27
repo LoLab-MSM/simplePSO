@@ -184,7 +184,7 @@ Rule('catalyze_C8ABidU_to_C8A_BidT',
                                                                        state='T'),
      catalyze_C8ABidU_to_C8A_BidT_kc)
 Rule('bind_DISC_flip',
-     DISC(bf=None) + flip(bf=None) <> DISC(bf=1) % flip(bf=1),
+     DISC(bf=None) + flip(bf=None) | DISC(bf=1) % flip(bf=1),
      bind_DISC_flip_kf, bind_DISC_flip_kr)
 Rule('bind_BAR_C8A',
      BAR(bf=None) + C8(bf=None, state='A') | BAR(bf=1) % C8(bf=1, state='A'),
