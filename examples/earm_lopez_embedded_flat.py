@@ -161,7 +161,7 @@ Observable('mBid', Bid(state='M'))
 Observable('aSmac', Smac(state='A'))
 Observable('cPARP', PARP(state='C'))
 
-Rule('bind_L_R_to_LR', L(bf=None) + R(bf=None) <> L(bf=1) % R(bf=1),
+Rule('bind_L_R_to_LR', L(bf=None) + R(bf=None) | L(bf=1) % R(bf=1),
      bind_L_R_to_LR_kf, bind_L_R_to_LR_kr)
 Rule('convert_LR_to_DISC', L(bf=1) % R(bf=1) >> DISC(bf=None),
      convert_LR_to_DISC_kc)
@@ -174,8 +174,8 @@ Rule('catalyze_DISCC8pro_to_DISC_C8A',
                                                               state='A'),
      catalyze_DISCC8pro_to_DISC_C8A_kc)
 Rule('bind_C8A_BidU_to_C8ABidU',
-     C8(bf=None, state='A') + Bid(bf=None, state='U') <> C8(bf=1,
-                                                            state='A') % Bid(
+     C8(bf=None, state='A') + Bid(bf=None, state='U') | C8(bf=1,
+                                                           state='A') % Bid(
          bf=1, state='U'), bind_C8A_BidU_to_C8ABidU_kf,
      bind_C8A_BidU_to_C8ABidU_kr)
 Rule('catalyze_C8ABidU_to_C8A_BidT',
@@ -187,17 +187,17 @@ Rule('bind_DISC_flip',
      DISC(bf=None) + flip(bf=None) <> DISC(bf=1) % flip(bf=1),
      bind_DISC_flip_kf, bind_DISC_flip_kr)
 Rule('bind_BAR_C8A',
-     BAR(bf=None) + C8(bf=None, state='A') <> BAR(bf=1) % C8(bf=1, state='A'),
+     BAR(bf=None) + C8(bf=None, state='A') | BAR(bf=1) % C8(bf=1, state='A'),
      bind_BAR_C8A_kf, bind_BAR_C8A_kr)
 Rule('equilibrate_SmacC_to_SmacA',
-     Smac(bf=None, state='C') <> Smac(bf=None, state='A'),
+     Smac(bf=None, state='C') | Smac(bf=None, state='A'),
      equilibrate_SmacC_to_SmacA_kf, equilibrate_SmacC_to_SmacA_kr)
 Rule('equilibrate_CytoCC_to_CytoCA',
-     CytoC(bf=None, state='C') <> CytoC(bf=None, state='A'),
+     CytoC(bf=None, state='C') | CytoC(bf=None, state='A'),
      equilibrate_CytoCC_to_CytoCA_kf, equilibrate_CytoCC_to_CytoCA_kr)
 Rule('bind_CytoCA_ApafI_to_CytoCAApafI',
-     CytoC(bf=None, state='A') + Apaf(bf=None, state='I') <> CytoC(bf=1,
-                                                                   state='A') % Apaf(
+     CytoC(bf=None, state='A') + Apaf(bf=None, state='I') | CytoC(bf=1,
+                                                                  state='A') % Apaf(
          bf=1, state='I'), bind_CytoCA_ApafI_to_CytoCAApafI_kf,
      bind_CytoCA_ApafI_to_CytoCAApafI_kr)
 Rule('catalyze_CytoCAApafI_to_CytoCA_ApafA',
@@ -205,25 +205,25 @@ Rule('catalyze_CytoCAApafI_to_CytoCA_ApafA',
                                                              state='A') + Apaf(
          bf=None, state='A'), catalyze_CytoCAApafI_to_CytoCA_ApafA_kc)
 Rule('convert_ApafA_C9_to_Apop',
-     Apaf(bf=None, state='A') + C9(bf=None) <> Apop(bf=None),
+     Apaf(bf=None, state='A') + C9(bf=None) | Apop(bf=None),
      convert_ApafA_C9_to_Apop_kf, convert_ApafA_C9_to_Apop_kr)
 Rule('bind_Apop_C3pro_to_ApopC3pro',
-     Apop(bf=None) + C3(bf=None, state='pro') <> Apop(bf=1) % C3(bf=1,
-                                                                 state='pro'),
+     Apop(bf=None) + C3(bf=None, state='pro') | Apop(bf=1) % C3(bf=1,
+                                                                state='pro'),
      bind_Apop_C3pro_to_ApopC3pro_kf, bind_Apop_C3pro_to_ApopC3pro_kr)
 Rule('catalyze_ApopC3pro_to_Apop_C3A',
      Apop(bf=1) % C3(bf=1, state='pro') >> Apop(bf=None) + C3(bf=None,
                                                               state='A'),
      catalyze_ApopC3pro_to_Apop_C3A_kc)
 Rule('bind_Apop_XIAP',
-     Apop(bf=None) + XIAP(bf=None) <> Apop(bf=1) % XIAP(bf=1),
+     Apop(bf=None) + XIAP(bf=None) | Apop(bf=1) % XIAP(bf=1),
      bind_Apop_XIAP_kf, bind_Apop_XIAP_kr)
 Rule('bind_SmacA_XIAP',
-     Smac(bf=None, state='A') + XIAP(bf=None) <> Smac(bf=1, state='A') % XIAP(
+     Smac(bf=None, state='A') + XIAP(bf=None) | Smac(bf=1, state='A') % XIAP(
          bf=1), bind_SmacA_XIAP_kf, bind_SmacA_XIAP_kr)
 Rule('bind_C8A_C3pro_to_C8AC3pro',
-     C8(bf=None, state='A') + C3(bf=None, state='pro') <> C8(bf=1,
-                                                             state='A') % C3(
+     C8(bf=None, state='A') + C3(bf=None, state='pro') | C8(bf=1,
+                                                            state='A') % C3(
          bf=1, state='pro'), bind_C8A_C3pro_to_C8AC3pro_kf,
      bind_C8A_C3pro_to_C8AC3pro_kr)
 Rule('catalyze_C8AC3pro_to_C8A_C3A',
@@ -232,16 +232,16 @@ Rule('catalyze_C8AC3pro_to_C8A_C3A',
                                                                        state='A'),
      catalyze_C8AC3pro_to_C8A_C3A_kc)
 Rule('bind_XIAP_C3A_to_XIAPC3A',
-     XIAP(bf=None) + C3(bf=None, state='A') <> XIAP(bf=1) % C3(bf=1,
-                                                               state='A'),
+     XIAP(bf=None) + C3(bf=None, state='A') | XIAP(bf=1) % C3(bf=1,
+                                                              state='A'),
      bind_XIAP_C3A_to_XIAPC3A_kf, bind_XIAP_C3A_to_XIAPC3A_kr)
 Rule('catalyze_XIAPC3A_to_XIAP_C3ub',
      XIAP(bf=1) % C3(bf=1, state='A') >> XIAP(bf=None) + C3(bf=None,
                                                             state='ub'),
      catalyze_XIAPC3A_to_XIAP_C3ub_kc)
 Rule('bind_C3A_PARPU_to_C3APARPU',
-     C3(bf=None, state='A') + PARP(bf=None, state='U') <> C3(bf=1,
-                                                             state='A') % PARP(
+     C3(bf=None, state='A') + PARP(bf=None, state='U') | C3(bf=1,
+                                                            state='A') % PARP(
          bf=1, state='U'), bind_C3A_PARPU_to_C3APARPU_kf,
      bind_C3A_PARPU_to_C3APARPU_kr)
 Rule('catalyze_C3APARPU_to_C3A_PARPC',
@@ -249,8 +249,8 @@ Rule('catalyze_C3APARPU_to_C3A_PARPC',
                                                        state='A') + PARP(
          bf=None, state='C'), catalyze_C3APARPU_to_C3A_PARPC_kc)
 Rule('bind_C3A_C6pro_to_C3AC6pro',
-     C3(bf=None, state='A') + C6(bf=None, state='pro') <> C3(bf=1,
-                                                             state='A') % C6(
+     C3(bf=None, state='A') + C6(bf=None, state='pro') | C3(bf=1,
+                                                            state='A') % C6(
          bf=1, state='pro'), bind_C3A_C6pro_to_C3AC6pro_kf,
      bind_C3A_C6pro_to_C3AC6pro_kr)
 Rule('catalyze_C3AC6pro_to_C3A_C6A',
@@ -259,8 +259,8 @@ Rule('catalyze_C3AC6pro_to_C3A_C6A',
                                                                        state='A'),
      catalyze_C3AC6pro_to_C3A_C6A_kc)
 Rule('bind_C6A_C8pro_to_C6AC8pro',
-     C6(bf=None, state='A') + C8(bf=None, state='pro') <> C6(bf=1,
-                                                             state='A') % C8(
+     C6(bf=None, state='A') + C8(bf=None, state='pro') | C6(bf=1,
+                                                            state='A') % C8(
          bf=1, state='pro'), bind_C6A_C8pro_to_C6AC8pro_kf,
      bind_C6A_C8pro_to_C6AC8pro_kr)
 Rule('catalyze_C6AC8pro_to_C6A_C8A',
@@ -269,11 +269,11 @@ Rule('catalyze_C6AC8pro_to_C6A_C8A',
                                                                        state='A'),
      catalyze_C6AC8pro_to_C6A_C8A_kc)
 Rule('equilibrate_BidT_to_BidM',
-     Bid(bf=None, state='T') <> Bid(bf=None, state='M'),
+     Bid(bf=None, state='T') | Bid(bf=None, state='M'),
      equilibrate_BidT_to_BidM_kf, equilibrate_BidT_to_BidM_kr)
 Rule('bind_BidM_BaxC_to_BidMBaxC',
-     Bid(bf=None, state='M') + Bax(bf=None, state='C') <> Bid(bf=1,
-                                                              state='M') % Bax(
+     Bid(bf=None, state='M') + Bax(bf=None, state='C') | Bid(bf=1,
+                                                             state='M') % Bax(
          bf=1, state='C'), bind_BidM_BaxC_to_BidMBaxC_kf,
      bind_BidM_BaxC_to_BidMBaxC_kr)
 Rule('catalyze_BidMBaxC_to_BidM_BaxM',
@@ -281,8 +281,8 @@ Rule('catalyze_BidMBaxC_to_BidM_BaxM',
                                                         state='M') + Bax(
          bf=None, state='M'), catalyze_BidMBaxC_to_BidM_BaxM_kc)
 Rule('bind_BidM_BaxM_to_BidMBaxM',
-     Bid(bf=None, state='M') + Bax(bf=None, state='M') <> Bid(bf=1,
-                                                              state='M') % Bax(
+     Bid(bf=None, state='M') + Bax(bf=None, state='M') | Bid(bf=1,
+                                                             state='M') % Bax(
          bf=1, state='M'), bind_BidM_BaxM_to_BidMBaxM_kf,
      bind_BidM_BaxM_to_BidMBaxM_kr)
 Rule('catalyze_BidMBaxM_to_BidM_BaxA',
@@ -290,8 +290,8 @@ Rule('catalyze_BidMBaxM_to_BidM_BaxA',
                                                         state='M') + Bax(
          bf=None, state='A'), catalyze_BidMBaxM_to_BidM_BaxA_kc)
 Rule('bind_BidM_BakM_to_BidMBakM',
-     Bid(bf=None, state='M') + Bak(bf=None, state='M') <> Bid(bf=1,
-                                                              state='M') % Bak(
+     Bid(bf=None, state='M') + Bak(bf=None, state='M') | Bid(bf=1,
+                                                             state='M') % Bak(
          bf=1, state='M'), bind_BidM_BakM_to_BidMBakM_kf,
      bind_BidM_BakM_to_BidMBakM_kr)
 Rule('catalyze_BidMBakM_to_BidM_BakA',
@@ -300,10 +300,10 @@ Rule('catalyze_BidMBakM_to_BidM_BakA',
          bf=None, state='A'), catalyze_BidMBakM_to_BidM_BakA_kc)
 Rule('bind_BaxA_BaxM_to_BaxABaxM',
      Bax(bf=None, s1=None, s2=None, state='A') + Bax(bf=None,
-                                                     state='M') <> Bax(bf=1,
-                                                                       s1=None,
-                                                                       s2=None,
-                                                                       state='A') % Bax(
+                                                     state='M') | Bax(bf=1,
+                                                                      s1=None,
+                                                                      s2=None,
+                                                                      state='A') % Bax(
          bf=1, state='M'), bind_BaxA_BaxM_to_BaxABaxM_kf,
      bind_BaxA_BaxM_to_BaxABaxM_kr)
 Rule('catalyze_BaxABaxM_to_BaxA_BaxA',
@@ -312,10 +312,10 @@ Rule('catalyze_BaxABaxM_to_BaxA_BaxA',
      catalyze_BaxABaxM_to_BaxA_BaxA_kc)
 Rule('bind_BakA_BakM_to_BakABakM',
      Bak(bf=None, s1=None, s2=None, state='A') + Bak(bf=None,
-                                                     state='M') <> Bak(bf=1,
-                                                                       s1=None,
-                                                                       s2=None,
-                                                                       state='A') % Bak(
+                                                     state='M') | Bak(bf=1,
+                                                                      s1=None,
+                                                                      s2=None,
+                                                                      state='A') % Bak(
          bf=1, state='M'), bind_BakA_BakM_to_BakABakM_kf,
      bind_BakA_BakM_to_BakABakM_kr)
 Rule('catalyze_BakABakM_to_BakA_BakA',
@@ -323,62 +323,62 @@ Rule('catalyze_BakABakM_to_BakA_BakA',
          bf=None, s1=None, s2=None, state='A') + Bak(bf=None, state='A'),
      catalyze_BakABakM_to_BakA_BakA_kc)
 Rule('bind_BidM_Bcl2M',
-     Bid(bf=None, state='M') + Bcl2(bf=None, state='M') <> Bid(bf=1,
-                                                               state='M') % Bcl2(
+     Bid(bf=None, state='M') + Bcl2(bf=None, state='M') | Bid(bf=1,
+                                                              state='M') % Bcl2(
          bf=1, state='M'), bind_BidM_Bcl2M_kf, bind_BidM_Bcl2M_kr)
 Rule('bind_BidM_BclxLM',
-     Bid(bf=None, state='M') + BclxL(bf=None, state='M') <> Bid(bf=1,
-                                                                state='M') % BclxL(
+     Bid(bf=None, state='M') + BclxL(bf=None, state='M') | Bid(bf=1,
+                                                               state='M') % BclxL(
          bf=1, state='M'), bind_BidM_BclxLM_kf, bind_BidM_BclxLM_kr)
 Rule('bind_BidM_Mcl1M',
-     Bid(bf=None, state='M') + Mcl1(bf=None, state='M') <> Bid(bf=1,
-                                                               state='M') % Mcl1(
+     Bid(bf=None, state='M') + Mcl1(bf=None, state='M') | Bid(bf=1,
+                                                              state='M') % Mcl1(
          bf=1, state='M'), bind_BidM_Mcl1M_kf, bind_BidM_Mcl1M_kr)
 Rule('bind_BaxA_Bcl2',
-     Bax(bf=None, s1=None, s2=None, state='A') + Bcl2(bf=None) <> Bax(bf=1,
-                                                                      s1=None,
-                                                                      s2=None,
-                                                                      state='A') % Bcl2(
+     Bax(bf=None, s1=None, s2=None, state='A') + Bcl2(bf=None) | Bax(bf=1,
+                                                                     s1=None,
+                                                                     s2=None,
+                                                                     state='A') % Bcl2(
          bf=1), bind_BaxA_Bcl2_kf, bind_BaxA_Bcl2_kr)
 Rule('bind_BaxA_BclxLM',
      Bax(bf=None, s1=None, s2=None, state='A') + BclxL(bf=None,
-                                                       state='M') <> Bax(bf=1,
-                                                                         s1=None,
-                                                                         s2=None,
-                                                                         state='A') % BclxL(
+                                                       state='M') | Bax(bf=1,
+                                                                        s1=None,
+                                                                        s2=None,
+                                                                        state='A') % BclxL(
          bf=1, state='M'), bind_BaxA_BclxLM_kf, bind_BaxA_BclxLM_kr)
 Rule('bind_BakA_BclxLM',
      Bak(bf=None, s1=None, s2=None, state='A') + BclxL(bf=None,
-                                                       state='M') <> Bak(bf=1,
-                                                                         s1=None,
-                                                                         s2=None,
-                                                                         state='A') % BclxL(
+                                                       state='M') | Bak(bf=1,
+                                                                        s1=None,
+                                                                        s2=None,
+                                                                        state='A') % BclxL(
          bf=1, state='M'), bind_BakA_BclxLM_kf, bind_BakA_BclxLM_kr)
 Rule('bind_BakA_Mcl1M',
      Bak(bf=None, s1=None, s2=None, state='A') + Mcl1(bf=None,
-                                                      state='M') <> Bak(bf=1,
-                                                                        s1=None,
-                                                                        s2=None,
-                                                                        state='A') % Mcl1(
+                                                      state='M') | Bak(bf=1,
+                                                                       s1=None,
+                                                                       s2=None,
+                                                                       state='A') % Mcl1(
          bf=1, state='M'), bind_BakA_Mcl1M_kf, bind_BakA_Mcl1M_kr)
 Rule('bind_BadM_Bcl2M',
-     Bad(bf=None, state='M') + Bcl2(bf=None, state='M') <> Bad(bf=1,
-                                                               state='M') % Bcl2(
+     Bad(bf=None, state='M') + Bcl2(bf=None, state='M') | Bad(bf=1,
+                                                              state='M') % Bcl2(
          bf=1, state='M'), bind_BadM_Bcl2M_kf, bind_BadM_Bcl2M_kr)
 Rule('bind_BadM_BclxLM',
-     Bad(bf=None, state='M') + BclxL(bf=None, state='M') <> Bad(bf=1,
-                                                                state='M') % BclxL(
+     Bad(bf=None, state='M') + BclxL(bf=None, state='M') | Bad(bf=1,
+                                                               state='M') % BclxL(
          bf=1, state='M'), bind_BadM_BclxLM_kf, bind_BadM_BclxLM_kr)
 Rule('bind_NoxaM_Mcl1M',
-     Noxa(bf=None, state='M') + Mcl1(bf=None, state='M') <> Noxa(bf=1,
-                                                                 state='M') % Mcl1(
+     Noxa(bf=None, state='M') + Mcl1(bf=None, state='M') | Noxa(bf=1,
+                                                                state='M') % Mcl1(
          bf=1, state='M'), bind_NoxaM_Mcl1M_kf, bind_NoxaM_Mcl1M_kr)
 Rule('assemble_pore_sequential_Bax_2',
      Bax(bf=None, s1=None, s2=None, state='A') + Bax(bf=None, s1=None, s2=None,
-                                                     state='A') <> Bax(bf=None,
-                                                                       s1=None,
-                                                                       s2=1,
-                                                                       state='A') % Bax(
+                                                     state='A') | Bax(bf=None,
+                                                                      s1=None,
+                                                                      s2=1,
+                                                                      state='A') % Bax(
          bf=None, s1=1, s2=None, state='A'), assemble_pore_sequential_Bax_2_kf,
      assemble_pore_sequential_Bax_2_kr)
 Rule('assemble_pore_sequential_Bax_3',
@@ -386,7 +386,7 @@ Rule('assemble_pore_sequential_Bax_3',
                                                      state='A') % Bax(bf=None,
                                                                       s1=1,
                                                                       s2=None,
-                                                                      state='A') <> MatchOnce(
+                                                                      state='A') | MatchOnce(
          Bax(bf=None, s1=3, s2=1, state='A') % Bax(bf=None, s1=1, s2=2,
                                                    state='A') % Bax(bf=None,
                                                                     s1=2, s2=3,
@@ -397,7 +397,7 @@ Rule('assemble_pore_sequential_Bax_4',
          Bax(bf=None, s1=3, s2=1, state='A') % Bax(bf=None, s1=1, s2=2,
                                                    state='A') % Bax(bf=None,
                                                                     s1=2, s2=3,
-                                                                    state='A')) <> MatchOnce(
+                                                                    state='A')) | MatchOnce(
          Bax(bf=None, s1=4, s2=1, state='A') % Bax(bf=None, s1=1, s2=2,
                                                    state='A') % Bax(bf=None,
                                                                     s1=2, s2=3,
@@ -406,10 +406,10 @@ Rule('assemble_pore_sequential_Bax_4',
      assemble_pore_sequential_Bax_4_kf, assemble_pore_sequential_Bax_4_kr)
 Rule('assemble_pore_sequential_Bak_2',
      Bak(bf=None, s1=None, s2=None, state='A') + Bak(bf=None, s1=None, s2=None,
-                                                     state='A') <> Bak(bf=None,
-                                                                       s1=None,
-                                                                       s2=1,
-                                                                       state='A') % Bak(
+                                                     state='A') | Bak(bf=None,
+                                                                      s1=None,
+                                                                      s2=1,
+                                                                      state='A') % Bak(
          bf=None, s1=1, s2=None, state='A'), assemble_pore_sequential_Bak_2_kf,
      assemble_pore_sequential_Bak_2_kr)
 Rule('assemble_pore_sequential_Bak_3',
@@ -417,7 +417,7 @@ Rule('assemble_pore_sequential_Bak_3',
                                                      state='A') % Bak(bf=None,
                                                                       s1=1,
                                                                       s2=None,
-                                                                      state='A') <> MatchOnce(
+                                                                      state='A') | MatchOnce(
          Bak(bf=None, s1=3, s2=1, state='A') % Bak(bf=None, s1=1, s2=2,
                                                    state='A') % Bak(bf=None,
                                                                     s1=2, s2=3,
@@ -428,7 +428,7 @@ Rule('assemble_pore_sequential_Bak_4',
          Bak(bf=None, s1=3, s2=1, state='A') % Bak(bf=None, s1=1, s2=2,
                                                    state='A') % Bak(bf=None,
                                                                     s1=2, s2=3,
-                                                                    state='A')) <> MatchOnce(
+                                                                    state='A')) | MatchOnce(
          Bak(bf=None, s1=4, s2=1, state='A') % Bak(bf=None, s1=1, s2=2,
                                                    state='A') % Bak(bf=None,
                                                                     s1=2, s2=3,
@@ -441,7 +441,7 @@ Rule('pore_transport_complex_BaxA_4_CytoCM', MatchOnce(
                                                                s2=3,
                                                                state='A') % Bax(
         bf=None, s1=3, s2=4, state='A')) + CytoC(bf=None,
-                                                 state='M') <> MatchOnce(
+                                                 state='M') | MatchOnce(
     Bax(bf=5, s1=4, s2=1, state='A') % Bax(bf=None, s1=1, s2=2,
                                            state='A') % Bax(bf=None, s1=2,
                                                             s2=3,
@@ -467,7 +467,7 @@ Rule('pore_transport_complex_BaxA_4_SmacM', MatchOnce(
                                                                s2=3,
                                                                state='A') % Bax(
         bf=None, s1=3, s2=4, state='A')) + Smac(bf=None,
-                                                state='M') <> MatchOnce(
+                                                state='M') | MatchOnce(
     Bax(bf=5, s1=4, s2=1, state='A') % Bax(bf=None, s1=1, s2=2,
                                            state='A') % Bax(bf=None, s1=2,
                                                             s2=3,
@@ -493,7 +493,7 @@ Rule('pore_transport_complex_BakA_4_CytoCM', MatchOnce(
                                                                s2=3,
                                                                state='A') % Bak(
         bf=None, s1=3, s2=4, state='A')) + CytoC(bf=None,
-                                                 state='M') <> MatchOnce(
+                                                 state='M') | MatchOnce(
     Bak(bf=5, s1=4, s2=1, state='A') % Bak(bf=None, s1=1, s2=2,
                                            state='A') % Bak(bf=None, s1=2,
                                                             s2=3,
@@ -519,7 +519,7 @@ Rule('pore_transport_complex_BakA_4_SmacM', MatchOnce(
                                                                s2=3,
                                                                state='A') % Bak(
         bf=None, s1=3, s2=4, state='A')) + Smac(bf=None,
-                                                state='M') <> MatchOnce(
+                                                state='M') | MatchOnce(
     Bak(bf=5, s1=4, s2=1, state='A') % Bak(bf=None, s1=1, s2=2,
                                            state='A') % Bak(bf=None, s1=2,
                                                             s2=3,
