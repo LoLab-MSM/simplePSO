@@ -10,9 +10,9 @@ except ImportError:
     pass
 
 import numpy as np
+
 from pysb.examples.robertson import model
 from pysb.integrate import Solver
-
 from simplepso.pso import PSO
 
 obs_names = ['A_total', 'C_total']

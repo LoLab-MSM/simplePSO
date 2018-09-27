@@ -1,46 +1,49 @@
 # -*- coding: utf-8 -*-
 
-import pathos.multiprocessing as multiprocessing
 import numpy as np
+import pathos.multiprocessing as multiprocessing
 from deap import base, creator, tools
+from numpy.random import uniform
 
 
-class PSO:
+class PSO(object):
     """ Simple interface to run particle swarm optimization
 
-        This class provides a simple interface to run particle swarm optimization.
-        It builds off the deap package, but provides a simple interface.
+    This class provides a simple interface to run particle swarm optimization.
+    It builds off the deap package, but provides a simple interface.
 
-        - **parameters**, **types**, **return** and **return types**::
+    Examples:
 
-            :param cost_function:
-            :param start:
-            :param save_sampled:
-
-          :Example:
-
-            optimizer = simplepso.pso.PSO(cost_function,start_position)
-            optimizer.set_bounds()
-            optimizer.set_speed()
-            optimizer.run(number_of_particles, number_of_iterations)
+        optimizer = simplepso.pso.PSO(cost_function,start_position)
+        optimizer.set_bounds()
+        optimizer.set_speed()
+        optimizer.run(number_of_particles, number_of_iterations)
 
 
-        .. note::
-            Must set 1.) cost_function, 2.) starting position, 3.) bounds (can be vector or float)
-            To run need to supply number of particles and number of iterations. 20 particles is a good starting place.
+    Notes:
+        Must set 1.) cost_function, 2.) starting position, 3.) bounds (can be vector or float)
+        To run need to supply number of particles and number of iterations. 20 particles is a good starting place.
 
-
-        """
-
+    """
     def __init__(self, cost_function=None, start=None, num_proc=1,
                  save_sampled=False, verbose=False):
         """
 
-        :param cost_function:
-        :param start:
-        :param save_sampled:
-        """
+        Parameters
+        ----------
+        cost_function : function
+            Callable function that takes a parameter and returns a tuple
+        start : list_list
+            Starting position
+        num_proc : int
+            Number of processors to run on. If using scipy, note that you may
+            need to set OMP_NUM_THREADS=1 to prevent each process from using
+            more than one CPU.
+        save_sampled : bool
+            Save each position samples
+        verbose : bool
 
+        """
         self.cost_function = cost_function
         self.save_sampled = save_sampled
         if start is not None:
@@ -74,18 +77,7 @@ class PSO:
             fi = 2.05 + 2.05
             self.w = 2.0 / np.abs(2.0 - fi - np.sqrt(np.power(fi, 2) - 4 * fi))
 
-    def _generate(self):
-        """ Creates Particles and sets their speed
 
-        :return:
-        """
-        start_position = np.random.uniform(self.lb, self.ub, self.size)
-        part = creator.Particle(start_position)
-        part.speed = np.random.uniform(self.min_speed, self.max_speed,
-                                       self.size)
-        part.smin = self.min_speed
-        part.smax = self.max_speed
-        return part
 
     def set_w(self, option):
         """ Set if you want to use a constriction factor that shrinks. This shrinks the step size if true.
@@ -109,12 +101,17 @@ class PSO:
         return self.history
 
     def _update_particle_position(self, part, phi1, phi2):
-        """ Updates particles position
+        """ Updates an individual particles position
 
-        :param part: particles
-        :param phi1: scaling factor for particles best position
-        :param phi2: scaling factor for populations best position
-        :return:
+        Parameters
+        ----------
+        part : Particle
+        phi1 : float
+        phi2 : float
+
+        Returns
+        -------
+
         """
         v_u1 = np.random.uniform(0, 1, self.size) * phi1 * (part.best - part)
         v_u2 = np.random.uniform(0, 1, self.size) * phi2 * (self.best - part)
@@ -127,6 +124,17 @@ class PSO:
                 part[i] = self.lb[i]
             elif pos > self.ub[i]:
                 part[i] = self.ub[i]
+
+    def _generate(self):
+        """ Creates Particles and sets their speed
+
+        :return:
+        """
+        part = creator.Particle(uniform(self.lb, self.ub, self.size))
+        part.speed = uniform(self.min_speed, self.max_speed, self.size)
+        part.smin = self.min_speed
+        part.smax = self.max_speed
+        return part
 
     def set_cost_function(self, cost_function):
         """ Sets the cost function for PSO. Must return a scalar followed by a , (tuple)
@@ -147,14 +155,15 @@ class PSO:
         if not self.bounds_set:
             self.set_bounds()
 
-        assert self.start is not None, "Error: Must provide a starting position in order to set size of each particle\
-                       **** Provide PSO.set_start_position() your initial starting coordinates ****\
-                       Exiting due to failure"
+        assert self.start is not None, \
+            "Error: Must provide a starting position in order to set size of " \
+            "each particle \n**** Provide PSO.set_start_position() your " \
+            "initial starting coordinates **** \nExiting due to failure"
 
-        assert self.cost_function is not None, "Error: Must set a cost function. Use PSO.set_cost_function()."
+        assert self.cost_function is not None, \
+            "Error: Must set a cost function. Use PSO.set_cost_function()."
 
-        if self.method == 'single_min':
-            creator.create("FitnessMin", base.Fitness, weights=(-1.00,))
+        creator.create("FitnessMin", base.Fitness, weights=(-1.00,))
         creator.create("Particle", np.ndarray, fitness=creator.FitnessMin,
                        speed=list, smin=list, smax=list, best=None)
         self.toolbox.register("particle", self._generate)
@@ -262,20 +271,32 @@ class PSO:
         self.ub = upper
         self.bounds_set = True
 
-    def run(self, num_particles, num_iterations, save_samples=False):
-        """ runs the pso
+    def run(self, num_particles, num_iterations, save_samples=False,
+            stop_threshold=1e-5):
+        """
 
-        :param num_particles:
-        :param num_iterations:
-        :return:
+        Parameters
+        ----------
+        num_particles : int
+            Number of particles in population, ~20 is a good starting place
+        num_iterations : int
+        save_samples : bool
+            Save positions of particles over time, can require large memory
+            if num_particles, num_iterations, and len(parameters) is large.
+        stop_threshold : float
+            Threshold of standard devitaion of all particles cost function.
+        Returns
+        -------
+
         """
         if self._is_setup:
             pass
         else:
             self.setup_pso()
         assert type(self.cost_function(
-                self.start)) == tuple, "Cost function must return a tuple. An error " \
-                                       "is occuring when running your starting position"
+            self.start)) == tuple, \
+            "Cost function must return a tuple. An error " \
+            "is occuring when running your starting position"
 
         history = np.zeros((num_iterations, len(self.start)))
         if self.save_sampled or save_samples:
@@ -302,7 +323,9 @@ class PSO:
                 self.all_fitness[g - 1, :] = curr_fit
             self.logbook.record(iteration=g, best=self.best.fitness.values[0],
                                 **self.stats.compile(self.population))
-            if self.logbook.select('std')[-1] < 1e-12:
+
+            if self.logbook.select('std')[-1] < stop_threshold:
+                print("Stopping criteria reached.")
                 break
             if self.verbose:
                 print(self.logbook.stream)
