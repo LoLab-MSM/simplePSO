@@ -130,7 +130,7 @@ def run_example():
     display(starting_position, save_name='starting_position')
 
     # create PSO object
-    pso = PSO(save_sampled=False, verbose=True, num_proc=12)
+    pso = PSO(save_sampled=False, verbose=True, num_proc=4)
     pso.set_cost_function(likelihood)
     pso.set_start_position(starting_position)
     # allows particles to move +/- 2 orders of magnitude
