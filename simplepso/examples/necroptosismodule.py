@@ -222,4 +222,8 @@ Observable('A20_obs', A20(brip = None))
 Observable('Fadd_obs', FADD(bDD=None, bDED1=None, bDED2=None))
 Observable('Tradd_obs', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
 
+Observable('CII_obs', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=5,bMLKL=None, state='deub')
+           % FADD(bDD=1,bDED1 = None, bDED2 = None) % RIP3(bRHIM=5, bDD = None, state='unmod'))
+
 generate_equations(model)
+
