@@ -20,7 +20,7 @@ tspan = np.linspace(0, 1440, 1000)
 plt.ioff()
 
 #Set Path to save files needed
-path = r'\Users\geenaildefonso\Projects\ParticleSwarmOptimization' #path for diablo
+path = r'\home\ildefog\ParticleSwarmOptimization' #path for diablo
 
 
 #RUN THROUGH EACH AMOUNT OF TNF:
@@ -28,9 +28,9 @@ TNF_LOOP = [('100 ng/ml TNF', 2326), ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23),
 for tnf_title, dose in TNF_LOOP:
 
     #RUN STOCHASTIC SIMULATION ALGORITHM (SSA)
-    ssa_sim = BngSimulatorSimulator(model, tspan=tspan, verbose=True)
-    ssa_sim_res = ssa_sim.run(method = 'ssa', initials={TNF(brec=None): dose}, n_runs=NUM_SSA_RUNS)
-    ssa_sim_res.save(path + 'SSA_data_%dTNF' % dose)
+    ssa_sim = StochKitSimulator(model, tspan=tspan, verbose=True)
+    ssa_sim_res = ssa_sim.run(algorithm = 'ssa', initials={TNF(brec=None): dose}, n_runs=NUM_SSA_RUNS)
+   # ssa_sim_res.save(path + 'SSA_data_%dTNF' % dose)
     df = ssa_sim_res.dataframe #pandas dataframe organizes data
 
     #FOR EACH OBSERVABLE AVERAGE THE SSA RUNS AT EACH TIME POINT
