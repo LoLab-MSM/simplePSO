@@ -11,7 +11,7 @@ import datetime
 now = datetime.datetime.now()
 
 # Definitions
-NUM_SSA_RUNS = 10 #How many times SSA will be ran
+NUM_SSA_RUNS = 10000 #How many times SSA will be ran
 
 #Length of simulation
 tspan = np.linspace(0, 1440, 1000)
