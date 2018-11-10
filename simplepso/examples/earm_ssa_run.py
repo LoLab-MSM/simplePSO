@@ -11,10 +11,10 @@ import datetime
 now = datetime.datetime.now()
 
 # Definitions
-NUM_SSA_RUNS = 10 #How many times SSA will be ran
+NUM_SSA_RUNS = 100 #How many times SSA will be ran
 
 #Length of simulation
-tspan = np.linspace(0, 360, 361)
+tspan = np.linspace(0, 20160, 20161)
 
 #turn off graphs showing up
 plt.ioff()
@@ -66,9 +66,9 @@ for trail_title, dose in TRAIL_LOOP:
         # plt.ylim(y1, y2)
         for _, run in df.groupby('simulation'):
                 plt.plot(tspan / 60, run.loc[:, obs])
-        plt.plot(tspan / 60, avg.loc[:, obs], 'gold', linewidth=3)
-        plt.plot(tspan / 60, ode_sim_res.observables[obs], 'black', linewidth=3, linestyle='dashed')
-        plt.xlabel("Time (in hr)", fontsize=15)
+        plt.plot(tspan, avg.loc[:, obs], 'gold', linewidth=3)
+        plt.plot(tspan, ode_sim_res.observables[obs], 'black', linewidth=3, linestyle='dashed')
+        plt.xlabel("Time (in sec)", fontsize=15)
         plt.ylabel("Molecules/Cell", fontsize=15)
         plt.title('%s Trajectories' % obs, fontsize=18)
         name = 'uncal_runtrail_%d_SSA_%s_' % (dose, obs)
