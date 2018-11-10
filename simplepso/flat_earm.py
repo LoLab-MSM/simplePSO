@@ -477,7 +477,7 @@ Observable('C3a_xiap',XIAP(bf=1) % C3(bf=1, state='A'))
 # Annotation(PARP, 'http://identifiers.org/uniprot/P09874', 'is')
 # Annotation(XIAP, 'http://identifiers.org/uniprot/P98170', 'is')
 
-trail = [740853,18521, 3000, 740]
+trail = [740853, 18521, 3000, 740]
 tspan = np.linspace(0, 20160, 20161)
 sim = BngSimulator(model, tspan=tspan, verbose=True)
 # result1 = sim.run(param_values=params_pf1, initials={L(bf=None): trail}
