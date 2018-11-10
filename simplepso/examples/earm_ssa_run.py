@@ -20,7 +20,7 @@ tspan = np.linspace(0, 360, 361)
 plt.ioff()
 
 #Set Path to save files needed
-path = r'\Users\geenaildefonso\Projects\ParticleSwarmOptimization' #path for diablo
+path = r'\home\ildefog\ParticleSwarmOptimization' #path for diablo
 
 #RUN THROUGH EACH AMOUNT OF TRAIL:
 TRAIL_LOOP = [('1000 ng/ml TRAIL', 740853), ('250 ng/ml TRAIL', 18521), ('40 ng/ml TRAIL', 3000), ('10 ng/ml TRAIL', 740)]
