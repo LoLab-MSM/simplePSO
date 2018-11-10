@@ -65,7 +65,7 @@ for trail_title, dose in TRAIL_LOOP:
         plt.title(trail_title)
         # plt.ylim(y1, y2)
         for _, run in df.groupby('simulation'):
-                plt.plot(tspan / 60, run.loc[:, obs])
+                plt.plot(tspan, run.loc[:, obs])
         plt.plot(tspan, avg.loc[:, obs], 'gold', linewidth=3)
         plt.plot(tspan, ode_sim_res.observables[obs], 'black', linewidth=3, linestyle='dashed')
         plt.xlabel("Time (in sec)", fontsize=15)
