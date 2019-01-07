@@ -11,7 +11,7 @@ import datetime
 now = datetime.datetime.now()
 
 # Definitions
-NUM_SSA_RUNS = 1000 #How many times SSA will be ran
+NUM_SSA_RUNS = 100 #How many times SSA will be ran
 
 #Length of simulation
 tspan = np.linspace(0, 20160, 20161)
@@ -66,8 +66,8 @@ for trail_title, dose in TRAIL_LOOP:
         # plt.ylim(y1, y2)
         for _, run in df.groupby('simulation'):
                 plt.plot(tspan, run.loc[:, obs])
-        plt.plot(tspan, avg.loc[:, obs], 'gold', linewidth=3)
-        plt.plot(tspan, ode_sim_res.observables[obs], 'black', linewidth=3, linestyle='dashed')
+        plt.plot(tspan, avg.loc[:, obs], 'gold', label = 'ssa_avg', linewidth=3)
+        plt.plot(tspan, ode_sim_res.observables[obs], 'black', label = 'ode_avg', linewidth=3, linestyle='dashed')
         plt.xlabel("Time (in sec)", fontsize=15)
         plt.ylabel("Molecules/Cell", fontsize=15)
         plt.title('%s Trajectories' % obs, fontsize=18)

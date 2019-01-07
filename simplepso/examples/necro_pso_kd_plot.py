@@ -18,7 +18,7 @@ from pysb.integrate import *
 from simplepso.pso import PSO
 import collections
 
-new_start =  np.load('optimizer_best_5000_all_new_2.npy')
+# new_start =  np.load('optimizer_best_5000_all_new_2.npy')
 
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
@@ -38,7 +38,7 @@ def extract_records(recarray, names):
     return np.vstack([recarray[name] for name in names]).T
 
 t = np.linspace(0, 720, 13)
-solver1 = ScipyOdeSimulator(model, tspan=t,rtol=1e-6, atol=1e-6)
+solver1 = ScipyOdeSimulator(model, tspan=t)
 
 #make an array for each of the kd made up data for mlklp
 #switching at 5 hours

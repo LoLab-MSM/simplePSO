@@ -240,16 +240,37 @@ Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 =
 generate_equations(model)
 Observable('MLKLa_obs', MLKL(bRHIM=None, state='active'))
 
-
-print(len(model.parameters))
-print(model.initial_conditions)
-print(len(model.initial_conditions))
-print(len(model.parameters_rules()))
-quit()
+# for p in model.parameters:
+#     print('{},{:e}'.format(p.name,p.value))
+#
+# quit()
+#
+#
+# print(len(model.parameters))
+# print(model.initial_conditions)
+# print(len(model.initial_conditions))
+# print(len(model.parameters_rules()))
+# quit()
 
 tspan = np.linspace(0, 480, 481)
 sim = BngSimulator(model, tspan=tspan)
 result = sim.run(method='ode', param_values=fstpso)
+
+with open('params_necro.txt', 'w') as f:
+    for p, v in zip(model.parameters, result.param_values[0]):
+        f.write('{},{:e}\n'.format(p.name, v))
+
+quit()
+
+
+print(result.param_values)
+quit()
+for p in result.param_values:
+    print('{},{:e}'.format(p.name, p.value))
+
+quit()
+
+
 print(result.observables['MLKLa_obs'])
 quit()
 

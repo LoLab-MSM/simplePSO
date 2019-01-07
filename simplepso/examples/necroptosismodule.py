@@ -221,9 +221,14 @@ Observable('flip_obs', flip_L(state = 'A'))
 Observable('A20_obs', A20(brip = None))
 Observable('Fadd_obs', FADD(bDD=None, bDED1=None, bDED2=None))
 Observable('Tradd_obs', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
-
+Observable('c8flip_obs', C8(flip = 4, state='A') % flip_L(bDED=4, state = 'A'))
+Observable('CII_c8flp_obs', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub')
+           % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'))
 Observable('CII_obs', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=5,bMLKL=None, state='deub')
            % FADD(bDD=1,bDED1 = None, bDED2 = None) % RIP3(bRHIM=5, bDD = None, state='unmod'))
 
 generate_equations(model)
+# 
+# for p in model.parameters:
+#     print('{},{:e}'.format(p.name,p.value))
 
