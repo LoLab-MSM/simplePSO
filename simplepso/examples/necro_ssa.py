@@ -62,7 +62,8 @@ path = r'\home\ildefog\ParticleSwarmOptimization' #path for diablo
 
 
 #RUN THROUGH EACH AMOUNT OF TNF:
-TNF_LOOP = [('100 ng/ml TNF', 2326), ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
+TNF_LOOP = [('100 ng/ml TNF', 2326)] #, ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
+#TNF_LOOP = [('100 ng/ml TNF', 2326), ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
 for tnf_title, dose in TNF_LOOP:
 
     #RUN STOCHASTIC SIMULATION ALGORITHM (SSA)
