@@ -88,9 +88,7 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 3.026297571627492231e-02,
 4.498574912060039448e-03,
 6.729428782950642980e-07,
-4.485287992136575974e-02,
-1.0
-]
+4.485287992136575974e-02]
 
 Monomer('TNF', ['brec'])
 Monomer('TNFR', ['blig', 'brip', 'bDD'])
@@ -281,27 +279,37 @@ Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 =
 generate_equations(model)
 
 # print(model.parameters)
-
-print(len(model.parameters))
-print(len(fstpso))
+# quit()
+# print(len(model.parameters))
+# print(len(fstpso))
 # quit()
 
 Observable('MLKLa_obs', MLKL(bRHIM=None, state='active'))
 
-tnf = [2326, 233, 23, 2]
+tnf = [2326]
 color = ['r', 'm', 'g', 'b']
 lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
 
 tspan = np.linspace(0, 1440, 1441)
-sim = BngSimulator(model, tspan=tspan)
-result = sim.run(method='ode', param_values=fstpso, initials={TNF(brec=None): tnf})
-df = result.dataframe
+sim = ScipyOdeSimulator(model, tspan=tspan)
+result = sim.run(param_values=fstpso, initials={TNF(brec=None): tnf})
+# df = result.dataframe
 
+plt.figure()
+plt.plot(tspan/60, result.observables['MLKLa_obs'], color = 'tab:gray', marker = 's')
+plt.xlabel('Time [minutes]', fontsize=16)
+plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
+plt.title('Sensitivity of pMLKL to varying TNFa doses')
+plt.legend('100 ng/ml ' , title = 'TNF FP', loc=0, fontsize = 5)
+plt.show()
+
+
+quit()
 mlkl = [0, 170, 900, 4880, 9940, 10000]
 x = [0, 60, 120, 240, 360, 480]
 
 plt.figure()
-for n in range(0,4):
+for n in range(0,1):
     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
     plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], '--', c = color[n],lw = 1.5) #fppf
 plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')

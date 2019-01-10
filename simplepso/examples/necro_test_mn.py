@@ -1,17 +1,14 @@
-from pylab import *
 from pysb.core import *
 from pysb.bng import *
 from pysb.integrate import *
 import matplotlib.pyplot as plt
 import numpy as np
 from pysb.util import alias_model_components
-from pysb.simulator import CupSodaSimulator
-from pysb.simulator import ScipyOdeSimulator
 from pysb.simulator.bng import BngSimulator
 
 Model()
 
-# model.enable_synth_deg()
+model.enable_synth_deg()
 
 fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 10000,
 3.304257485026848768e-05,
@@ -52,7 +49,46 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 4.354383618147421691e-06,
 4.278903092658225660e+00
 ]
-
+#
+# #fst-pso best fit so far 300
+# fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 10000,
+# 4.297407813099238380e-05,
+# 4.562857778542710359e-03,
+# 4.083583806088330465e-02,
+# 3.268921932083641298e-05,
+# 4.420584558572939718e-04,
+# 1.485042551633140245e-05,
+# 1.826361893397378602e-02,
+# 3.507084838987814003e-05,
+# 4.170264612462448945e-04,
+# 8.959852502456857637e-07,
+# 3.776291959790734065e-02,
+# 1.314285237600542500e+00,
+# 1.093149358778181988e-05,
+# 3.403706736201566121e-03,
+# 2.140740462939950052e-06,
+# 1.929684455430751358e-03,
+# 4.911556238775962036e-01,
+# 1.942601055868577861e-05,
+# 2.600881539371887458e-02,
+# 2.025760859508057621e+00,
+# 1.807053446596232626e-01,
+# 9.630081674576946899e-06,
+# 1.087005537066853601e-04,
+# 5.560331800852477691e-02,
+# 4.672696328534567471e-05,
+# 8.792909418558267354e-02,
+# 1.089562750437665477e-02,
+# 1.331030111195359855e-01,
+# 3.199511015473860409e-01,
+# 2.455343173071242920e-05,
+# 3.665659601263383804e-02,
+# 2.930188791118327085e+00,
+# 2.079368801801380340e-01,
+# 3.026297571627492231e-02,
+# 4.498574912060039448e-03,
+# 6.729428782950642980e-07,
+# 4.485287992136575974e-02]
 
 Monomer('TNF', ['brec'])
 Monomer('TNFR', ['blig', 'brip', 'bDD'])
@@ -72,7 +108,7 @@ Monomer('MLKL', ['bRHIM', 'state'], {'state': ['unmod', 'active', 'inactive']})
 Monomer('LUBAC', ['brip'])
 
 
-Parameter('TNF_0', 2326) # initial condition
+Parameter('TNF_0', 2326)
 Parameter('TNFR_0', 4800)
 Parameter('TRADD_0', 9000)
 Parameter('RIP1_0', 40000)
@@ -179,12 +215,16 @@ Rule('A20_1', TNF(brec = 1) % TNFR(blig=1, brip=2) % TRADD(brec = 2, brip = 3, b
 #Initiating Necroptosis
 Parameter('bind_TRADDANYRIP1ANY_FADD_kf', 1e-1)
 Parameter('bind_TRADDANYRIP1ANY_FADD_kr', 3.11e-7)
+
 Parameter('bind_FADD_proC8_2_kf', 3.27e-06)
 Parameter('bind_FADD_proC8_2_kr', 0.018)
+
 Parameter('bind_FADDANY_flip_L_kf',3.27e-06)
 Parameter('bind_FADDANY_flip_L_kr', 0.018)
+
 Parameter('bind_C8_flip_L_kf',3.27e-2)
 Parameter('bind_C8_flip_L_kr', 0.018) #not used
+
 Parameter('kc_c8_1', 1e-1)
 Parameter('bind_FADDANY_RIP3_kf', 1e-6)
 Parameter('bind_FADDANY_RIP3_kr', 1e-3)
@@ -204,11 +244,10 @@ Rule('bind_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) %
      <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A'), bind_FADDANY_flip_L_kf, bind_FADDANY_flip_L_kr)
 
 Rule('activate_C8', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='I') % flip_L(bDED=4, state = 'A')
-     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf, bind_C8_flip_L_kr)
+     <> TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A'), bind_C8_flip_L_kf,bind_C8_flip_L_kr)
 
 Rule('catalyze_FADDANY_flip_L', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(bscf=3, btraf=None, bub1=None, bub2=None, bub3=None,bDD = 1,bRHIM=None,bMLKL=None, state='deub') % FADD(bDD=1,bDED1 = 2, bDED2 = None) % C8(bf=2,flip = 4, state='A') % flip_L(bDED=4, state = 'A') >>
      TRADD(brec = None, brip = None, bDD1=None, bDD2=None) + RIP1(bscf=None, btraf=None, bub1=None, bub2=None, bub3=None,bDD = None,bRHIM=None,bMLKL=None, state='trunc') + FADD(bDD=None,bDED1 = None, bDED2 = None) + C8(bf=None,flip = None, state='I') + flip_L(bDED=None, state = 'I') , kc_c8_1)
-
 
 
 #RIP3 reactions to MLKL
@@ -238,51 +277,28 @@ Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 =
      >>  MLKL(bRHIM=None, state='active') + RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') , catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc)
 
 generate_equations(model)
+
+print(model.parameters)
+# quit()
+# print(len(model.parameters))
+# print(len(fstpso))
+# quit()
+
 Observable('MLKLa_obs', MLKL(bRHIM=None, state='active'))
 
-# for p in model.parameters:
-#     print('{},{:e}'.format(p.name,p.value))
-#
-# quit()
-#
-#
-# print(len(model.parameters))
-# print(model.initial_conditions)
-# print(len(model.initial_conditions))
-# print(len(model.parameters_rules()))
-# quit()
+tnf = [2326]
+color = ['r', 'm', 'g', 'b']
+lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
 
-tspan = np.linspace(0, 480, 481)
-sim = BngSimulator(model, tspan=tspan)
-result = sim.run(method='ode', param_values=fstpso)
-#
-# with open('params_necro.txt', 'w') as f:
-#     for p, v in zip(model.parameters, result.param_values[0]):
-#         f.write('{},{:e}\n'.format(p.name, v))
-#
-# quit()
-#
-#
-# print(result.param_values)
-# quit()
-# for p in result.param_values:
-#     print('{},{:e}'.format(p.name, p.value))
-#
-# quit()
-#
-#
-# print(result.observables['MLKLa_obs'])
-# quit()
-
-mlkl = [0, 170, 900, 4880, 9940, 10000]
-x = [0, 60, 120, 240, 360, 480]
+tspan = np.linspace(0, 1440, 1441)
+sim = ScipyOdeSimulator(model, tspan=tspan)
+result = sim.run()
+# df = result.dataframe
 
 plt.figure()
-plt.plot(tspan, result.observables['MLKLa_obs'][:])
-plt.scatter(x, mlkl)
+plt.plot(tspan/60, result.observables['MLKLa_obs'], color = 'tab:gray', marker = 's')
 plt.xlabel('Time [minutes]', fontsize=16)
 plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-# plt.title('Sensitivity of pMLKL to varying TNFa doses')
-plt.ylim(ymax = 10000)
+plt.title('Sensitivity of pMLKL to varying TNFa doses')
+plt.legend('100 ng/ml ' , title = 'TNF FP', loc=0, fontsize = 5)
 plt.show()
-

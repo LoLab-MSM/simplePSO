@@ -48,6 +48,7 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 4.354383618147421691e-06,
 4.278903092658225660e+00
 ]
+
 # Definitions
 NUM_SSA_RUNS = 10000 #How many times SSA will be ran
 
@@ -77,7 +78,7 @@ for tnf_title, dose in TNF_LOOP:
 
     #RUN ODE SIMULATION
     ode_sim = ScipyOdeSimulator(model, tspan=tspan)
-    ode_sim_res = ode_sim.run(initials={TNF(brec=None): dose})
+    ode_sim_res = ode_sim.run(initials={TNF(brec=None): dose}, param_values=fstpso)
 
     # PLOT STOCHASTIC SIMULATION ALGORITHM (SSA) WITH AVG SSA (YELLOW) AND ODE (BLACK)
     # Array: [(Observable name, number to start y axis at, number to end y axis at)]
