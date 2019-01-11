@@ -50,7 +50,7 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 ]
 
 # Definitions
-NUM_SSA_RUNS = 10000 #How many times SSA will be ran
+NUM_SSA_RUNS = 1000 #How many times SSA will be ran
 
 #Length of simulation
 tspan = np.linspace(0, 3600, 3601)
