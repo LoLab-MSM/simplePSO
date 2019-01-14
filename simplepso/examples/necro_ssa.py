@@ -50,7 +50,7 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 ]
 
 # Definitions
-NUM_SSA_RUNS = 1000 #How many times SSA will be ran
+NUM_SSA_RUNS = 10000 #How many times SSA will be ran
 
 #Length of simulation
 tspan = np.linspace(0, 3600, 3601)
@@ -63,7 +63,7 @@ path = r'\home\ildefog\ParticleSwarmOptimization' #path for diablo
 
 
 #RUN THROUGH EACH AMOUNT OF TNF:
-TNF_LOOP = [('100 ng/ml TNF', 2326)] #, ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
+TNF_LOOP = [('10 ng/ml TNF', 232)] #, ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
 #TNF_LOOP = [('100 ng/ml TNF', 2326), ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
 for tnf_title, dose in TNF_LOOP:
 
