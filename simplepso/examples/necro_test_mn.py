@@ -292,7 +292,7 @@ lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
 
 tspan = np.linspace(0, 1440, 1441)
 sim = ScipyOdeSimulator(model, tspan=tspan)
-result = sim.run()
+result = sim.run(param_values=fstpso)
 # df = result.dataframe
 
 plt.figure()

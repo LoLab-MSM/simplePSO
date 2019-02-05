@@ -375,6 +375,7 @@ params = [3000, 200, 100, 20000, 1000, 100000, 10000, 10000, 100000, 100000, 100
 6.813272208952928302e-03,
 7.501340191534067969e+01
 ]
+
 # Annotation(L, 'http://identifiers.org/uniprot/P50591', 'is')
 # Annotation(R, 'http://identifiers.org/uniprot/O14763', 'is')
 # Annotation(DISC, 'http://identifiers.org/obo.go/GO:0031264', 'is')
@@ -422,14 +423,13 @@ Observable('cPARP', PARP(state='C'))
 tspan = np.linspace(0, 20160, 20161)
 sim = BngSimulator(model, tspan=tspan)
 result = sim.run(method='ode', param_values=params)
-print('done')
-quit()
+
 # df = result.dataframe
 
 plt.figure()
 plt.subplot(131)
 plt.plot(tspan, result.observables['mBid'][:])
-plt.scatter(x, mlkl, color = 'r')
+# plt.scatter(x, mlkl, color = 'r')
 plt.xlabel('Time [seconds]', fontsize=16)
 plt.ylabel('mBid amount [molecules]', fontsize=16)
 # plt.title('Sensitivity of pMLKL to varying TNFa doses')
@@ -437,7 +437,7 @@ plt.ylabel('mBid amount [molecules]', fontsize=16)
 
 plt.subplot(132)
 plt.plot(tspan, result.observables['aSmac'][:])
-plt.scatter(x, mlkl, color = 'r')
+# plt.scatter(x, mlkl, color = 'r')
 plt.xlabel('Time [seconds]', fontsize=16)
 plt.ylabel('aSmac amount [molecules]', fontsize=16)
 # plt.title('Sensitivity of pMLKL to varying TNFa doses')
@@ -445,7 +445,7 @@ plt.ylabel('aSmac amount [molecules]', fontsize=16)
 
 plt.subplot(133)
 plt.plot(tspan, result.observables['cPARP'][:])
-plt.scatter(x, mlkl, color = 'r')
+# plt.scatter(x, mlkl, color = 'r')
 plt.xlabel('Time [seconds]', fontsize=16)
 plt.ylabel('cParp amount [molecules]', fontsize=16)
 # plt.title('Sensitivity of pMLKL to varying TNFa doses')
