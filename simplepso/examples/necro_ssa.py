@@ -50,7 +50,7 @@ fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 900
 ]
 
 # Definitions
-NUM_SSA_RUNS = 10000 #How many times SSA will be ran
+NUM_SSA_RUNS = 200 #How many times SSA will be ran
 
 #Length of simulation
 tspan = np.linspace(0, 3600, 3601)
@@ -63,13 +63,13 @@ path = r'\home\ildefog\ParticleSwarmOptimization' #path for diablo
 
 
 #RUN THROUGH EACH AMOUNT OF TNF:
-TNF_LOOP = [('10 ng/ml TNF', 232)] #, ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
+TNF_LOOP = [('0.1 ng/ml TNF', 2)] #, ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
 #TNF_LOOP = [('100 ng/ml TNF', 2326), ('10 ng/ml TNF', 232), ('1 ng/ml TNF', 23), ('.1 ng/ml TNF', 2)]
 for tnf_title, dose in TNF_LOOP:
 
     #RUN STOCHASTIC SIMULATION ALGORITHM (SSA)
     ssa_sim = BngSimulator(model, tspan=tspan, verbose=True)
-    ssa_sim_res = ssa_sim.run(method = 'ssa', initials={TNF(brec=None): dose},param_values=fstpso, n_runs=NUM_SSA_RUNS)
+    ssa_sim_res = ssa_sim.run(method = 'ssa', initials={TNF(brec=None): dose}, n_runs=NUM_SSA_RUNS)
    # ssa_sim_res.save(path + 'SSA_data_%dTNF' % dose)
     df = ssa_sim_res.dataframe #pandas dataframe organizes data
 
@@ -78,7 +78,7 @@ for tnf_title, dose in TNF_LOOP:
 
     #RUN ODE SIMULATION
     ode_sim = ScipyOdeSimulator(model, tspan=tspan)
-    ode_sim_res = ode_sim.run(initials={TNF(brec=None): dose}, param_values=fstpso)
+    ode_sim_res = ode_sim.run(initials={TNF(brec=None): dose})
 
     # PLOT STOCHASTIC SIMULATION ALGORITHM (SSA) WITH AVG SSA (YELLOW) AND ODE (BLACK)
     # Array: [(Observable name, number to start y axis at, number to end y axis at)]
@@ -107,12 +107,12 @@ for tnf_title, dose in TNF_LOOP:
         # plt.ylim(y1, y2)
         for _, run in df.groupby('simulation'):
                 plt.plot(tspan / 60, run.loc[:, obs])
-        plt.plot(tspan / 60, avg.loc[:, obs], 'gold', label = 'ssa_avg',linewidth=3)
-        plt.plot(tspan / 60, ode_sim_res.observables[obs], 'black', linewidth=3,label = 'ode_avg', linestyle='dashed')
+        # plt.plot(tspan / 60, avg.loc[:, obs], 'gold', label = 'ssa_avg',linewidth=3)
+        # plt.plot(tspan / 60, ode_sim_res.observables[obs], 'black', linewidth=3,label = 'ode_avg', linestyle='dashed')
         plt.xlabel("Time (in hr)", fontsize=15)
         plt.ylabel("Molecules/Cell", fontsize=15)
         plt.title('%s Trajectories' % obs, fontsize=18)
         # plt.legend(framealpha=1, frameon=True,loc = 'best')
-        name = 'uncal_run5_%d_SSA_%s_' % (dose, obs)
+        name = 'uncal_run5_%d_SSA_%s_%d' % (dose, obs,NUM_SSA_RUNS)
         ssa_name = name + str(now.strftime('%Y-%m-%d_%H%M.png'))
         plt.savefig(ssa_name, bbox_inches='tight')

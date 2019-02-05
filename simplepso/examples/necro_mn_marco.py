@@ -12,46 +12,46 @@ from pysb.simulator.bng import BngSimulator
 Model()
 
 # model.enable_synth_deg()
-
-fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 10000,
-3.304257485026848768e-05,
-9.791215971368776028e-03,
-6.110068937548310437e-03,
-4.319219461882335177e-05,
-4.212644667502709987e-03,
-1.164332269398710173e-05,
-2.404257105292715788e-02,
-3.311085510054400207e-05,
-4.280399320119887552e-02,
-2.645814637693955063e-05,
-1.437707485722601597e-02,
-2.303744002126363599e-01,
-2.980688423948379739e-05,
-4.879773212139151134e-02,
-1.121503480627013705e-05,
-1.866712857727401229e-03,
-7.572177664736867708e-01,
-1.591282730353343167e-05,
-3.897146248650381478e-02,
-3.076363174012029411e+00,
-3.734859661130401243e+00,
-3.216200470463125876e-06,
-8.782429548444865440e-05,
-2.906341314225960662e-02,
-5.663104188870970508e-05,
-2.110469405515222677e-02,
-1.294086380531199176e-01,
-3.127598126760888220e-01,
-4.298489868360909627e-01,
-2.332910188537793332e-06,
-7.077504621536276526e-03,
-6.294061533948092091e-01,
-6.419313355304218094e-02,
-8.584653667640911989e-04,
-8.160445062706172072e-05,
-4.354383618147421691e-06,
-4.278903092658225660e+00
-]
+#
+# fstpso = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 10000,
+# 3.304257485026848768e-05,
+# 9.791215971368776028e-03,
+# 6.110068937548310437e-03,
+# 4.319219461882335177e-05,
+# 4.212644667502709987e-03,
+# 1.164332269398710173e-05,
+# 2.404257105292715788e-02,
+# 3.311085510054400207e-05,
+# 4.280399320119887552e-02,
+# 2.645814637693955063e-05,
+# 1.437707485722601597e-02,
+# 2.303744002126363599e-01,
+# 2.980688423948379739e-05,
+# 4.879773212139151134e-02,
+# 1.121503480627013705e-05,
+# 1.866712857727401229e-03,
+# 7.572177664736867708e-01,
+# 1.591282730353343167e-05,
+# 3.897146248650381478e-02,
+# 3.076363174012029411e+00,
+# 3.734859661130401243e+00,
+# 3.216200470463125876e-06,
+# 8.782429548444865440e-05,
+# 2.906341314225960662e-02,
+# 5.663104188870970508e-05,
+# 2.110469405515222677e-02,
+# 1.294086380531199176e-01,
+# 3.127598126760888220e-01,
+# 4.298489868360909627e-01,
+# 2.332910188537793332e-06,
+# 7.077504621536276526e-03,
+# 6.294061533948092091e-01,
+# 6.419313355304218094e-02,
+# 8.584653667640911989e-04,
+# 8.160445062706172072e-05,
+# 4.354383618147421691e-06,
+# 4.278903092658225660e+00
+# ]
 
 
 Monomer('TNF', ['brec'])
@@ -72,20 +72,20 @@ Monomer('MLKL', ['bRHIM', 'state'], {'state': ['unmod', 'active', 'inactive']})
 Monomer('LUBAC', ['brip'])
 
 
-Parameter('TNF_0', 2326) # initial condition
+Parameter('TNF_0', 232) # initial condition
 Parameter('TNFR_0', 4800)
-Parameter('TRADD_0', 9000)
+Parameter('TRADD_0', 4696) #9000
 Parameter('RIP1_0', 40000)
 Parameter('TRAF_0', 9000)
 Parameter('cIAP_0', 9000)
 Parameter('A20_0', 9000)
 Parameter('CYLD_0', 9000)
-Parameter('FADD_0', 8030)
+Parameter('FADD_0', 3109) #8030
 Parameter('flip_L_0', 3900)
 Parameter('Lubac_0', 7226)
-Parameter('C8_0', 9000)
-Parameter('RIP3_0', 40000)
-Parameter('MLKLa_0', 10000)
+Parameter('C8_0', 3798) #9000
+Parameter('RIP3_0', 10653) #40000
+Parameter('MLKLa_0', 5544) #10000
 
 
 Initial(TNF(brec=None), TNF_0)
@@ -238,51 +238,79 @@ Rule('catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive', RIP1(bscf = None, bub1 =
      >>  MLKL(bRHIM=None, state='active') + RIP1(bscf = None, bub1 = None, bub2 = None, bub3 = None, bDD=None, btraf=None, bMLKL = None, bRHIM = 5, state = 'po4')% RIP3(bRHIM=5, bDD = None, state='po4') , catalyze_RIP1po4MLKLunmod_to_RIP1po4_MLKLactive_kc)
 
 generate_equations(model)
+Observable('MLKLu', MLKL(bRHIM=None, state='unmod'))
 Observable('MLKLa_obs', MLKL(bRHIM=None, state='active'))
+Observable('RIP3u', RIP3(bRHIM=None, bDD = None, state='unmod'))
+Observable('TRADDu', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
+Observable('FADDu', FADD(bDD=None, bDED1=None, bDED2=None))
+Observable('C8u', C8(bf=None, flip = None, state='I'))
 
-# for p in model.parameters:
-#     print('{},{:e}'.format(p.name,p.value))
-#
+# pars =  np.load('optimizer_best_50_necro.npy')
+# rate_params = model.parameters_rules() # these are only the parameters involved in the rules
+# param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
+# rate_mask = np.array([p in rate_params for p in model.parameters])
+# param_values[rate_mask] = 10 ** pars
+# # print(param_values)
+# # quit()
+# #
+# # # for p in model.parameters:
+# # #     print('{},{:e}'.format(p.name,p.value))
+# # #
+# # # quit()
+# # #
+# # #
+# 
+# print(type(model.parameters_rules()))
+# print(type(model.parameters))
+# print(type(model.initial_conditions))
 # quit()
-#
-#
-# print(len(model.parameters))
-# print(model.initial_conditions)
-# print(len(model.initial_conditions))
-# print(len(model.parameters_rules()))
-# quit()
-
-tspan = np.linspace(0, 480, 481)
-sim = BngSimulator(model, tspan=tspan)
-result = sim.run(method='ode', param_values=fstpso)
-#
-# with open('params_necro.txt', 'w') as f:
-#     for p, v in zip(model.parameters, result.param_values[0]):
-#         f.write('{},{:e}\n'.format(p.name, v))
-#
-# quit()
-#
-#
-# print(result.param_values)
-# quit()
-# for p in result.param_values:
-#     print('{},{:e}'.format(p.name, p.value))
-#
-# quit()
-#
-#
-# print(result.observables['MLKLa_obs'])
-# quit()
-
-mlkl = [0, 170, 900, 4880, 9940, 10000]
-x = [0, 60, 120, 240, 360, 480]
-
-plt.figure()
-plt.plot(tspan, result.observables['MLKLa_obs'][:])
-plt.scatter(x, mlkl)
-plt.xlabel('Time [minutes]', fontsize=16)
-plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-# plt.title('Sensitivity of pMLKL to varying TNFa doses')
-plt.ylim(ymax = 10000)
-plt.show()
+# # # print(len(model.parameters))
+# # # print(model.initial_conditions)
+# # # print(len(model.initial_conditions))
+# # # print(len(model.parameters_rules()))
+# # # quit()
+# #
+# tspan = np.linspace(0, 1400, 1441)
+# sim = BngSimulator(model, tspan=tspan)
+# result = sim.run(method='ode', param_values= param_values)
+# # #
+# # # with open('params_necro.txt', 'w') as f:
+# # #     for p, v in zip(model.parameters, result.param_values[0]):
+# # #         f.write('{},{:e}\n'.format(p.name, v))
+# # #
+# # # quit()
+# # #
+# # #
+# # # print(result.param_values)
+# # # quit()
+# # # for p in result.param_values:
+# # #     print('{},{:e}'.format(p.name, p.value))
+# # #
+# # # quit()
+# # #
+# # print('mlkl')
+# # print(result.observables['MLKLu'])
+# # print('rip3')
+# # print(result.observables['RIP3u'])
+# # print('tradd')
+# # print(result.observables['TRADDu'])
+# # print('fadd')
+# # print(result.observables['FADDu'])
+# # print('c8')
+# # print(result.observables['C8u'])
+# 
+# # # quit()
+# #
+# # # mlkl = [0, 170, 900, 4880, 9940, 10000]
+# # # x = [0, 60, 120, 240, 360, 480]
+# #
+# plt.figure()
+# plt.plot(tspan/60, result.observables['MLKLu'][:])
+# plt.plot(tspan/60, result.observables['MLKLa_obs'][:])
+# # plt.scatter(x, mlkl)
+# plt.xlabel('Time [minutes]', fontsize=16)
+# plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
+# # plt.title('Sensitivity of pMLKL to varying TNFa doses')
+# # plt.ylim(ymax = )
+# plt.show()
 

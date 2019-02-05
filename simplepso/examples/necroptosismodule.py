@@ -6,6 +6,7 @@ import numpy as np
 # from matplotlib.backends.backend_pdf import PdfPages
 # from QQSB.numtools import simulatortools as st
 from pysb.util import alias_model_components
+from pysb.simulator.bng import BngSimulator
 
 Model()
 
@@ -30,7 +31,7 @@ Monomer('TAK1', ['brip', 'bmapk'])
 # Monomer('NEMO', ['brip', 'btak', 'bikk', 'state'], {'state': ['I', 'A']})
 Monomer('LUBAC', ['brip'])
 
-Parameter('TNF_0', 2326) #698 is 30ng/ml of TNF
+Parameter('TNF_0', 23) #698 is 30ng/ml of TNF
 Parameter('TNFR_0', 4800) #0.00246
 Parameter('TRADD_0', 9000) #
 Parameter('RIP1_0', 40000) #47000 0.04
@@ -232,3 +233,17 @@ generate_equations(model)
 # for p in model.parameters:
 #     print('{},{:e}'.format(p.name,p.value))
 
+tspan = np.linspace(0, 1400, 1441)
+sim = BngSimulator(model, tspan=tspan)
+result = sim.run(method='ode')
+
+
+plt.figure()
+# plt.plot(tspan/60, result.observables['MLKLu'][:])
+plt.plot(tspan/60, result.observables['MLKLa_obs'][:])
+# plt.scatter(x, mlkl)
+plt.xlabel('Time [minutes]', fontsize=16)
+plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
+# plt.title('Sensitivity of pMLKL to varying TNFa doses')
+# plt.ylim(ymax = )
+plt.show()
