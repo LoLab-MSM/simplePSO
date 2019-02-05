@@ -10,7 +10,7 @@ except ImportError:
     pass
 
 import numpy as np
-from necro_mn_marco import model
+from necroptosismodule import model
 # from pysb.integrate import Solver
 import scipy.interpolate
 from pysb.integrate import *
@@ -215,9 +215,9 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=2)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=25, num_iterations=25)
+    optimizer.run(num_particles=50, num_iterations=50)
     print(optimizer.best)
-    np.save('optimizer_best_25_25',optimizer.best)
+    np.save('optimizer_best_50_50',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)
