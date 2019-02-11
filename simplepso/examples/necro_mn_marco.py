@@ -5,9 +5,10 @@ from pysb.integrate import *
 import matplotlib.pyplot as plt
 import numpy as np
 from pysb.util import alias_model_components
-from pysb.simulator import CupSodaSimulator
-from pysb.simulator import ScipyOdeSimulator
+# from pysb.simulator import CupSodaSimulator
+from pysb.simulator.scipyode import ScipyOdeSimulator
 from pysb.simulator.bng import BngSimulator
+
 
 Model()
 
@@ -244,73 +245,3 @@ Observable('RIP3u', RIP3(bRHIM=None, bDD = None, state='unmod'))
 Observable('TRADDu', TRADD(brec=None, brip=None, state='unmod', bDD1 = None, bDD2 = None))
 Observable('FADDu', FADD(bDD=None, bDED1=None, bDED2=None))
 Observable('C8u', C8(bf=None, flip = None, state='I'))
-
-# pars =  np.load('optimizer_best_50_necro.npy')
-# rate_params = model.parameters_rules() # these are only the parameters involved in the rules
-# param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
-# rate_mask = np.array([p in rate_params for p in model.parameters])
-# param_values[rate_mask] = 10 ** pars
-# # print(param_values)
-# # quit()
-# #
-# # # for p in model.parameters:
-# # #     print('{},{:e}'.format(p.name,p.value))
-# # #
-# # # quit()
-# # #
-# # #
-# 
-# print(type(model.parameters_rules()))
-# print(type(model.parameters))
-# print(type(model.initial_conditions))
-# quit()
-# # # print(len(model.parameters))
-# # # print(model.initial_conditions)
-# # # print(len(model.initial_conditions))
-# # # print(len(model.parameters_rules()))
-# # # quit()
-# #
-# tspan = np.linspace(0, 1400, 1441)
-# sim = BngSimulator(model, tspan=tspan)
-# result = sim.run(method='ode', param_values= param_values)
-# # #
-# # # with open('params_necro.txt', 'w') as f:
-# # #     for p, v in zip(model.parameters, result.param_values[0]):
-# # #         f.write('{},{:e}\n'.format(p.name, v))
-# # #
-# # # quit()
-# # #
-# # #
-# # # print(result.param_values)
-# # # quit()
-# # # for p in result.param_values:
-# # #     print('{},{:e}'.format(p.name, p.value))
-# # #
-# # # quit()
-# # #
-# # print('mlkl')
-# # print(result.observables['MLKLu'])
-# # print('rip3')
-# # print(result.observables['RIP3u'])
-# # print('tradd')
-# # print(result.observables['TRADDu'])
-# # print('fadd')
-# # print(result.observables['FADDu'])
-# # print('c8')
-# # print(result.observables['C8u'])
-# 
-# # # quit()
-# #
-# # # mlkl = [0, 170, 900, 4880, 9940, 10000]
-# # # x = [0, 60, 120, 240, 360, 480]
-# #
-# plt.figure()
-# plt.plot(tspan/60, result.observables['MLKLu'][:])
-# plt.plot(tspan/60, result.observables['MLKLa_obs'][:])
-# # plt.scatter(x, mlkl)
-# plt.xlabel('Time [minutes]', fontsize=16)
-# plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-# # plt.title('Sensitivity of pMLKL to varying TNFa doses')
-# # plt.ylim(ymax = )
-# plt.show()
-
