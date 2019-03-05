@@ -299,9 +299,9 @@ def run_example():
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=2)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=25, num_iterations=25)
+    optimizer.run(num_particles=25, num_iterations=200)
     print(optimizer.best)
-    np.save('optimizer_best_50_all_new_mil',optimizer.best)
+    np.save('optimizer_best_200_mar5',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)
