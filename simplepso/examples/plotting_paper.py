@@ -124,161 +124,161 @@ plt.ylim(ymax = 1)
 # plt.title('Sensitivity of pMLKL to varying TNFa doses')
 plt.legend(loc = 'best',prop={'size': 20})
 # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
-# plt.show()
-
-
-#arrays for plotting results for pMLKL
-
-#calibrated parameters from fst-pso before particle filtering
-params_fst = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
-3.304257485026848768e-05,
-9.791215971368776028e-03,
-6.110068937548310437e-03,
-4.319219461882335177e-05,
-4.212644667502709987e-03,
-1.164332269398710173e-05,
-2.404257105292715788e-02,
-3.311085510054400207e-05,
-4.280399320119887552e-02,
-2.645814637693955063e-05,
-1.437707485722601597e-02,
-2.303744002126363599e-01,
-2.980688423948379739e-05,
-4.879773212139151134e-02,
-1.121503480627013705e-05,
-1.866712857727401229e-03,
-7.572177664736867708e-01,
-1.591282730353343167e-05,
-3.897146248650381478e-02,
-3.076363174012029411e+00,
-3.734859661130401243e+00,
-3.216200470463125876e-06,
-8.782429548444865440e-05,
-2.906341314225960662e-02,
-5.663104188870970508e-05,
-2.110469405515222677e-02,
-1.294086380531199176e-01,
-3.127598126760888220e-01,
-4.298489868360909627e-01,
-2.332910188537793332e-06,
-7.077504621536276526e-03,
-6.294061533948092091e-01,
-6.419313355304218094e-02,
-8.584653667640911989e-04,
-8.160445062706172072e-05,
-4.354383618147421691e-06,
-4.278903092658225660e+00
-]
-
-#calibrated parameters using fst-pso as prior for particle filtering
-params_fst_pf = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
-3.497841355176434231e-05, 9.299353889254255087e-03, 1.222381727203981049e-02, 4.662733762385426803e-05,
-4.122411164261144054e-03, 6.539070372247510956e-06, 2.659930219941081947e-02, 4.278040527363371738e-05,
-4.349323568103394266e-02, 3.003477662783744624e-05, 7.944611372831474755e-03, 7.045871452352303610e-01,
-3.598099326725813344e-05, 5.181366206726087387e-02, 3.262502025743792904e-06, 6.553498738869752323e-03,
-1.007972408904296735e+00, 2.209541484408219299e-05, 4.529066165519779474e-02, 4.130360397594543542e+00,
-3.680177142525775213e+00, 2.283467806267297056e-06, 9.570718102817205031e-05, 3.109002812115645165e-03,
-5.730581943892969644e-05, 4.092670496970074456e-02, 1.400509228069881928e-01, 1.134783494309993535e-01,
-6.758187648940934267e-01, 1.741332876964058165e-06, 5.478726052303230058e-03, 4.769741203606630564e-01,
-1.193094491836479282e-01, 6.923045210935715359e-04, 6.980933857516307892e-03, 3.242773819946248566e-06,
-9.631340201588598493e-01
-]
-
-pf = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
-     3.497841355176434231e-05, 9.299353889254255087e-03, 1.222381727203981049e-02, 4.662733762385426803e-05,
-     4.122411164261144054e-03, 6.539070372247510956e-06, 2.659930219941081947e-02, 4.278040527363371738e-05,
-     4.349323568103394266e-02, 3.003477662783744624e-05, 7.944611372831474755e-03, 7.045871452352303610e-01,
-     3.598099326725813344e-05, 5.181366206726087387e-02, 3.262502025743792904e-06, 6.553498738869752323e-03,
-     1.007972408904296735e+00, 2.209541484408219299e-05, 4.529066165519779474e-02, 4.130360397594543542e+00,
-     3.680177142525775213e+00, 2.283467806267297056e-06, 9.570718102817205031e-05, 3.109002812115645165e-03,
-     5.730581943892969644e-05, 4.092670496970074456e-02, 1.400509228069881928e-01, 1.134783494309993535e-01,
-     6.758187648940934267e-01, 1.741332876964058165e-06, 5.478726052303230058e-03, 4.769741203606630564e-01,
-     1.193094491836479282e-01, 6.923045210935715359e-04, 6.980933857516307892e-03, 3.242773819946248566e-06,
-     9.631340201588598493e-01]
-
-
-# generate_equations(model)
-
-# rate_params = model.parameters_rules()
-# # print(len(rate_params))
-# param_values = np.array([p.value for p in model.parameters])
-# rules = np.array([p.value for p in model.parameters_rules()])
-# print(rules)
-# # print(len(param_values))
-# rate_mask = np.array([p in rate_params for p in model.parameters])
-# print(rate_mask)
-# print(list(model.parameters_rules()))
-# quit()
-
-# print(len(model.odes))
-# print(len(model.parameters_rules()))
-# print(len(model.parameters))
-# print(len(model.rules))
-# print(len(model.reactions))
-# for i,sp in enumerate(model.species):
-#     print(i,":",sp)
-# for i,ode in enumerate(model.odes):
-#     print(i,":",ode)
+plt.show()
 # quit()
 #
-# Observable('mlklp', MLKL(bRHIM=None, state='active'))
+# #arrays for plotting results for pMLKL
+#
+# #calibrated parameters from fst-pso before particle filtering
+# params_fst = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
+# 3.304257485026848768e-05,
+# 9.791215971368776028e-03,
+# 6.110068937548310437e-03,
+# 4.319219461882335177e-05,
+# 4.212644667502709987e-03,
+# 1.164332269398710173e-05,
+# 2.404257105292715788e-02,
+# 3.311085510054400207e-05,
+# 4.280399320119887552e-02,
+# 2.645814637693955063e-05,
+# 1.437707485722601597e-02,
+# 2.303744002126363599e-01,
+# 2.980688423948379739e-05,
+# 4.879773212139151134e-02,
+# 1.121503480627013705e-05,
+# 1.866712857727401229e-03,
+# 7.572177664736867708e-01,
+# 1.591282730353343167e-05,
+# 3.897146248650381478e-02,
+# 3.076363174012029411e+00,
+# 3.734859661130401243e+00,
+# 3.216200470463125876e-06,
+# 8.782429548444865440e-05,
+# 2.906341314225960662e-02,
+# 5.663104188870970508e-05,
+# 2.110469405515222677e-02,
+# 1.294086380531199176e-01,
+# 3.127598126760888220e-01,
+# 4.298489868360909627e-01,
+# 2.332910188537793332e-06,
+# 7.077504621536276526e-03,
+# 6.294061533948092091e-01,
+# 6.419313355304218094e-02,
+# 8.584653667640911989e-04,
+# 8.160445062706172072e-05,
+# 4.354383618147421691e-06,
+# 4.278903092658225660e+00
+# ]
+#
+# #calibrated parameters using fst-pso as prior for particle filtering
+# params_fst_pf = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
+# 3.497841355176434231e-05, 9.299353889254255087e-03, 1.222381727203981049e-02, 4.662733762385426803e-05,
+# 4.122411164261144054e-03, 6.539070372247510956e-06, 2.659930219941081947e-02, 4.278040527363371738e-05,
+# 4.349323568103394266e-02, 3.003477662783744624e-05, 7.944611372831474755e-03, 7.045871452352303610e-01,
+# 3.598099326725813344e-05, 5.181366206726087387e-02, 3.262502025743792904e-06, 6.553498738869752323e-03,
+# 1.007972408904296735e+00, 2.209541484408219299e-05, 4.529066165519779474e-02, 4.130360397594543542e+00,
+# 3.680177142525775213e+00, 2.283467806267297056e-06, 9.570718102817205031e-05, 3.109002812115645165e-03,
+# 5.730581943892969644e-05, 4.092670496970074456e-02, 1.400509228069881928e-01, 1.134783494309993535e-01,
+# 6.758187648940934267e-01, 1.741332876964058165e-06, 5.478726052303230058e-03, 4.769741203606630564e-01,
+# 1.193094491836479282e-01, 6.923045210935715359e-04, 6.980933857516307892e-03, 3.242773819946248566e-06,
+# 9.631340201588598493e-01
+# ]
+#
+# pf = [2326, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 24000, 10000,
+#      3.497841355176434231e-05, 9.299353889254255087e-03, 1.222381727203981049e-02, 4.662733762385426803e-05,
+#      4.122411164261144054e-03, 6.539070372247510956e-06, 2.659930219941081947e-02, 4.278040527363371738e-05,
+#      4.349323568103394266e-02, 3.003477662783744624e-05, 7.944611372831474755e-03, 7.045871452352303610e-01,
+#      3.598099326725813344e-05, 5.181366206726087387e-02, 3.262502025743792904e-06, 6.553498738869752323e-03,
+#      1.007972408904296735e+00, 2.209541484408219299e-05, 4.529066165519779474e-02, 4.130360397594543542e+00,
+#      3.680177142525775213e+00, 2.283467806267297056e-06, 9.570718102817205031e-05, 3.109002812115645165e-03,
+#      5.730581943892969644e-05, 4.092670496970074456e-02, 1.400509228069881928e-01, 1.134783494309993535e-01,
+#      6.758187648940934267e-01, 1.741332876964058165e-06, 5.478726052303230058e-03, 4.769741203606630564e-01,
+#      1.193094491836479282e-01, 6.923045210935715359e-04, 6.980933857516307892e-03, 3.242773819946248566e-06,
+#      9.631340201588598493e-01]
+#
+#
+# # generate_equations(model)
+#
+# # rate_params = model.parameters_rules()
+# # # print(len(rate_params))
+# # param_values = np.array([p.value for p in model.parameters])
+# # rules = np.array([p.value for p in model.parameters_rules()])
+# # print(rules)
+# # # print(len(param_values))
+# # rate_mask = np.array([p in rate_params for p in model.parameters])
+# # print(rate_mask)
+# # print(list(model.parameters_rules()))
+# # quit()
+#
+# # print(len(model.odes))
+# # print(len(model.parameters_rules()))
+# # print(len(model.parameters))
+# # print(len(model.rules))
+# # print(len(model.reactions))
+# # for i,sp in enumerate(model.species):
+# #     print(i,":",sp)
+# # for i,ode in enumerate(model.odes):
+# #     print(i,":",ode)
+# # quit()
+# #
+# # Observable('mlklp', MLKL(bRHIM=None, state='active'))
+# # tnf = [2326, 233, 23, 2]
+# # tspan = np.linspace(0, 480, 481)
+# # sim = BngSimulator(model, tspan=tspan)
+# # result = sim.run(method='ode', param_values=params_ode_new)
+# # df = result.dataframe
+# #
+# #
+# # # result = sim.run(method='ode', param_values=params)
+# #
+# # for n in range(0,101):
+# #     plt.plot(tspan/60, df.loc[n]['mlklp'].iloc[:], lw =1)
+# # plt.xlabel('Time in Hr', fontsize=16)
+# # plt.ylabel('Mlklp Molecules per Cell ', fontsize=16)
+# # plt.title('TNF Doses')
+# # plt.legend(loc='best')
+# # # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
+# # plt.show()
+#
+#
+#
 # tnf = [2326, 233, 23, 2]
+# lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
+# # tspan = np.linspace(0, 1440, 1440)
 # tspan = np.linspace(0, 480, 481)
 # sim = BngSimulator(model, tspan=tspan)
-# result = sim.run(method='ode', param_values=params_ode_new)
+# result = sim.run(method='ode', param_values=params_fst, initials={TNF(brec=None): tnf})
+# res = sim.run(method='ode', param_values=pf, initials={TNF(brec=None): tnf})
+# # result2 = sim.run(method='ode', param_values=params_ode_new, initials={TNF(brec=None): tnf})
 # df = result.dataframe
+# df1 = res.dataframe
+# # print(model.parameters_rules())
 #
+# # rate_params = params_ode_new
+# # # print(len(rate_params))
+# # param_values = np.array([p.value for p in model.parameters])
+# # # print(len(param_values))
+# # rate_mask = np.array([p in rate_params for p in model.parameters])
+# # # print(len(rate_mask))
+# # # quit()
+#
+# # original_values = np.array([p.value for p in model.parameters])
+#
+# # # We search in log10 space for the parameters
+# # log10_original_values = np.log10(original_values[rate_mask])
 #
 # # result = sim.run(method='ode', param_values=params)
-#
-# for n in range(0,101):
-#     plt.plot(tspan/60, df.loc[n]['mlklp'].iloc[:], lw =1)
-# plt.xlabel('Time in Hr', fontsize=16)
-# plt.ylabel('Mlklp Molecules per Cell ', fontsize=16)
-# plt.title('TNF Doses')
-# plt.legend(loc='best')
+# mlkl = [0,   170, 900, 4880,    9940,    10000]
+# y = [0, 1, 2, 4, 6, 8]
+# color = ['b', 'g', 'm', 'r']
+# plt.figure()
+# for n in range(0,4):
+#     plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
+#     plt.plot(tspan, df1.loc[n]['MLKLa_obs'].iloc[:],'--',c = color[n],lw = 1.5) #fppf
+# plt.xlabel('Time [minutes]', fontsize=16)
+# plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
+# plt.title('Sensitivity of pMLKL to varying TNFa doses')
+# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FST-PS0', loc=0, fontsize = 5)
+# # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # plt.show()
-
-
-
-tnf = [2326, 233, 23, 2]
-lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
-# tspan = np.linspace(0, 1440, 1440)
-tspan = np.linspace(0, 480, 481)
-sim = BngSimulator(model, tspan=tspan)
-result = sim.run(method='ode', param_values=params_fst, initials={TNF(brec=None): tnf})
-res = sim.run(method='ode', param_values=pf, initials={TNF(brec=None): tnf})
-# result2 = sim.run(method='ode', param_values=params_ode_new, initials={TNF(brec=None): tnf})
-df = result.dataframe
-df1 = res.dataframe
-# print(model.parameters_rules())
-
-# rate_params = params_ode_new
-# # print(len(rate_params))
-# param_values = np.array([p.value for p in model.parameters])
-# # print(len(param_values))
-# rate_mask = np.array([p in rate_params for p in model.parameters])
-# # print(len(rate_mask))
-# # quit()
-
-# original_values = np.array([p.value for p in model.parameters])
-
-# # We search in log10 space for the parameters
-# log10_original_values = np.log10(original_values[rate_mask])
-
-# result = sim.run(method='ode', param_values=params)
-mlkl = [0,   170, 900, 4880,    9940,    10000]
-y = [0, 1, 2, 4, 6, 8]
-color = ['b', 'g', 'm', 'r']
-plt.figure()
-for n in range(0,4):
-    plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
-    plt.plot(tspan, df1.loc[n]['MLKLa_obs'].iloc[:],'--',c = color[n],lw = 1.5) #fppf
-plt.xlabel('Time [minutes]', fontsize=16)
-plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-plt.title('Sensitivity of pMLKL to varying TNFa doses')
-plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FST-PS0', loc=0, fontsize = 5)
-# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
-# plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
-plt.show()
