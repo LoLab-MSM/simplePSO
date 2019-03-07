@@ -49,18 +49,18 @@ Monomer('LUBAC', ['brip'])
 
 Parameter('TNF_0', 2326)
 Parameter('TNFR_0', 4800)
-Parameter('TRADD_0', 9000)
+Parameter('TRADD_0', 4696) #4696
 Parameter('RIP1_0', 40000)
-Parameter('TRAF_0', 9000)
+Parameter('TRAF_0', 11776) #11776
 Parameter('cIAP_0', 9000)
 Parameter('A20_0', 9000)
 Parameter('CYLD_0', 9000)
-Parameter('FADD_0', 8030)
+Parameter('FADD_0', 3109) #3109
 Parameter('flip_L_0', 3900)
 Parameter('Lubac_0', 7226)
-Parameter('C8_0', 9000)
-Parameter('RIP3_0', 40000)
-Parameter('MLKLa_0', 10000)
+Parameter('C8_0', 3799) #3799
+Parameter('RIP3_0', 10654) #10654
+Parameter('MLKLa_0', 5544) #5544
 
 # Parameter('TNF_0', 232) # initial condition
 # Parameter('TNFR_0', 4800)
@@ -265,7 +265,7 @@ generate_equations(model)
 #     print('{},{:e}'.format(p.name,p.value))
 
 
-pars =  np.load('optimizer_best_200_mar5.npy')
+pars =  np.load('optimizer_best_1000_mar5.npy')
 rate_params = model.parameters_rules() # these are only the parameters involved in the rules
 param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
 rate_mask = np.array([p in rate_params for p in model.parameters])
@@ -288,6 +288,10 @@ param_values[rate_mask] = 10 ** pars
 # plt.show()
 #
 
+fdkd = []
+tdkd =
+a20kd =
+c8kd =
 
 tnf = [2326, 232, 23,2]
 color = ['r', 'm', 'g', 'b']
@@ -318,45 +322,45 @@ with open('params_cal_kd.txt', 'w') as f:
 plt.figure()
 for n in range(0,4):
     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
-    plt.plot(tspan/60, df.loc[n]['MLKLa_obs'].iloc[:], '--', c = color[n],lw = 1.5) #fppf
+    plt.plot(tspan/60, df.loc[n]['MLKLa_obs'].iloc[:],  c = color[n],lw = 1.5) #fppf
 # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 plt.xlabel('Time [hours]', fontsize=14)
 plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=14)
-plt.title('Sensitivity of pMLKL to varying TNFa doses (KD cal)')
+plt.title('Sensitivity of pMLKL to varying TNFa doses (A20KD cal)')
 plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='top left', fontsize = 8)
 # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # plt.ylim(ymax = 6000)
-plt.savefig('pMLKL to varying TNFa doses (KD cal)')
+plt.savefig('pMLKL to varying TNFa doses (A20KD cal)')
 # plt.show()
 
 plt.figure()
 for n in range(0,4):
     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
-    plt.plot(tspan/60, df.loc[n]['CI_k63_obs'].iloc[:], '--', c = color[n],lw = 1.5) #fppf
+    plt.plot(tspan/60, df.loc[n]['CI_k63_obs'].iloc[:], c = color[n],lw = 1.5) #fppf
 # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 plt.xlabel('Time [hours]', fontsize=14)
 plt.ylabel('Complex I k63 Ub [molecules]', fontsize=14)
-plt.title('Sensitivity of CI to varying TNFa doses (KD cal)')
+plt.title('Sensitivity of CI to varying TNFa doses (A20KD cal)')
 plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='best', fontsize = 8)
 # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # plt.ylim(ymax = 6000)
-plt.savefig('CI to varying TNFa doses (KD cal)')
+plt.savefig('CI to varying TNFa doses (A20KD cal)')
 # plt.show()
 
 plt.figure()
 for n in range(0,4):
     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
-    plt.plot(tspan/60, df.loc[n]['CII_obs'].iloc[:], '--', c = color[n],lw = 1.5) #fppf
+    plt.plot(tspan/60, df.loc[n]['CII_obs'].iloc[:], c = color[n],lw = 1.5) #fppf
 # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 plt.xlabel('Time [hours]', fontsize=14)
 plt.ylabel('Complex II [molecules]', fontsize=14)
-plt.title('Sensitivity of CII to varying TNFa doses (KD cal)')
+plt.title('Sensitivity of CII to varying TNFa doses (A20KD cal)')
 plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='best', fontsize = 8)
 # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # plt.ylim(ymax = 6000)
-plt.savefig('CII to varying TNFa doses (KD cal)')
+plt.savefig('CII to varying TNFa doses (A20KD cal)')
 plt.show()
 
