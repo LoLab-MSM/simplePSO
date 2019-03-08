@@ -260,107 +260,124 @@ Observable('CII_obs', TRADD(brec = None, brip = 3, bDD1=None, bDD2=None) % RIP1(
            % FADD(bDD=1,bDED1 = None, bDED2 = None) % RIP3(bRHIM=5, bDD = None, state='um'))
 
 generate_equations(model)
+# # #
+# # for p in model.parameters:
+# #     print('{},{:e}'.format(p.name,p.value))
 # #
-# for p in model.parameters:
-#     print('{},{:e}'.format(p.name,p.value))
+# #
 #
-#
-# pars =  np.load('optimizer_best_1000_mar5.npy')
+# pars =  np.load('optimizer_best_1000_mar7.npy')
 # rate_params = model.parameters_rules() # these are only the parameters involved in the rules
 # param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
 # rate_mask = np.array([p in rate_params for p in model.parameters])
 # param_values[rate_mask] = 10 ** pars
-#
-#
+# #
+# #
 # # tspan = np.linspace(0, 1400, 1441)
 # # sim = BngSimulator(model, tspan=tspan)
 # # result = sim.run(method='ode')
-# #
-# #
-# # plt.figure()
-# # # plt.plot(tspan/60, result.observables['MLKLu'][:])
-# # plt.plot(tspan/60, result.observables['MLKLa_obs'][:])
-# # # plt.scatter(x, mlkl)
-# # plt.xlabel('Time [minutes]', fontsize=16)
-# # plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-# # # plt.title('Sensitivity of pMLKL to varying TNFa doses')
-# # # plt.ylim(ymax = )
-# # plt.show()
+# # #
+# # #
+# # # plt.figure()
+# # # # plt.plot(tspan/60, result.observables['MLKLu'][:])
+# # # plt.plot(tspan/60, result.observables['MLKLa_obs'][:])
+# # # # plt.scatter(x, mlkl)
+# # # plt.xlabel('Time [minutes]', fontsize=16)
+# # # plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
+# # # # plt.title('Sensitivity of pMLKL to varying TNFa doses')
+# # # # plt.ylim(ymax = )
+# # # plt.show()
+# # #
 # #
 #
-# fdkd = []
-# tdkd =
-# a20kd =
-# c8kd =
+# fdkd = [3109, 933, 3109, 3109, 3109]
+# tdkd = [4696, 4696, 1409, 4696, 4696]
+# a20kd = [9000,9000, 9000, 2700, 9000]
+# c8kd = [3799, 3799, 3799, 3799,1140]
 #
 # tnf = [2326, 232, 23,2]
-# color = ['r', 'm', 'g', 'b']
+# color = ['r', 'm', 'g', 'b', 'k']
 # lab = ['100 ng/ml', '10 ng/ml', '1 ng/ml', '0.1 ng/ml']
+#
+# # tspan = np.linspace(0, 1440, 1441)
+# # sim = ScipyOdeSimulator(model, tspan=tspan)
+# # result = sim.run(param_values=param_values,initials= {FADD(bDD=None, bDED1=None, bDED2=None): fdkd, TRADD(brec=None, brip=None, state='um', bDD1 = None, bDD2 = None):tdkd,
+# #                                                       A20(brip=None): a20kd, C8(bf=None, flip = None, state='I'): c8kd})
+# # df = result.dataframe
 #
 # tspan = np.linspace(0, 1440, 1441)
 # sim = ScipyOdeSimulator(model, tspan=tspan)
-# result = sim.run(param_values=param_values,initials= {TNF(brec=None):tnf})
+# result = sim.run(param_values=param_values,initials= {TNF(brec=None): tnf})
 # df = result.dataframe
 #
-# with open('params_cal_kd.txt', 'w') as f:
-#     for p, v in zip(model.parameters, result.param_values[0]):
-#         f.write('{},{:e}\n'.format(p.name, v))
+# # with open('params_cal_kd.txt', 'w') as f:
+# #     for p, v in zip(model.parameters, result.param_values[0]):
+# #         f.write('{},{:e}\n'.format(p.name, v))
 #
-# # plt.figure()
-# # plt.plot(tspan/60, result.observables['MLKLa_obs'], color = 'tab:gray', marker = 's')
-# # plt.xlabel('Time [minutes]', fontsize=16)
-# # plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=16)
-# # plt.title('Sensitivity of pMLKL to varying TNFa doses')
-# # plt.legend('100 ng/ml ' , title = 'TNF FP', loc=0, fontsize = 5)
-# # plt.show()
-# #
+# x = list([0, 60/60, 120/60, 180/60, 240/60, 300/60, 360/60, 420/60, 480/60, 540/60, 600/60, 660/60, 720/60])
+# y = [0, 0, 0, 554, 1386, 2772, 4158, 5544, 5544, 5544, 5544, 5544, 5544]
+#
+# plt.figure()
+# for n in range(0,4):
+#     plt.plot(tspan / 60, df.loc[n]['MLKLa_obs'].iloc[:], c=color[n], lw=1.5)
+# plt.plot(x, y, lw = 1.5, color = 'black')
+# plt.xlabel('Time (hours)', fontsize=13)
+# plt.ylabel('Phosphorylated MLKL amount (copies/cell)', fontsize=13)
+# plt.title('Sensitivity of pMLKL to varying TNFa doses')
+# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc=0, fontsize = 10)
+# plt.savefig('pMLKL to varying TNFa doses KD')
+# plt.show()
+# quit()
 # #
 # # quit()
 # # mlkl = [0, 170, 900, 4880, 9940, 10000]
 # # x = [0, 60, 120, 240, 360, 480]
 #
 # plt.figure()
-# for n in range(0,4):
+# for n in range(0,5):
 #     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
 #     plt.plot(tspan/60, df.loc[n]['MLKLa_obs'].iloc[:],  c = color[n],lw = 1.5) #fppf
 # # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 # plt.xlabel('Time [hours]', fontsize=14)
 # plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=14)
-# plt.title('Sensitivity of pMLKL to varying TNFa doses (A20KD cal)')
-# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='top left', fontsize = 8)
+# plt.title('Sensitivity of pMLKL to varying KD Conditions 100 ng/ml TNF')
+# # plt.title('Sensitivity of pMLKL to varying TNFa doses (WTKD cal)')
+# plt.legend(['WT ', 'FDKD', 'TDKD', 'A20KD', 'C8KD'] , title = 'KD Conditions', loc='top left', fontsize = 8)
 # # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # # plt.ylim(ymax = 6000)
-# plt.savefig('pMLKL to varying TNFa doses (A20KD cal)')
+# plt.savefig('pMLKL to varying TNFa doses (WTKD cal)')
 # # plt.show()
 #
 # plt.figure()
-# for n in range(0,4):
+# for n in range(0,5):
 #     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
 #     plt.plot(tspan/60, df.loc[n]['CI_k63_obs'].iloc[:], c = color[n],lw = 1.5) #fppf
 # # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 # plt.xlabel('Time [hours]', fontsize=14)
 # plt.ylabel('Complex I k63 Ub [molecules]', fontsize=14)
-# plt.title('Sensitivity of CI to varying TNFa doses (A20KD cal)')
-# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='best', fontsize = 8)
+# plt.title('Sensitivity of CI to varying KD Conditions 100 ng/ml TNF')
+# # plt.title('Sensitivity of CI to varying TNFa doses (WTKD cal)')
+# plt.legend(['WT ', 'FDKD', 'TDKD', 'A20KD', 'C8KD'] , title = 'KD Conditions', loc='best', fontsize = 8)
 # # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # # plt.ylim(ymax = 6000)
-# plt.savefig('CI to varying TNFa doses (A20KD cal)')
+# plt.savefig('CI to varying TNFa doses (WTKD cal)')
 # # plt.show()
 #
 # plt.figure()
-# for n in range(0,4):
+# for n in range(0,5):
 #     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
 #     plt.plot(tspan/60, df.loc[n]['CII_obs'].iloc[:], c = color[n],lw = 1.5) #fppf
 # # plt.scatter(x, mlkl, color = 'tab:gray', marker = 's')
 # plt.xlabel('Time [hours]', fontsize=14)
 # plt.ylabel('Complex II [molecules]', fontsize=14)
-# plt.title('Sensitivity of CII to varying TNFa doses (A20KD cal)')
-# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc='best', fontsize = 8)
+# plt.title('Sensitivity of CII to varying KD Conditions 100 ng/ml TNF')
+# # plt.title('Sensitivity of CII to varying TNFa doses (WTKD cal)')
+# plt.legend(['WT ', 'FDKD', 'TDKD', 'A20KD', 'C8KD'] , title = 'KD Conditions', loc='best', fontsize = 8)
 # # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
 # # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
 # # plt.ylim(ymax = 6000)
-# plt.savefig('CII to varying TNFa doses (A20KD cal)')
+# plt.savefig('CII to varying TNFa doses (WTKD cal)')
 # plt.show()
-#
+

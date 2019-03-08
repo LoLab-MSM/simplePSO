@@ -18,7 +18,7 @@ from pysb.integrate import *
 from simplepso.pso import PSO
 import collections
 
-# new_start =  np.load('optimizer_best_5000_all_new_2.npy')
+new_start =  np.load('optimizer_best_5000_all_new_2.npy')
 
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
@@ -43,7 +43,7 @@ solver1 = ScipyOdeSimulator(model, tspan=t)
 #make an array for each of the kd made up data for mlklp
 #switching at 5 hours
 wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-wty = np.array([0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
+wty = np.array([0., 0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1.,1.])
 
 #A20 data switching at 3 hours
 a20x = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
@@ -295,13 +295,13 @@ def run_example():
     # print('run_example')
     # Here we initial the class
     # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
+    optimizer = PSO(cost_function=obj_function,start = new_start, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
     optimizer.set_bounds(parameter_range=2)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
     optimizer.run(num_particles=75, num_iterations=1000)
     print(optimizer.best)
-    np.save('optimizer_best_1000_mar7',optimizer.best)
+    np.save('optimizer_best_75_1000_mar8',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)
