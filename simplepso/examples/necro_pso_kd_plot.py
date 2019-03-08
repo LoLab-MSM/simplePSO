@@ -301,7 +301,7 @@ def run_example():
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
     optimizer.run(num_particles=75, num_iterations=1000)
     print(optimizer.best)
-    np.save('optimizer_best_1000_mar5',optimizer.best)
+    np.save('optimizer_best_1000_mar7',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)
