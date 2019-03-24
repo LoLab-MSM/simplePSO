@@ -224,11 +224,11 @@ def obj_function(params):
     mlkl_fd = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
     mlkl_c8 = np.array([0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
-    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_wt))
-    e2 = np.sum((a20y - ysim_norm2) ** 2 / (mlkl_a20))
-    e3 = np.sum((tdy - ysim_norm3) ** 2 / (mlkl_td))
-    e4 = np.sum((fdy - ysim_norm4) ** 2 / (mlkl_fd))
-    e5 = np.sum((c8y - ysim_norm5) ** 2 / (mlkl_c8))
+    e1 = np.sum((ydata_norm - ysim_norm1) ** 2)
+    e2 = np.sum((a20y - ysim_norm2) ** 2)
+    e3 = np.sum((tdy - ysim_norm3) ** 2)
+    e4 = np.sum((fdy - ysim_norm4) ** 2)
+    e5 = np.sum((c8y - ysim_norm5) ** 2)
 
     error = e1 + e2 + e3 + e4 + e5
     return error,
@@ -290,18 +290,31 @@ def obj_function(params):
 # if __name__ == '__main__':
 #     run_example()
 
-
 def run_example():
-    # print('run_example')
-    # Here we initial the class
-    # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function,start = new_start, verbose=True)
-    # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=2)
-    optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=500)
-    print(optimizer.best)
-    np.save('optimizer_best_50_500_mar11',optimizer.best)
+    for i in range(250):
+        # Here we initialize the class
+        # We must proivde the cost function and a starting value
+        optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
+        # We also must set bounds. This can be a single scalar or an array of len(start_position)
+        optimizer.set_bounds(parameter_range=2)
+        optimizer.set_speed(speed_min=-.25, speed_max=.25)
+        optimizer.run(num_particles=25, num_iterations=50)
+        print(optimizer.best) # what it takes here is the best set of parameter
+        np.save('optimizer_best_500_kd_%s' % i, optimizer.best)
+        # np.save('./optimizer.best/Geena_complete_model/optimizer_best_50_all_new_mil_'+str(now.strftime('%Y-%m-%d_%H%M')), optimizer.best)
+        # if plot:
+#         #     display(optimizer.best)
+# def run_example():
+#     # print('run_example')
+#     # Here we initial the class
+#     # We must proivde the cost function and a starting value
+#     optimizer = PSO(cost_function=obj_function,start = new_start, verbose=True)
+#     # We also must set bounds. This can be a single scalar or an array of len(start_position)
+#     optimizer.set_bounds(parameter_range=2)
+#     optimizer.set_speed(speed_min=-.25, speed_max=.25)
+#     optimizer.run(num_particles=50, num_iterations=500)
+#     print(optimizer.best)
+#     np.save('optimizer_best_50_500_mar11',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)

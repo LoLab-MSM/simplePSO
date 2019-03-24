@@ -262,26 +262,32 @@ Observable('CII_obs', TRADD(brec = None, brip = 3 ) % RIP1(bscf=3, btraf=None, b
 
 generate_equations(model)
 #
-# params = np.array( [ 233, 4800, 9000, 40000, 9000, 9000, 9000, 9000, 8030, 3900, 7226, 9000, 40000, 5544,
-#                     1.02145688e-05, 1.23516885e-03, 2.03754801e-04,7.81094339e-06,
-#                      6.47910697e-03, 3.44471059e-06, 5.04179392e-05,1.29894688e-06,
-#                      6.80159346e-04, 6.06116951e-06, 1.24025304e-05,3.73538835e-02,
-#                      5.24538331e-06, 5.16924040e-04, 2.77489325e-05,9.99328700e-04,
-#                      2.58066796e-01, 4.22932335e-07, 1.43821124e-04,5.39103684e-02,
-#                      3.66441237e-01, 1.17753133e-06, 9.73005690e-06,2.83901083e-02,
-#                      4.59314568e-05, 2.83567301e-03, 1.41058185e-01,2.16293904e-03,
-#                      5.41837115e-02, 7.46230611e-07, 3.37655626e-04,7.88608420e-02,
-#                      4.46416892e-03, 7.63221454e-04, 1.38301831e-04,5.07970779e-06,
-#                      8.39843567e+00])
+# # params = np.array( [ 233, 4800, 4696, 40000, 11776, 9000, 9000, 9000, 3109, 3900, 7226, 3799, 10654, 5544,
+# #                     1.02145688e-05, 1.23516885e-03, 2.03754801e-04,7.81094339e-06,
+# #                      6.47910697e-03, 3.44471059e-06, 5.04179392e-05,1.29894688e-06,
+# #                      6.80159346e-04, 6.06116951e-06, 1.24025304e-05,3.73538835e-02,
+# #                      5.24538331e-06, 5.16924040e-04, 2.77489325e-05,9.99328700e-04,
+# #                      2.58066796e-01, 4.22932335e-07, 1.43821124e-04,5.39103684e-02,
+# #                      3.66441237e-01, 1.17753133e-06, 9.73005690e-06,2.83901083e-02,
+# #                      4.59314568e-05, 2.83567301e-03, 1.41058185e-01,2.16293904e-03,
+# #                      5.41837115e-02, 7.46230611e-07, 3.37655626e-04,7.88608420e-02,
+# #                      4.46416892e-03, 7.63221454e-04, 1.38301831e-04,5.07970779e-06,
+# #                      8.39843567e+00])
+# #
+#
+# pars = np.load('optimizer_best_1000_14.npy')
+# rate_params = model.parameters_rules() # these are only the parameters involved in the rules
+# param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
+# rate_mask = np.array([p in rate_params for p in model.parameters])
+# param_values[rate_mask] = 10 ** pars
 #
 # tnf = [2326, 232, 23, 2]
 # color = ['r', 'm', 'g', 'b']
 # tspan = np.linspace(0, 1440, 1441)
 # sim = ScipyOdeSimulator(model, tspan=tspan)
 # # result = sim.run(param_values=params)
-# result = sim.run(initials={TNF(brec=None): tnf}, param_values=params)
+# result = sim.run(initials={TNF(brec=None): tnf}, param_values=param_values)
 # df = result.dataframe
-#
 #
 # t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
 #
@@ -293,20 +299,20 @@ generate_equations(model)
 #     plt.plot(tspan / 60, df.loc[1]['MLKLa_obs'].iloc[:], color = 'm', lw=1)
 #     plt.plot(tspan / 60, df.loc[2]['MLKLa_obs'].iloc[:], color = 'g', lw=1)
 #     plt.plot(tspan / 60, df.loc[3]['MLKLa_obs'].iloc[:], color = 'b', lw=1)
-#     # plt.plot(tspan / 60, df.loc[0]['CII_obs'].iloc[:]/df.loc[0]['CII_obs'].iloc[:].max(), color = 'r', lw=1)
-#     # plt.plot(tspan / 60, df.loc[1]['CII_obs'].iloc[:]/df.loc[1]['CII_obs'].iloc[:].max(), color = 'm', lw=1)
-#     # plt.plot(tspan / 60, df.loc[2]['CII_obs'].iloc[:]/df.loc[2]['CII_obs'].iloc[:].max(), color = 'g', lw=1)
-#     # plt.plot(tspan / 60, df.loc[3]['CII_obs'].iloc[:]/df.loc[3]['CII_obs'].iloc[:].max(), color = 'b', lw=1)
-#     # plt.plot(tspan / 60, df.loc[0]['CII_k63_obs'].iloc[:]/df.loc[0]['CI_k63_obs'].iloc[:].max(), color = 'r', lw=1)
-#     # plt.plot(tspan / 60, df.loc[1]['CII_k63_obs'].iloc[:]/df.loc[1]['CI_k63_obs'].iloc[:].max(), color = 'm', lw=1)
-#     # plt.plot(tspan / 60, df.loc[2]['CII_k63_obs'].iloc[:]/df.loc[2]['CI_k63_obs'].iloc[:].max(), color = 'g', lw=1)
-#     # plt.plot(tspan / 60, df.loc[3]['CII_obs'].iloc[:]/df.loc[3]['CI_k63_obs'].iloc[:].max(), color = 'b', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[0]['CII_obs'].iloc[:]/df.loc[0]['CII_obs'].iloc[:].max(), color = 'r', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[1]['CII_obs'].iloc[:]/df.loc[1]['CII_obs'].iloc[:].max(), color = 'm', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[2]['CII_obs'].iloc[:]/df.loc[2]['CII_obs'].iloc[:].max(), color = 'g', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[3]['CII_obs'].iloc[:]/df.loc[3]['CII_obs'].iloc[:].max(), color = 'b', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[0]['CII_k63_obs'].iloc[:]/df.loc[0]['CI_k63_obs'].iloc[:].max(), color = 'r', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[1]['CII_k63_obs'].iloc[:]/df.loc[1]['CI_k63_obs'].iloc[:].max(), color = 'm', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[2]['CII_k63_obs'].iloc[:]/df.loc[2]['CI_k63_obs'].iloc[:].max(), color = 'g', lw=1)
+# #     # plt.plot(tspan / 60, df.loc[3]['CII_obs'].iloc[:]/df.loc[3]['CI_k63_obs'].iloc[:].max(), color = 'b', lw=1)
 # plt.scatter(t/60, data, lw = 1.5, color = 'black', zorder = 1)
 # plt.xlabel('Time (hours)', fontsize=13)
 # plt.ylabel('Phosphorylated MLKL amount (copies/cell)', fontsize=13)
 # plt.title('Sensitivity of pMLKL to varying TNFa doses')
 # plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF Doses', loc=0, fontsize = 8)
-# # plt.savefig('pMLKL under varying TNFa doses')
+# plt.savefig('pMLKL under varying TNFa doses 14')
 # plt.show()
 
 
