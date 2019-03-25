@@ -43,7 +43,11 @@ rate_mask = np.array([p in rate_params for p in model.parameters])  # this picks
 # Data
 # data = np.array([0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
 # data = np.array([0, 0.017, 0.09, 0.25, 0.488, 0.994, 1])
-data = np.array([0., 0., 0., 0., 0.03, 0.10, 0.5, 0.99, 1.])
+# data = np.array([0., 0., 0., 0., 0.03, 0.10, 0.5, 0.99, 1.])
+
+# t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
+#
+data = np.array([0., 0., 0., 0., 0.01, 0.05, 0.5, 0.99, 1.])
 
 # We search in log10 space for the parameters - this relates to the parameters at the beginning!
 log10_original_values = np.log10(param_values[rate_mask]) # this with the rate mask is needed because the solver wants the parameter values to have the same dimention as the whole parameter values for the model, same at *; it is a way of writing that only takes the parameters for which rate_mask is True
@@ -59,14 +63,14 @@ def obj_function(params):
     return error, #the comma is for returning a touple
 
 def run_example():
-    for i in range(500):
+    for i in range(250):
         # Here we initialize the class
         # We must proivde the cost function and a starting value
         optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
         # We also must set bounds. This can be a single scalar or an array of len(start_position)
         optimizer.set_bounds(parameter_range=2)
         optimizer.set_speed(speed_min=-.25, speed_max=.25)
-        optimizer.run(num_particles=25, num_iterations=100)
+        optimizer.run(num_particles=25, num_iterations=50)
         print(optimizer.best) # what it takes here is the best set of parameter
         np.save('optimizer_best_500_%s' % i, optimizer.best)
         # np.save('./optimizer.best/Geena_complete_model/optimizer_best_50_all_new_mil_'+str(now.strftime('%Y-%m-%d_%H%M')), optimizer.best)
