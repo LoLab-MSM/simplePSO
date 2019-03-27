@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/2612913.svg)](https://zenodo.org/badge/latestdoi/2612913)
+[![DOI](https://zenodo.org/badge/20464524.svg)](https://zenodo.org/badge/latestdoi/20464524)
 
 # Simple interface to optimize models using Particle Swarm optimization
  
