@@ -63,16 +63,24 @@ def obj_function(params):
     return error, #the comma is for returning a touple
 
 def run_example():
-    for i in range(250):
-        # Here we initialize the class
-        # We must proivde the cost function and a starting value
+    for i in range(10000):
+    # Here we initialize the class
+    # We must proivde the cost function and a starting value
         optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
         # We also must set bounds. This can be a single scalar or an array of len(start_position)
         optimizer.set_bounds(parameter_range=2)
         optimizer.set_speed(speed_min=-.25, speed_max=.25)
-        optimizer.run(num_particles=25, num_iterations=50)
+        optimizer.run(num_particles=100, num_iterations=100)
+        fitness, positions = optimizer.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+        hist_all = optimizer.all_history
+        fit_all = optimizer.all_fitness
+        np.save('position_pso', positions)  # param vectors for 1000 particles
+        np.save('values_cost_pso', fitness)  # cost function for each iteration of 1000 particles
+        np.save('his_all_pso', hist_all)
+        np.save('fit_all_pso', fit_all)
+        # print(fitness)
         print(optimizer.best) # what it takes here is the best set of parameter
-        np.save('optimizer_best_500_%s' % i, optimizer.best)
+        np.save('optimizer_best_10000_%s' % i, optimizer.best)
         # np.save('./optimizer.best/Geena_complete_model/optimizer_best_50_all_new_mil_'+str(now.strftime('%Y-%m-%d_%H%M')), optimizer.best)
         # if plot:
         #     display(optimizer.best)

@@ -290,54 +290,62 @@ generate_equations(model)
 #          -2.31736383, -0.15706048, -0.08934569, -1.         ,-4.05324232, -4.57716147 ,
 #           1.83560621])
 
-pars = np.array([-6.84706034, -2.08330446, -3.14547009, -6.56929084 ,-1.369488  ,-4.48673505,
-        -1.72466745, -4.62106959, -3.28687671, -4.459295   ,-4.24427646, 0.12424465,
-        -4.99663706, -2.26283345, -5.18987254, -3.36947399 ,-2.69044424,-5.41360843,
-        -3.36114723, -0.38087772, -0.70822244, -6.55721053 ,-4.9452709 ,-2.86436244,
-        -7.22755389, -2.61404629, -0.57005562, -1.33805278 ,-0.3711652 ,-4.84190537,
-        -4.37686806,  0.28686297, -1.02215434, -1.22347279 ,-3.03682113,-5.59903273,
-        1.07088531])
+# pars = np.array([-6.84706034, -2.08330446, -3.14547009, -6.56929084 ,-1.369488  ,-4.48673505,
+#         -1.72466745, -4.62106959, -3.28687671, -4.459295   ,-4.24427646, 0.12424465,
+#         -4.99663706, -2.26283345, -5.18987254, -3.36947399 ,-2.69044424,-5.41360843,
+#         -3.36114723, -0.38087772, -0.70822244, -6.55721053 ,-4.9452709 ,-2.86436244,
+#         -7.22755389, -2.61404629, -0.57005562, -1.33805278 ,-0.3711652 ,-4.84190537,
+#         -4.37686806,  0.28686297, -1.02215434, -1.22347279 ,-3.03682113,-5.59903273,
+#         1.07088531])
 # pars = np.load('optimizer_best_1000_14.npy')
-# pars =  np.load('optimizer_best_1000_mar7.npy')
-rate_params = model.parameters_rules() # these are only the parameters involved in the rules
-param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
-rate_mask = np.array([p in rate_params for p in model.parameters])
-param_values[rate_mask] = 10 ** pars
-
-fdkd = [3109, 933, 3109, 3109, 3109]
-tdkd = [4696, 4696, 1409, 4696, 4696]
-a20kd = [9000, 9000, 9000, 2700, 9000]
-c8kd = [3799,3799, 3799, 3799,1140]
+# # pars =  np.load('optimizer_best_1000_mar7.npy')
+# rate_params = model.parameters_rules() # these are only the parameters involved in the rules
+# param_values = np.array([p.value for p in model.parameters]) # these are all the parameters
+# rate_mask = np.array([p in rate_params for p in model.parameters])
+# param_values[rate_mask] = 10 ** pars
 #
-tnf = [2326, 232, 23, 2]
-color = ['r', 'm', 'g', 'b', 'c']
-tspan = np.linspace(0, 1440, 1441)
-sim = ScipyOdeSimulator(model, tspan=tspan)
-# result = sim.run(param_values=params)
-result = sim.run(param_values=param_values)
-# result = sim.run(param_values = param_values, initials={TNF(brec=None): tnf})
-df = result.dataframe
-t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
-data = np.array([0., 0., 0., 0., 0.01*5544, 0.05*5544, 0.5*5544, 0.99*5544, 1.*5544])
-
-
-plt.figure()
-# for n in range(0,5):
-    # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
-plt.plot(tspan/60, result.observables['MLKLa_obs'][:],lw = 1.5) #fppf
-plt.scatter(t/60, data, lw = 2.5, color = 'k',marker = '.', zorder = 1)
-# plt.plot(t/60, data)
-plt.xlabel('Time [hours]', fontsize=14)
-plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=14)
-plt.title('Sensitivity of pMLKL to varying KD Conditions 100 ng/ml TNF')
-# plt.title('Sensitivity of pMLKL to varying TNFa doses (WTKD cal)')
-# plt.legend([ 'FDKD', 'TDKD', 'A20KD', 'C8KD','WT '] , title = 'KD Conditions', loc='best', fontsize = 8)
-plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
-# plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
-# plt.ylim(ymax = 6000)
-# plt.savefig('pMLKL to varying TNFa doses (WTKD cal)')
-plt.show()
-
+# fdkd = [3109, 933, 3109, 3109, 3109]
+# tdkd = [4696, 4696, 1409, 4696, 4696]
+# a20kd = [9000, 9000, 9000, 2700, 9000]
+# c8kd = [3799,3799, 3799, 3799,1140]
+#
+# tnf = [2326, 232, 23, 2]
+# color = ['r', 'm', 'g', 'b', 'c']
+# tspan = np.linspace(0, 1440, 1441)
+# sim = ScipyOdeSimulator(model, tspan=tspan)
+# # result = sim.run(param_values=params)
+# result = sim.run(param_values=param_values)
+#
+# result.save('necro_sim.h5')
+#
+# with open('params_cal_necromlkl14.txt', 'w') as f:
+#     for p, v in zip(model.parameters, result.param_values[0]):
+#         f.write('{},{:e}\n'.format(p.name, v))
+#
+# # quit()
+# # result = sim.run(param_values = param_values, initials={TNF(brec=None): tnf})
+# df = result.dataframe
+# t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
+# data = np.array([0., 0., 0., 0., 0.01*5544, 0.05*5544, 0.5*5544, 0.99*5544, 1.*5544])
+#
+#
+# plt.figure()
+# # for n in range(0,5):
+#     # plt.plot(tspan, df.loc[n]['MLKLa_obs'].iloc[:], c = color[n],lw =1.5) #fst-pso
+# plt.plot(tspan/60, result.observables['MLKLa_obs'][:],lw = 1.5) #fppf
+# plt.scatter(t/60, data, lw = 2.5, color = 'k',marker = '.', zorder = 1)
+# # plt.plot(t/60, data)
+# plt.xlabel('Time [hours]', fontsize=14)
+# plt.ylabel('Phosphorylated MLKL amount [molecules]', fontsize=14)
+# plt.title('Sensitivity of pMLKL to varying KD Conditions 100 ng/ml TNF')
+# # plt.title('Sensitivity of pMLKL to varying TNFa doses (WTKD cal)')
+# # plt.legend([ 'FDKD', 'TDKD', 'A20KD', 'C8KD','WT '] , title = 'KD Conditions', loc='best', fontsize = 8)
+# plt.legend(['100 ng/ml ', '10 ng/ml', '1 ng/ml', '0.1 ng/ml'] , title = 'TNF FPPF', loc=0, fontsize = 5)
+# # plt.legend(flipnum, title = 'flip', loc=0, fontsize = 5)
+# # plt.ylim(ymax = 6000)
+# # plt.savefig('pMLKL to varying TNFa doses (WTKD cal)')
+# plt.show()
+# quit()
 #
 # t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
 #
