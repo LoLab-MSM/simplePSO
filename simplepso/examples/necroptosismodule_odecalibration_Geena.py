@@ -70,7 +70,7 @@ def run_example():
         # We also must set bounds. This can be a single scalar or an array of len(start_position)
         optimizer.set_bounds(parameter_range=2)
         optimizer.set_speed(speed_min=-.25, speed_max=.25)
-        optimizer.run(num_particles=50, num_iterations=100)
+        optimizer.run(num_particles=25, num_iterations=50)
         fitness, positions = optimizer.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
         hist_all = optimizer.all_history
         fit_all = optimizer.all_fitness
