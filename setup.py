@@ -1,8 +1,8 @@
 from setuptools import find_packages, setup
 
-_MAJOR               = 0
-_MINOR               = 1
-_MICRO = 5
+_MAJOR               = 1
+_MINOR               = 0
+_MICRO = 0
 version              = '%d.%d.%d' % (_MAJOR, _MINOR, _MICRO)
 release              = '%d.%d' % (_MAJOR, _MINOR)
 
@@ -22,7 +22,9 @@ setup(
               'systems biology'],
     classifiers=['License :: OSI Approved :: BSD License',
                  'Operating System :: OS Independent',
-                 'Programming Language :: Python :: 2',],
+                 'Programming Language :: Python :: 2',
+                 'Programming Language :: Python :: 3'],
+    include_package_data=True,
     install_requires=['deap >= 1.0.2',
                       'matplotlib >= 1.5.0',
                       'numpy >= 1.11.0',
