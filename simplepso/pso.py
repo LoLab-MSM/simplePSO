@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
+import concurrent.futures
+import os
+from copy import deepcopy
 
 import numpy as np
-import pathos.multiprocessing as multiprocessing
-from deap import base, creator, tools
-from numpy.random import uniform
+
+os.environ['OMP_NUM_THREADS'] = "1"
+
+
+class Particle(object):
+    def __init__(self, pos):
+        self.pos = pos
+        self.fitness = None
+        self.best = None
+        self.smin = None
+        self.smax = None
 
 
 class PSO(object):
@@ -25,8 +36,9 @@ class PSO(object):
         To run need to supply number of particles and number of iterations. 20 particles is a good starting place.
 
     """
+
     def __init__(self, cost_function=None, start=None, num_proc=1,
-                 save_sampled=False, verbose=False):
+                 save_sampled=False, verbose=False, shrink_steps=True):
         """
 
         Parameters
@@ -52,7 +64,6 @@ class PSO(object):
             self.start = None
             self.size = None
         self.verbose = verbose
-        self.method = 'single_min'
         self.num_proc = num_proc
         self.best = None
         self.max_speed = None
@@ -61,90 +72,70 @@ class PSO(object):
         self.ub = None
         self.bounds_set = False
         self.range = 2
-        self.population = []
-        self.toolbox = base.Toolbox()
-        self.stats = tools.Statistics(lambda ind: ind.fitness.values)
-        self.logbook = tools.Logbook()
         self.all_history = None
         self.all_fitness = None
+        self.population = []
         self.values = []
         self.history = []
-        self.w = 1
-        self.update_w = True
+        self.update_w = shrink_steps
         self._is_setup = False
-        self.update_scheme = 'constriction'
-        if self.update_scheme == 'constriction':
-            fi = 2.05 + 2.05
-            self.w = 2.0 / np.abs(2.0 - fi - np.sqrt(np.power(fi, 2) - 4 * fi))
 
-
-
-    def set_w(self, option):
-        """ Set if you want to use a constriction factor that shrinks. This shrinks the step size if true.
-        :param option:
-        :return:
-        """
-        self.update_w = option
+        fi = 2.05 + 2.05  # value from kennedy paper
+        self.w = 2.0 / np.abs(2.0 - fi - np.sqrt(np.power(fi, 2) - 4 * fi))
 
     def get_best_value(self):
-        """ Returns the best fitness value of the population
-
-        :return:
-        """
-        return self.best.fitness.values
+        """ Returns the best fitness value of the population """
+        return self.best.fitness
 
     def get_history(self):
-        """ Returns the history of the run
-
-        :return:
-        """
+        """ Returns the history of the run"""
         return self.history
 
-    def _update_particle_position(self, part, phi1, phi2):
+    def _update_particle_position(self, part):
         """ Updates an individual particles position
 
         Parameters
         ----------
         part : Particle
-        phi1 : float
-        phi2 : float
 
         Returns
         -------
 
         """
-        v_u1 = np.random.uniform(0, 1, self.size) * phi1 * (part.best - part)
-        v_u2 = np.random.uniform(0, 1, self.size) * phi2 * (self.best - part)
+        phi1 = 2.05
+        phi2 = 2.05
+        v_u1 = np.random.uniform(0, 1, self.size) * phi1 * (
+                part.best.pos - part.pos)
+        v_u2 = np.random.uniform(0, 1, self.size) * phi2 * (
+                self.best.pos - part.pos)
         part.speed = self.w * (part.speed + v_u1 + v_u2)
         np.place(part.speed, part.speed < part.smin, part.smin)
         np.place(part.speed, part.speed > part.smax, part.smax)
-        part += part.speed
-        for i, pos in enumerate(part):
+        part.pos += part.speed
+        for i, pos in enumerate(part.pos):
             if pos < self.lb[i]:
-                part[i] = self.lb[i]
+                part.pos[i] = self.lb[i]
             elif pos > self.ub[i]:
-                part[i] = self.ub[i]
+                part.pos[i] = self.ub[i]
 
     def _generate(self):
-        """ Creates Particles and sets their speed
-
-        :return:
-        """
-        part = creator.Particle(uniform(self.lb, self.ub, self.size))
-        part.speed = uniform(self.min_speed, self.max_speed, self.size)
+        """ Creates Particles and sets their speed """
+        part = Particle(np.random.uniform(self.lb, self.ub, self.size))
+        part.speed = np.random.uniform(self.min_speed, self.max_speed,
+                                       self.size)
         part.smin = self.min_speed
         part.smax = self.max_speed
         return part
 
     def set_cost_function(self, cost_function):
-        """ Sets the cost function for PSO. Must return a scalar followed by a , (tuple)
+        """ Cost function must return a scalar followed by a , (tuple)
 
         :param cost_function:
         :return:
         """
         self.cost_function = cost_function
 
-    def setup_pso(self):
+    def _setup_pso(self):
         """ Sets up everything for PSO. Only does once
 
         :return:
@@ -155,36 +146,17 @@ class PSO(object):
         if not self.bounds_set:
             self.set_bounds()
 
-        assert self.start is not None, \
-            "Error: Must provide a starting position in order to set size of " \
-            "each particle \n**** Provide PSO.set_start_position() your " \
-            "initial starting coordinates **** \nExiting due to failure"
+        if self.start is None:
+            raise ("Must provide a starting position in order to set size of "
+                   "each particle \n**** Provide PSO.set_start_position() your"
+                   "initial starting coordinates **** \nExiting due to failure")
 
-        assert self.cost_function is not None, \
-            "Error: Must set a cost function. Use PSO.set_cost_function()."
+        if self.cost_function is None:
+            raise ("Must set a cost function with PSO.set_cost_function().")
 
-        creator.create("FitnessMin", base.Fitness, weights=(-1.00,))
-        creator.create("Particle", np.ndarray, fitness=creator.FitnessMin,
-                       speed=list, smin=list, smax=list, best=None)
-        self.toolbox.register("particle", self._generate)
-        self.toolbox.register("population", tools.initRepeat, list,
-                              self.toolbox.particle)
-        self.toolbox.register("update", self._update_particle_position,
-                              phi1=2.05, phi2=2.05)
-        self.toolbox.register("evaluate", self.cost_function)
-
-        self.stats.register("avg", np.mean, axis=0)
-        self.stats.register("std", np.std, axis=0)
-        self.stats.register("min", np.min, axis=0)
-        self.stats.register("max", np.max, axis=0)
-
-        self.logbook.header = ["iteration", "best"] + self.stats.fields
-        pool = multiprocessing.Pool(self.num_proc)
-
-        self.toolbox.register("map", pool.map)
-        self.toolbox.register("join", pool.join)
-        self.toolbox.register("close", pool.close)
-        self.toolbox.register("terminate", pool.terminate)
+        if not isinstance(self.cost_function(self.start), tuple):
+            raise ("Cost function must return a tuple. An error is occuring "
+                   "when running your starting position")
         self._is_setup = True
 
     def update_connected(self):
@@ -193,12 +165,12 @@ class PSO(object):
         :return:
         """
         for part in self.population:
-            if part.best is None or part.best.fitness < part.fitness:
-                part.best = creator.Particle(part)
-                part.best.fitness.values = part.fitness.values
-            if self.best is None or self.best.fitness < part.fitness:
-                self.best = creator.Particle(part)
-                self.best.fitness.values = part.fitness.values
+            if part.best is None or part.best.fitness > part.fitness:
+                part.best = deepcopy(part)
+                part.best.fitness = deepcopy(part.fitness)
+            if self.best is None or self.best.fitness > part.fitness:
+                self.best = deepcopy(part)
+                self.best.fitness = deepcopy(part.fitness)
 
     def return_ranked_populations(self):
         """ Returns population of particles
@@ -208,8 +180,8 @@ class PSO(object):
         positions = np.zeros(np.shape(self.population))
         fitnesses = np.zeros(len(self.population))
         for n, part in enumerate(self.population):
-            fitnesses[n] = part.best.fitness.values[0]
-            positions[n] = part.best
+            fitnesses[n] = part.best.fitness
+            positions[n] = part.best.pos
         idx = np.argsort(fitnesses)
         return fitnesses[idx], positions[idx]
 
@@ -265,14 +237,14 @@ class PSO(object):
             upper = self.start + parameter_range
         else:
             assert self.size == len(
-                    upper), "If providing array for bounds, " \
-                            "must equal length of starting position"
+                upper), "If providing array for bounds, " \
+                        "must equal length of starting position"
         self.lb = lower
         self.ub = upper
         self.bounds_set = True
 
-    def run(self, num_particles, num_iterations, save_samples=False,
-            stop_threshold=1e-5):
+    def run(self, num_particles, num_iterations, num_processes=1,
+            save_samples=False, stop_threshold=1e-5):
         """
 
         Parameters
@@ -280,11 +252,13 @@ class PSO(object):
         num_particles : int
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
+        num_processes : int
+            Number of processes (cpu cores) to use
         save_samples : bool
             Save positions of particles over time, can require large memory
             if num_particles, num_iterations, and len(parameters) is large.
         stop_threshold : float
-            Threshold of standard devitaion of all particles cost function.
+            Threshold of standard deviation of all particles cost function.
         Returns
         -------
 
@@ -292,44 +266,51 @@ class PSO(object):
         if self._is_setup:
             pass
         else:
-            self.setup_pso()
-        assert type(self.cost_function(
-            self.start)) == tuple, \
-            "Cost function must return a tuple. An error " \
-            "is occuring when running your starting position"
+            self._setup_pso()
 
         history = np.zeros((num_iterations, len(self.start)))
         if self.save_sampled or save_samples:
             self.all_history = np.zeros(
-                    (num_iterations, num_particles, len(self.start)))
+                (num_iterations, num_particles, len(self.start)))
             self.all_fitness = np.zeros((num_iterations, num_particles))
         values = np.zeros(num_iterations)
-        self.population = self.toolbox.population(num_particles)
-        for g in range(1, num_iterations + 1):
-            if self.update_w:
-                self.w = (num_iterations - g + 1.) / num_iterations
-            population_fitness = self.toolbox.map(self.toolbox.evaluate,
-                                                  self.population)
-            for ind, fit in zip(self.population, population_fitness):
-                ind.fitness.values = fit
-            self.update_connected()
-            for part in self.population:
-                self.toolbox.update(part)
-            values[g - 1] = self.best.fitness.values[0]
-            history[g - 1] = self.best
-            if self.save_sampled or save_samples:
-                curr_fit, curr_pop = self.return_ranked_populations()
-                self.all_history[g - 1, :, :] = curr_pop
-                self.all_fitness[g - 1, :] = curr_fit
-            self.logbook.record(iteration=g, best=self.best.fitness.values[0],
-                                **self.stats.compile(self.population))
+        self.population = [self._generate() for _ in range(num_particles)]
 
-            if self.logbook.select('std')[-1] < stop_threshold:
-                print("Stopping criteria reached.")
-                break
-            if self.verbose:
-                print(self.logbook.stream)
-        self.toolbox.close()
-        self.toolbox.terminate()
+        with concurrent.futures.ProcessPoolExecutor(num_processes) as executor:
+            for g in range(num_iterations):
+                if self.update_w:
+                    self.w = (num_iterations - g + 1.) / num_iterations
+                fitness = list(executor.map(
+                    self.cost_function, [p.pos for p in self.population],
+                    chunksize=int(num_particles / num_processes))
+                )
+                population_fitness = np.array(fitness)
+                for ind, fit in zip(self.population, population_fitness):
+                    ind.fitness = fit[0]
+                self.update_connected()
+                for part in self.population:
+                    self._update_particle_position(part)
+                values[g] = self.best.fitness
+                history[g] = self.best.pos
+                if self.save_sampled or save_samples:
+                    curr_fit, curr_pop = self.return_ranked_populations()
+                    self.all_history[g, :, :] = curr_pop
+                    self.all_fitness[g, :] = curr_fit
+
+                if self.verbose:
+                    self.print_stats(g + 1, fitness=population_fitness)
+
+                if population_fitness.std() < stop_threshold:
+                    print("Stopping criteria reached.")
+                    break
         self.values = values[:g]
         self.history = history[:g, :]
+
+    def print_stats(self, iteration, fitness):
+        if iteration == 1:
+            out = '{:<10}' + "\t".join(['{:>12}'] * 5)
+            print(out.format('iteration', 'best', 'mean', 'min', 'max', 'std'))
+        out = '{:<10}' + '\t'.join(['{:>12.3f}'] * 5)
+
+        print(out.format(iteration, self.best.fitness, fitness.mean(),
+                         fitness.min(), fitness.max(), fitness.std()))

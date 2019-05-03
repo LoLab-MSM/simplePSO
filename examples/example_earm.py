@@ -28,10 +28,10 @@ rate_params = model.parameters_rules()
 param_values = np.array([p.value for p in model.parameters])
 rate_mask = np.array([p in rate_params for p in model.parameters])
 starting_position = np.log10(param_values[rate_mask])
-args = {'integrator': 'lsoda', 'use_analytic_jacobian': True,
-        "rtol": 1e-6, "atol": 1e-6}
 
-solver = ScipyOdeSimulator(model, tspan, **args)
+solver = ScipyOdeSimulator(model, tspan, integrator='lsoda',
+                           use_analytic_jacobian=True, compiler='cython',
+                           integrator_options={"rtol": 1e-6, "atol": 1e-6})
 
 # Mean and variance of Td (delay time) and Ts (switching time) of MOMP, and
 # yfinal (the last value of the IMS-RP trajectory)
@@ -78,7 +78,7 @@ def display(position, save_name):
 
 
 def likelihood(position):
-    param_values[rate_mask] = 10 ** position
+    param_values[rate_mask] = 10 ** position.copy()
     traj = solver.run(param_values=param_values)
 
     # normalize trajectories
@@ -96,8 +96,7 @@ def likelihood(position):
     # Here we fit a spline to find where we get 50% release of MOMP reporter
     if np.nanmax(momp_traj) == 0:
         print('No aSmac!')
-        t10 = 0
-        t90 = 0
+        e3 = 10000000
     else:
         ysim_momp_norm = momp_traj / np.nanmax(momp_traj)
         st, sc, sk = scipy.interpolate.splrep(tspan, ysim_momp_norm)
@@ -108,39 +107,42 @@ def likelihood(position):
             t10 = 0
             t90 = 0
 
-    # time of death  = halfway point between 10 and 90%
-    td = (t10 + t90) / 2
+        # time of death  = halfway point between 10 and 90%
+        td = (t10 + t90) / 2
 
-    # time of switch is time between 90 and 10 %
-    ts = t90 - t10
+        # time of switch is time between 90 and 10 %
+        ts = t90 - t10
 
-    # final fraction of aSMAC (last value)
-    yfinal = momp_traj[-1]
-    momp_sim = [td, ts, yfinal]
+        # final fraction of aSMAC (last value)
+        momp_sim = [td, ts, momp_traj[-1]]
 
-    e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
+        e3 = np.sum((momp_data - momp_sim) ** 2 / (2 * momp_var)) / 3
     # return sum of errors ( the ',' is required)
     return e1 + e2 + e3,
 
 
 def run_example():
     # Runs the cost function to calculate error between model and data
-    print("Error at start = {}".format(likelihood(starting_position)[0]))
+    # print("Error at start = {}".format(likelihood(starting_position)[0]))
     # Displays the model with defaul positions
-    display(starting_position, save_name='starting_position')
+    # display(starting_position, save_name='starting_position')
 
     # create PSO object
-    pso = PSO(save_sampled=False, verbose=True, num_proc=4)
+    pso = PSO(save_sampled=False, verbose=True, shrink_steps=False)
     pso.set_cost_function(likelihood)
     pso.set_start_position(starting_position)
     # allows particles to move +/- 2 orders of magnitude
     pso.set_bounds(2)
     # sets maximum speed that a particle can travel
-    pso.set_speed(-.25, .25)
+    pso.set_speed(-.1, .1)
 
-    pso.run(num_particles=25, num_iterations=50, stop_threshold=1e-5)
-    display(pso.best, save_name='best_fit')
-    np.savetxt("pso_fit_for_model.csv", pso.best)
+    pso.run(num_particles=16, num_iterations=100, stop_threshold=1e-5,
+            num_processes=8)
+    display(pso.best.pos, save_name='best_fit')
+    np.savetxt("pso_fit_for_model.csv", pso.best.pos)
+
+    d = np.loadtxt("pso_fit_for_model.csv")
+    display(d, save_name='worst')
 
 
 if __name__ == '__main__':
