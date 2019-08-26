@@ -32,8 +32,7 @@ def normalize(trajectories):
 
 # t = np.array([0, 60, 120, 240, 360, 480]) # tspan of the data, in minutes
 t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
-newt = np.array([0., 60, 240,  480, 600, 720, 840, 960, 1080, 1200])
-solver = ScipyOdeSimulator(model, tspan=newt) #, rtol=1e-6, # rtol : float or sequence relative tolerance for solution
+solver = ScipyOdeSimulator(model, tspan=t) #, rtol=1e-6, # rtol : float or sequence relative tolerance for solution
                             #atol=1e-6) #atol : float or sequence absolute tolerance for solution
 
 rate_params = model.parameters_rules() # these are only the parameters involved in the rules
@@ -49,8 +48,7 @@ rate_mask = np.array([p in rate_params for p in model.parameters])  # this picks
 # t = np.array([0., 30,  60,   120,  180, 270,  480,  960, 1440])
 #
 data = np.array([0., 0., 0., 0., 0.01, 0.05, 0.5, 0.99, 1.])
-data10 = np.array([0.0096, 0.048, 0.178, 0.287, 0.497, 0.547, 0.770, 0.808, 0.953, 1.0])
-stdev10 = np.array([.05, .02, .08, .11, .11, .12, .16, .09, .06, .01])
+
 # We search in log10 space for the parameters - this relates to the parameters at the beginning!
 log10_original_values = np.log10(param_values[rate_mask]) # this with the rate mask is needed because the solver wants the parameter values to have the same dimention as the whole parameter values for the model, same at *; it is a way of writing that only takes the parameters for which rate_mask is True
 
@@ -61,11 +59,11 @@ def obj_function(params):
     param_values[rate_mask] = 10 ** params_tmp # see comment above *
     result = solver.run(param_values = param_values)
     ysim_norm = normalize(result.observables['MLKLa_obs'])
-    error = np.sum(((data10 - ysim_norm) ** 2)/stdev10)
+    error = np.sum((data - ysim_norm) ** 2)
     return error, #the comma is for returning a touple
 
 def run_example():
-    for i in range(100):
+    for i in range(10000):
     # Here we initialize the class
     # We must proivde the cost function and a starting value
         optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
@@ -82,7 +80,7 @@ def run_example():
         np.save('fit_all_pso', fit_all)
         # print(fitness)
         print(optimizer.best) # what it takes here is the best set of parameter
-        np.save('tnf10_optimizer_best_100_%s' % i, optimizer.best)
+        np.save('optimizer_best_10000_%s' % i, optimizer.best)
         # np.save('./optimizer.best/Geena_complete_model/optimizer_best_50_all_new_mil_'+str(now.strftime('%Y-%m-%d_%H%M')), optimizer.best)
         # if plot:
         #     display(optimizer.best)

@@ -304,15 +304,15 @@ Rule('d_psynth', IkBd_mRNA() >> IkBd(nfkb=None, S='C') + IkBd_mRNA(), synthd)
 # def ikb_assoc_diss_nfkb():
 Parameter('IkB_IKKf', 30)
 Parameter('IkB_IKKr', 6e-5)
-Rule('an_adc', IkBa(nfkb=None, S='C') + NFkB(ikb=None, S='C') <> IkBa(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
-Rule('bn_adc', IkBb(nfkb=None, S='C') + NFkB(ikb=None, S='C') <> IkBb(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
-Rule('en_adc', IkBe(nfkb=None, S='C') + NFkB(ikb=None, S='C') <> IkBe(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
-Rule('dn_adc', IkBd(nfkb=None, S='C') + NFkB(ikb=None, S='C') <> IkBd(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
+Rule('an_adc', IkBa(nfkb=None, S='C') + NFkB(ikb=None, S='C') | IkBa(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
+Rule('bn_adc', IkBb(nfkb=None, S='C') + NFkB(ikb=None, S='C') | IkBb(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
+Rule('en_adc', IkBe(nfkb=None, S='C') + NFkB(ikb=None, S='C') | IkBe(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
+Rule('dn_adc', IkBd(nfkb=None, S='C') + NFkB(ikb=None, S='C') | IkBd(nfkb=1, S='C')%NFkB(ikb=1, S='C'), IkB_IKKf, IkB_IKKr)
 
-Rule('an_adn', IkBa(nfkb=None, S='N') + NFkB(ikb=None, S='N') <> IkBa(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
-Rule('bn_adn', IkBb(nfkb=None, S='N') + NFkB(ikb=None, S='N') <> IkBb(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
-Rule('en_adn', IkBe(nfkb=None, S='N') + NFkB(ikb=None, S='N') <> IkBe(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
-Rule('dn_adn', IkBd(nfkb=None, S='N') + NFkB(ikb=None, S='N') <> IkBd(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
+Rule('an_adn', IkBa(nfkb=None, S='N') + NFkB(ikb=None, S='N') | IkBa(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
+Rule('bn_adn', IkBb(nfkb=None, S='N') + NFkB(ikb=None, S='N') | IkBb(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
+Rule('en_adn', IkBe(nfkb=None, S='N') + NFkB(ikb=None, S='N') | IkBe(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
+Rule('dn_adn', IkBd(nfkb=None, S='N') + NFkB(ikb=None, S='N') | IkBd(nfkb=1, S='N')%NFkB(ikb=1, S='N'), IkB_IKKf, IkB_IKKr)
 
 
 # #IkB and NFkB cellular localization reactions
@@ -325,10 +325,10 @@ Parameter('ancf', 0.012)
 Parameter('bncf', 0.012)
 Parameter('encf', 0.012)
 Parameter('dncf', 0.012)
-Rule('a_nc', IkBa(nfkb=None, S='C') <> IkBa(nfkb=None, S='N'), af, ancf)
-Rule('b_nc', IkBb(nfkb=None, S='C') <> IkBb(nfkb=None, S='N'), bf, bncf)
-Rule('e_nc', IkBe(nfkb=None, S='C') <> IkBe(nfkb=None, S='N'), ef, encf)
-Rule('d_nc', IkBd(nfkb=None, S='C') <> IkBd(nfkb=None, S='N'), ef, dncf)
+Rule('a_nc', IkBa(nfkb=None, S='C') | IkBa(nfkb=None, S='N'), af, ancf)
+Rule('b_nc', IkBb(nfkb=None, S='C') | IkBb(nfkb=None, S='N'), bf, bncf)
+Rule('e_nc', IkBe(nfkb=None, S='C') | IkBe(nfkb=None, S='N'), ef, encf)
+Rule('d_nc', IkBd(nfkb=None, S='C') | IkBd(nfkb=None, S='N'), ef, dncf)
 
 Parameter('anf', 0.276)
 Parameter('bnf', 0.0276)
@@ -338,14 +338,14 @@ Parameter('anr', 0.828)
 Parameter('bnr', 0.414)
 Parameter('enr', 0.414)
 Parameter('dnr', 0.414)
-Rule('an_nc', IkBa(nfkb=1, S='C')%NFkB(ikb=1, S='C') <> IkBa(nfkb=1, S='N')%NFkB(ikb=1, S='N'), anf, anr)
-Rule('bn_nc', IkBb(nfkb=1, S='C')%NFkB(ikb=1, S='C') <> IkBb(nfkb=1, S='N')%NFkB(ikb=1, S='N'), bnf, bnr)
-Rule('en_nc', IkBe(nfkb=1, S='C')%NFkB(ikb=1, S='C') <> IkBe(nfkb=1, S='N')%NFkB(ikb=1, S='N'), enf, enr)
-Rule('dn_nc', IkBd(nfkb=1, S='C')%NFkB(ikb=1, S='C') <> IkBd(nfkb=1, S='N')%NFkB(ikb=1, S='N'), dnf, dnr)
+Rule('an_nc', IkBa(nfkb=1, S='C')%NFkB(ikb=1, S='C') | IkBa(nfkb=1, S='N')%NFkB(ikb=1, S='N'), anf, anr)
+Rule('bn_nc', IkBb(nfkb=1, S='C')%NFkB(ikb=1, S='C') | IkBb(nfkb=1, S='N')%NFkB(ikb=1, S='N'), bnf, bnr)
+Rule('en_nc', IkBe(nfkb=1, S='C')%NFkB(ikb=1, S='C') | IkBe(nfkb=1, S='N')%NFkB(ikb=1, S='N'), enf, enr)
+Rule('dn_nc', IkBd(nfkb=1, S='C')%NFkB(ikb=1, S='C') | IkBd(nfkb=1, S='N')%NFkB(ikb=1, S='N'), dnf, dnr)
 
 Parameter('nf', 5.4)
 Parameter('nr', 0.0048)
-Rule('n_nc', NFkB(ikb=None, S='C') <> NFkB(ikb=None, S='N'), nf, nr)
+Rule('n_nc', NFkB(ikb=None, S='C') | NFkB(ikb=None, S='N'), nf, nr)
 
 # IkB Protein Degradation Reactions
 # def ikb_deg_reactions():
@@ -518,12 +518,12 @@ Parameter('C1_a_deg', 0.023)
 
 # None >> tnfrm
 # tnfrm >> None
-# 3*tnfrm <> tnfr
+# 3*tnfrm | tnfr
 # tnfr >> None
 
 Rule('tnfrm_synth', None >> TNFRM(), synth_tnfrm)
 Rule('tnfrm_deg', TNFRM() >> None, deg_tnfrm)
-# Rule('TNFR_3tnfrm', TNFRM() + TNFRM() + TNFRM() <> TNFR(tnf = None), tnfr_f_tnfrm, tnfr_r_tnfrm)
+# Rule('TNFR_3tnfrm', TNFRM() + TNFRM() + TNFRM() | TNFR(tnf = None), tnfr_f_tnfrm, tnfr_r_tnfrm)
 
 
 # Rule('tnfrm3_to_TNFR', TNFRM() + TNFRM() + TNFRM() >> TNFR(tnf = None), tnfr_f_tnfrm)
@@ -536,15 +536,15 @@ Rule('TNFR_to_tnfrm3', TNFR(tnf = None) >> TNFRM() , tnfr_r_tnfrm)
 
 Rule('TNFR_deg', TNFR(tnf = None) >> None, deg_TNFR)
 
-# tnfr + ttr <> C1_off[state = i]
-# C1_off[state = i] <> C1_off[state = a]
+# tnfr + ttr | C1_off[state = i]
+# C1_off[state = i] | C1_off[state = a]
 # C1 + A20 >> C1_off[state = i]
 # C1 >> tnfr + ttr
 # C1_off[state = i] >> None
 # C1 >> None
 
-Rule('TNFR_TTR_C1i', TNFR(tnf = None) + TTR() <> C1(tnf = None, state = 'i'), TNFR_TTR_f_C1, TNFR_TTR_r_C1)
-Rule('a_C1_i', C1(tnf = None, state = 'i') <> C1(tnf = None, state = 'a'), C1_f_a, C1_r_a)
+Rule('TNFR_TTR_C1i', TNFR(tnf = None) + TTR() | C1(tnf = None, state = 'i'), TNFR_TTR_f_C1, TNFR_TTR_r_C1)
+Rule('a_C1_i', C1(tnf = None, state = 'i') | C1(tnf = None, state = 'a'), C1_f_a, C1_r_a)
 Rule('C1_i_A20', C1(tnf = None, state = 'a') + A20() >> C1(tnf = None, state = 'i') + A20(), C1_f_A20)
 Rule('C1_TNFR_TTR', C1(tnf = None, state = 'a') >> TNFR(tnf = None) + TTR(), C1_f_TNFR_TTR)
 Rule('C1i_deg', C1(tnf = None, state = 'i') >> None, C1_i_deg)
@@ -564,10 +564,10 @@ Parameter('C1itnf_r_C1atnf', 2.0)
 
 # tnf >> None
 # tnf + 3*tnfrm >> tnfr : tnf
-# tnfr + tnf <> tnfr : tnf
+# tnfr + tnf | tnfr : tnf
 # tnfr : tnf >> None
-# tnfr : tnf + ttr <> C1_off[state = i] : tnf
-# C1_off[state = i] : tnf <> C1 : tnf
+# tnfr : tnf + ttr | C1_off[state = i] : tnf
+# C1_off[state = i] : tnf | C1 : tnf
 
 Rule('deg_tnf', TNF(c = None, tnfr = None) >> None, tnf_deg)
 
@@ -577,12 +577,12 @@ Rule('tnf_tnfrm_TNFRtnf', TNF(c = None, tnfr = None) + TNFRM()  >> TNFR(tnf = 1)
 
 
 
-Rule('tnf_TNFR_TNFRtnf', TNFR(tnf = None) + TNF(c = None, tnfr = None)  <> TNFR(tnf = 1)%TNF(c=None, tnfr = 1), tnf_TNFR_f_TNFRtnf, tnf_TNFR_r_TNFRtnf)
+Rule('tnf_TNFR_TNFRtnf', TNFR(tnf = None) + TNF(c = None, tnfr = None)  | TNFR(tnf = 1)%TNF(c=None, tnfr = 1), tnf_TNFR_f_TNFRtnf, tnf_TNFR_r_TNFRtnf)
 
 Rule('TNFRtnf_deg', TNFR(tnf = 1)%TNF(c =None, tnfr = 1) >> None, deg_TNFRtnf)
 
-Rule ('TNFRtnf_TTR_C1itnf', TNFR(tnf = 1) % TNF(c = None, tnfr = 1) + TTR() <> C1(tnf = 1, state = 'i') % TNF(c = 1, tnfr =None), TNFRtnf_TTR_f_C1itnf, TNFRtnf_TTR_r_C1itnf)
-Rule('C1itnf_C1atnf', C1(tnf = 1, state = 'i') % TNF(c = 1, tnfr = None) <> C1(tnf = 1, state = 'a') % TNF(c = 1, tnfr = None), C1itnf_f_C1atnf, C1itnf_r_C1atnf)
+Rule ('TNFRtnf_TTR_C1itnf', TNFR(tnf = 1) % TNF(c = None, tnfr = 1) + TTR() | C1(tnf = 1, state = 'i') % TNF(c = 1, tnfr =None), TNFRtnf_TTR_f_C1itnf, TNFRtnf_TTR_r_C1itnf)
+Rule('C1itnf_C1atnf', C1(tnf = 1, state = 'i') % TNF(c = 1, tnfr = None) | C1(tnf = 1, state = 'a') % TNF(c = 1, tnfr = None), C1itnf_f_C1atnf, C1itnf_r_C1atnf)
 
 
 
@@ -607,11 +607,11 @@ Parameter('C1i_r_tnf', 1100.0)
 Parameter('C1a_f_tnf', 0.021)
 Parameter('C1a_r_tnf', 1100.0)
 
-# C1_off[state = i] : tnf <> C1_off[state =i] + tnf
-# C1 : tnf <> C1 + tnf
+# C1_off[state = i] : tnf | C1_off[state =i] + tnf
+# C1 : tnf | C1 + tnf
 
-Rule('C1itnf', C1(tnf = 1, state = 'i')%TNF(c = 1, tnfr = None) <> C1(tnf = None, state = 'i') + TNF(c = None, tnfr = None), C1i_f_tnf, C1i_r_tnf)
-Rule('C1atnf', C1(tnf = 1, state = 'a')%TNF(c = 1, tnfr = None) <> C1(tnf = None, state = 'a') + TNF(c = None, tnfr = None), C1a_f_tnf, C1a_r_tnf)
+Rule('C1itnf', C1(tnf = 1, state = 'i')%TNF(c = 1, tnfr = None) | C1(tnf = None, state = 'i') + TNF(c = None, tnfr = None), C1i_f_tnf, C1i_r_tnf)
+Rule('C1atnf', C1(tnf = 1, state = 'a')%TNF(c = 1, tnfr = None) | C1(tnf = None, state = 'a') + TNF(c = None, tnfr = None), C1a_f_tnf, C1a_r_tnf)
 
 #IKKK (TAB1/2-TAK1 complex) Activity Reactions
 # def ikkk_to_ikk_complex():
@@ -620,11 +620,11 @@ Parameter('IKKKa_r_IKKK', 0.25)
 Parameter('IKKKi_f_IKKKaC1', 500.0)
 Parameter('IKKKi_f_IKKKaC1tnf', 500.0)
 
-# IKKKi <> IKKKa
+# IKKKi | IKKKa
 # IKKK + C1 >> IKKKa
 # IKKK + C1 : tnf >> IKKKa
 
-Rule('IKKKi_IKKKa', IKKK(state = 'i') <> IKKK(state = 'a'), IKKKi_f_IKKK, IKKKa_r_IKKK)
+Rule('IKKKi_IKKKa', IKKK(state = 'i') | IKKK(state = 'a'), IKKKi_f_IKKK, IKKKa_r_IKKK)
 Rule('IKKKi_IKKKaC1', IKKK(state = 'i') + C1(tnf = None, state = 'a') >> IKKK(state = 'a') + C1(tnf = None, state = 'a'), IKKKi_f_IKKKaC1)
 Rule('IKKKi_IKKKaC1tnf', IKKK(state = 'i') + C1(tnf = 1, state = 'a')%TNF(c = 1, tnfr = None) >> IKKK(state = 'a') + C1(tnf = 1, state = 'a')%TNF(c = 1, tnfr = None), IKKKi_f_IKKKaC1tnf)
 
@@ -636,12 +636,12 @@ Parameter('IKKi_f_IKKaIKKK', 520.0)
 Parameter('IKKa_f_IKKai', 0.15)
 Parameter('IKKai_f_IKKi', 0.02)
 
-# IKKi <> IKKa
+# IKKi | IKKa
 # IKKi + IKKKa >> IKKa
 # IKKa >> IKKai
 # IKKai >> IKKi
 
-Rule('IKKi_IKKa', IKK(state = 'i') <> IKK(state = 'a'), IKKi_f_IKK, IKKa_r_IKK)
+Rule('IKKi_IKKa', IKK(state = 'i') | IKK(state = 'a'), IKKi_f_IKK, IKKa_r_IKK)
 Rule('IKKi_IKKaIKKK', IKK(state = 'i') + IKKK(state = 'a') >> IKK(state = 'a') + IKKK(state = 'a'), IKKi_f_IKKaIKKK)
 Rule('IKKi_IKKai', IKK(state = 'a') >> IKK(state = 'ai'), IKKa_f_IKKai)
 Rule('IKKai_IKKi', IKK(state = 'ai') >> IKK(state = 'i'), IKKai_f_IKKi)
