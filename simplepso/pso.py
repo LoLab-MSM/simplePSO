@@ -401,6 +401,6 @@ class PSO(object):
         if iteration == 1:
             self.log.info(stats_header)
         self.log.info(
-            stats_output.format(iteration, self.best.fitness, fitness.mean(),
+            stats_output.format(iteration, self.best.fitness[0], fitness.mean(),
                                 fitness.min(), fitness.max(), fitness.std())
         )
