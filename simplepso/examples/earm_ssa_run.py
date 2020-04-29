@@ -27,8 +27,8 @@ TRAIL_LOOP = [('1000 ng/ml TRAIL', 740853), ('250 ng/ml TRAIL', 18521), ('40 ng/
 for trail_title, dose in TRAIL_LOOP:
 
     #RUN STOCHASTIC SIMULATION ALGORITHM (SSA)
-    ssa_sim = StochKitSimulator(model, tspan=tspan, verbose=True)
-    ssa_sim_res = ssa_sim.run(algorithm = 'ssa', initials={TRAIL(bf=None): dose}, n_runs=NUM_SSA_RUNS)
+    ssa_sim = BngSimulator(model, tspan=tspan, verbose=True)
+    ssa_sim_res = ssa_sim.run(method = 'ssa', initials={TRAIL(bf=None): dose}, n_runs=NUM_SSA_RUNS)
    # ssa_sim_res.save(path + 'SSA_data_%dTNF' % dose)
     df = ssa_sim_res.dataframe #pandas dataframe organizes data
 

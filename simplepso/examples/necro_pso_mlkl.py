@@ -10,7 +10,7 @@ except ImportError:
     pass
 
 import numpy as np
-from necroptosismodule import model
+from necro_uncal_new import model
 # from pysb.integrate import Solver
 import scipy.interpolate
 from pysb.integrate import *
@@ -19,9 +19,9 @@ from simplepso.pso import PSO
 import collections
 
 
-new_start =  np.load('values_cost_pso.npy')
-print(new_start)
-quit()
+# new_start =  np.load('values_cost_pso.npy')
+# print(new_start)
+# quit()
 
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
@@ -40,15 +40,22 @@ def normalize(trajectories):
 #     """Convert a record-type array and list of names into a float array"""
 #     return np.vstack([recarray[name] for name in names]).T
 
-t = np.linspace(0, 720, 13)
+t = np.linspace(0, 960, 7)
 solver1 = ScipyOdeSimulator(model, tspan=t)
 
 #make an array for each of the kd made up data for mlklp
 #switching at 5 hours
-wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
-wty = np.array([0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
+# wtx = np.array([0.,   1.,   2.,   3.,   4.,   5.,   6.,   7.,   8.,   9.,  10., 11.,  12.])
+# wty = np.array([0., 0., 0., 0.10, 0.25, 0.5, 0.75, 1., 1., 1., 1., 1.,1.])
 
-ydata_norm = wty
+x10 = np.array([0,2,4,6,8,10,12,14,16,18, 20])
+y10 = np.array([0., 0.001, 0.02, 0.03, 0.04, 0.06, .09, .21, .40, .65, .81])
+
+x100 = np.array([0., 0.5, 1.5, 4.5, 8., 12., 16.])
+# y100 = np.array([0., 0.008, 0.016, 0.037, 0.079, 0.639, 1.0])
+y100 = np.array([0., 0.01, 0.0152, 0.03, 0.437, 0.693, 0.99])
+
+ydata_norm = y100
 
 rate_params = model.parameters_rules()
 # print(len(rate_params))
@@ -146,111 +153,116 @@ def obj_function(params):
 
     ysim_norm1 = normalize(ysim_array1)
 
-    mlkl_wt = np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_wt = np.array([0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10])
 
-    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_wt))
+    e1 = np.sum((ydata_norm - ysim_norm1) ** 2)
 
     return e1,
 
 # def run_example():
 #     best_pars = np.zeros((10000, len(model.parameters)))
 #
+    counter = 0
+    for i in range(10000):
+         pso = PSO(save_sampled=False, verbose=False, num_proc=8)
+         pso.set_cost_function(obj_function)
+         pso.set_start_position(log10_original_values)
+         pso.set_bounds(2)
+         pso.set_speed(-.25, .25)
+         pso.run(1000, 500)
+         # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/pso_vals', pso.values) #cost function for PSO runs
+         # ranked_values = PSO.return_ranked_populations() #at end of PSO for all # particles, rank by cost function value
+         #
+         # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', )
+
+         Y=np.copy(pso.best)
+         param_values[rate_mask] = 10 ** Y
+         print(param_values)
+         if pso.values.min() < 10.0:
+            best_pars[counter,:] = param_values
+            print(best_pars[0:10,:])
+            counter += 1
+         print (i, counter)
+
+#     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
+# #
+# def run_example():
+#     pso = PSO(verbose=True, save_sampled=True)
+#     pso.set_cost_function(obj_function)
+#     pso.set_start_position(log10_original_values)
+#     pso.set_bounds(lower=2, upper=2)
+#     pso.set_speed(-.25, .25)
+#     pso.run(25, 5)
+#     fitness,positions = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+#     hist_all = pso.all_history
+#     fit_all = pso.all_fitness
+#     # print('fitness, particles')
+#     # print(fitness)
+#     # print('position rank')
+#     # print(positions)
+#     # print('all history')
+#     # print(hist_all)
+#     # print('fit all iterations')
+#     # print(fit_all)
+#     if plot:
+#         display(pso.best)
+#     display(pso.best)
+#     np.save('position_pso', positions) # param vectors for 1000 particles
+#     np.save('values_cost_pso', fitness) #cost function for each iteration of 1000 particles
+#     np.save('his_all_pso', hist_all)
+#     np.save('fit_all_pso', fit_all)
+#
+#
+# if __name__ == '__main__':
+#     run_example()
+
+
+def run_example():
+    print('run_example')
+    best_pars = np.zeros((100, len(model.parameters)))
+
+    counter = 0
+    # Here we initial the class
+    # We must proivde the cost function and a starting value
+    for i in range(10):
+        optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
+        # We also must set bounds. This can be a single scalar or an array of len(start_position)
+        optimizer.set_bounds(parameter_range=2)
+        optimizer.set_speed(speed_min=-.25, speed_max=.25)
+        optimizer.run(num_particles=25, num_iterations=25)
+        best_pars[i] = optimizer.best
+        print(optimizer.best)
+
+    np.save('optimizer_best_75_50_100TNF',best_pars)
+
+
+# def run_example2():
+#     best_pars = np.zeros((10, len(model.parameters)))
+#
 #     counter = 0
-#     for i in range(10000):
+#     for i in range(10):
 #          pso = PSO(save_sampled=False, verbose=False, num_proc=8)
 #          pso.set_cost_function(obj_function)
 #          pso.set_start_position(log10_original_values)
 #          pso.set_bounds(2)
 #          pso.set_speed(-.25, .25)
-#          pso.run(1000, 500)
+#          pso.run(num_particles=10, num_iterations=50)
 #          # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/pso_vals', pso.values) #cost function for PSO runs
 #          # ranked_values = PSO.return_ranked_populations() #at end of PSO for all # particles, rank by cost function value
 #          #
 #          # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', )
 #
-#          Y=np.copy(pso.best)
-#          param_values[rate_mask] = 10 ** Y
-#          print(param_values)
-#          if pso.values.min() < 10.0:
-#             best_pars[counter,:] = param_values
-#             print(best_pars[0:10,:])
-#             counter += 1
+#          # Y=np.copy(pso.best)
+#          # param_values[rate_mask] = 10 ** Y
+#          best_pars[i] = pso.best
+#          # print(param_values)
+#          # if pso.values.min() < 10.0:
+#          #    best_pars[counter,:] = param_values
+#          #    print(best_pars[0:10,:])
+#          #    counter += 1
 #          print (i, counter)
 #
-#     np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples', best_pars)
-#
-def run_example():
-    pso = PSO(verbose=True, save_sampled=True)
-    pso.set_cost_function(obj_function)
-    pso.set_start_position(log10_original_values)
-    pso.set_bounds(lower=2, upper=2)
-    pso.set_speed(-.25, .25)
-    pso.run(25, 5)
-    fitness,positions = pso.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
-    hist_all = pso.all_history
-    fit_all = pso.all_fitness
-    # print('fitness, particles')
-    # print(fitness)
-    # print('position rank')
-    # print(positions)
-    # print('all history')
-    # print(hist_all)
-    # print('fit all iterations')
-    # print(fit_all)
-    if plot:
-        display(pso.best)
-    display(pso.best)
-    np.save('position_pso', positions) # param vectors for 1000 particles
-    np.save('values_cost_pso', fitness) #cost function for each iteration of 1000 particles
-    np.save('his_all_pso', hist_all)
-    np.save('fit_all_pso', fit_all)
+#     np.save('10_pso_nfkb_marco', best_pars)
 
-
-if __name__ == '__main__':
-    run_example()
-
-
-def run_example():
-    # print('run_example')
-    # Here we initial the class
-    # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
-    # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=2)
-    optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=50)
-    print(optimizer.best)
-    np.save('optimizer_best_50_50',optimizer.best)
-#     # print('whatever')
-#     if plot:
-# 	 display(optimizer.best)
-#     #
-#     #     print("Original values {0}".format(log10_original_values ** 10))
-#     #     print("Starting values {0}".format(start_position ** 10))
-#     #     print("Best PSO values {0}".format(optimizer.best ** 10))
-#     #     fig = plt.figure()
-#     #     fig.add_subplot(221)
-#     #     plt.scatter(log10_original_values[0], log10_original_values[1], marker='>', color='b', label='ideal')
-#     #     plt.scatter(start_position[0], start_position[1], marker='^', color='r', label='start')
-#     #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 1], c=optimizer.values, cmap=plt.cm.coolwarm)
-#     #
-#     #     fig.add_subplot(223)
-#     #     plt.scatter(log10_original_values[0], log10_original_values[2], marker='>', color='b', label='ideal')
-#     #     plt.scatter(start_position[0], start_position[2], marker='^', color='r', label='start')
-#     #     plt.scatter(optimizer.history[:, 0], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-#     #
-#     #     fig.add_subplot(222)
-#     #     plt.scatter(log10_original_values[1], log10_original_values[2], marker='>', color='b', label='ideal')
-#     #     plt.scatter(start_position[1], start_position[2], marker='^', color='r', label='start')
-#     #     plt.scatter(optimizer.history[:, 1], optimizer.history[:, 2], c=optimizer.values, cmap=plt.cm.coolwarm)
-#     #
-#     #     fig.add_subplot(224)
-#     #     plt.legend(loc=0)
-#     #     plt.colorbar()
-#     #     plt.tight_layout()
-#     #     plt.savefig('population_necro.png')
-#     #     plt.show()
-#
-#
 if '__main__' == __name__:
     run_example()

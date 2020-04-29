@@ -161,16 +161,16 @@ def obj_function(params):
     return error,
 
 def run_example():
-    best_pars = np.zeros((1000, len(model.parameters)))
+    best_pars = np.zeros((10, len(model.parameters)))
 
     counter = 0
-    for i in range(1000):
+    for i in range(10):
          pso = PSO(save_sampled=False, verbose=False, num_proc=8)
          pso.set_cost_function(obj_function)
          pso.set_start_position(log10_original_values)
          pso.set_bounds(2)
          pso.set_speed(-.25, .25)
-         pso.run(1000, 500)
+         pso.run(10, 50)
          # np.save('/home/ildefog/ParticleSwarmOptimization/simplepso/examples/pso_vals', pso.values) #cost function for PSO runs
          # ranked_values = PSO.return_ranked_populations() #at end of PSO for all # particles, rank by cost function value
          #
@@ -186,7 +186,7 @@ def run_example():
          #    counter += 1
          print (i, counter)
 
-    np.save('1000_pso_nfkb_marco', best_pars)
+    np.save('10_pso_nfkb_marco', best_pars)
 #
 # def run_example():
 #     pso = PSO(verbose=True, save_sampled=True)
@@ -219,17 +219,17 @@ def run_example():
 #     run_example()
 
 
-def run_example():
-    # print('run_example')
-    # Here we initial the class
-    # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
-    # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=2)
-    optimizer.set_speed(speed_min=-.25, speed_max=.25)
-    optimizer.run(num_particles=50, num_iterations=100)
-    print(optimizer.best)
-    np.save('optimizer_best_50_all_new_mil',optimizer.best)
+# def run_example():
+#     # print('run_example')
+#     # Here we initial the class
+#     # We must proivde the cost function and a starting value
+#     optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
+#     # We also must set bounds. This can be a single scalar or an array of len(start_position)
+#     optimizer.set_bounds(parameter_range=2)
+#     optimizer.set_speed(speed_min=-.25, speed_max=.25)
+#     optimizer.run(num_particles=50, num_iterations=100)
+#     print(optimizer.best)
+#     np.save('optimizer_best_50_all_new_mil',optimizer.best)
 #     # print('whatever')
 #     if plot:
 # 	 display(optimizer.best)
