@@ -19,6 +19,13 @@ import collections
 
 # new_start =  np.load('optimizer_best_5000_all_new_2.npy')
 
+start = np.array([-1.00225162,-3.55869791,-1.90399644, -1.65646416 ,-2.70609458,-3.8963345   ,
+                  -2.3801572 ,-3.37514841,-3.34759048, -3.00399653 ,-3.0848272 ,-1.26296845  ,
+                  -2.96167494,-3.22252192,-7.2842393 , -5.35432838 ,-1.2263877 ,-2.85525137  ,
+                  -2.57487899, 0.48436482,-0.96044932, -5.92950153 ,-1.24823338,-4.37561893  ,
+                  -3.82638097,-2.20471678,-0.40339438, -0.06527514 ,-3.28278697,-6.27342939  ,
+                  -2.03870477, 0.41308922,-2.27304972,  1.81173972 ,-2.76739579,-6.00313583  ,
+                   1.1912514 ,-4.25131413,-2.52552199, -3.56185531])
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
 mlkl_obs = 'MLKLa_obs'
@@ -38,7 +45,7 @@ def extract_records(recarray, names):
 t = np.array([0, 30, 90, 270, 480,600, 720, 840, 960])
 
 # t = np.linspace(0, 720, 13)
-solver1 = ScipyOdeSimulator(model, tspan=t, compiler='cython')
+solver1 = ScipyOdeSimulator(model, tspan=t)
 
 y100 = np.array([0, 0.00885691708746097,0.0161886154261265,0.0373005242261882,
                   0.2798939020159581, 0.510, .8097294067, 0.95,0.98])
@@ -79,7 +86,7 @@ def display(parameter_2):
     t10_params[0] = 233
     ko_pars = [param_values, t10_params]
 
-    result = solver1.run(param_values=ko_pars)
+    result = solver1.run(param_values=ko_pars, num_processors=50)
 
     ysim_array11 = result.observables[0]['MLKLa_obs']
     ysim_array22 = result.observables[1]['MLKLa_obs']
@@ -145,7 +152,7 @@ def obj_function(parameter_2):
     t10_params[0] = 233
     ko_pars = [param_values, t10_params]
 
-    result = solver1.run(param_values=ko_pars)
+    result = solver1.run(param_values=ko_pars,num_processors =50)
     # solver2.run(param_values=a20_params)
     # solver3.run(param_values=tradd_params)
     # solver4.run(param_values=fadd_params)
@@ -172,53 +179,56 @@ def obj_function(parameter_2):
 
 
 
-def run_example():
-    best_pars = np.zeros((10000, len(model.parameters)))
-    counter = 0
-    for i in range(10000):
-    # Here we initialize the class
-    # We must proivde the cost function and a starting value
-        optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
-        # We also must set bounds. This can be a single scalar or an array of len(start_position)
-        optimizer.set_bounds(parameter_range=2)
-        optimizer.set_speed(speed_min=-.25, speed_max=.25)
-        optimizer.run(num_particles=75, num_iterations=10)
-        fitness, positions = optimizer.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
-        hist_all = optimizer.all_history
-        fit_all = optimizer.all_fitness
-        np.save('position_pso', positions)  # param vectors for 1000 particles
-        np.save('values_cost_pso', fitness)  # cost function for each iteration of 1000 particles
-        np.save('his_all_pso', hist_all)
-        np.save('fit_all_pso', fit_all)
-        # print(fitness)
-        Y = np.copy(optimizer.best)
-        param_values[rate_mask] = 10 ** Y
-        # print(param_values)
-        if optimizer.values.min() < 5.0:
-            best_pars[counter, :] = param_values
-            print(best_pars[0:10, :])
-            counter += 1
-        print(i, counter)
-        print(optimizer.best) # what it takes here is the best set of parameter
-        np.save('necro_tnf100_10_optimizer_best_10000_%s' % i, optimizer.best)
-
-# def run_example2():
-#     # print('run_example')
-#     # Here we initial the class
+# def run_example():
+#     best_pars = np.zeros((10000, len(model.parameters)))
+#     counter = 0
+#     for i in range(10000):
+#     # Here we initialize the class
 #     # We must proivde the cost function and a starting value
-#     optimizer = PSO(cost_function=obj_function,start = new_start, verbose=True)
-#     # We also must set bounds. This can be a single scalar or an array of len(start_position)
-#     optimizer.set_bounds(parameter_range=2)
-#     optimizer.set_speed(speed_min=-.25, speed_max=.25)
-#     optimizer.run(num_particles=50, num_iterations=500)
-#     print(optimizer.best)
-#     np.save('optimizer_best_50_500_mar11',optimizer.best)
-#     # print('whatever')
+#         optimizer = PSO(cost_function=obj_function, start=start, verbose=True)
+#         # We also must set bounds. This can be a single scalar or an array of len(start_position)
+#         optimizer.set_bounds(parameter_range=3)
+#         optimizer.set_speed(speed_min=-.25, speed_max=.25)
+#         optimizer.run(num_particles=100, num_iterations=1000)
+#         fitness, positions = optimizer.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
+#         hist_all = optimizer.all_history
+#         fit_all = optimizer.all_fitness
+#         np.save('position_pso', positions)  # param vectors for 1000 particles
+#         np.save('values_cost_pso', fitness)  # cost function for each iteration of 1000 particles
+#         np.save('his_all_pso', hist_all)
+#         np.save('fit_all_pso', fit_all)
+#         # print(fitness)
+#         Y = np.copy(optimizer.best)
+#         param_values[rate_mask] = 10 ** Y
+#         # print(param_values)
+#         if optimizer.values.min() < 5.0:
+#             best_pars[counter, :] = param_values
+#             print(best_pars[0:10, :])
+#             counter += 1
+#         print(i, counter)
+#         print(optimizer.best) # what it takes here is the best set of parameter
+#         np.save('necro_tnf100_10_optimizer_best_10000_%s' % i, optimizer.best)
+
+def run_example2():
+    counter = 0
+    # print('run_example')
+    # Here we initial the class
+    # We must proivde the cost function and a starting value
+    optimizer = PSO(cost_function=obj_function,start = start, verbose=True)
+    # We also must set bounds. This can be a single scalar or an array of len(start_position)
+    optimizer.set_bounds(parameter_range=3)
+    optimizer.set_speed(speed_min=-.25, speed_max=.25)
+    optimizer.run(num_particles=100, num_iterations=500)
+    print(optimizer.best)
+    counter += 1
+    print(counter)
+    np.save('necro_optimizer_best_100_500_5_1',optimizer.best)
+    # print('whatever')
 #     if plot:
-# 	 display(optimizer.best)
+#          display(optimizer.best)
 
 if '__main__' == __name__:
-    run_example()
+    run_example2()
 
 # def run_example():
 #     best_pars = np.zeros((10000, len(model.parameters)))
