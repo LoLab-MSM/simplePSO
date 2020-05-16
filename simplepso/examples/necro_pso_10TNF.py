@@ -10,7 +10,8 @@ except ImportError:
     pass
 
 import numpy as np
-from necro_uncal_new_updated import model
+# from necro_uncal_new_updated import model
+from necro_uncal_new_10tnf import model
 # from pysb.integrate import Solver
 import scipy.interpolate
 from pysb.integrate import *
@@ -19,37 +20,17 @@ import collections
 
 # new_start =  np.load('optimizer_best_5000_all_new_2.npy')
 
-start = np.array([-1.00225162,-3.55869791,-1.90399644, -1.65646416 ,-2.70609458,-3.8963345   ,
-                  -2.3801572 ,-3.37514841,-3.34759048, -3.00399653 ,-3.0848272 ,-1.26296845  ,
-                  -2.96167494,-3.22252192,-7.2842393 , -5.35432838 ,-1.2263877 ,-2.85525137  ,
-                  -2.57487899, 0.48436482,-0.96044932, -5.92950153 ,-1.24823338,-4.37561893  ,
-                  -3.82638097,-2.20471678,-0.40339438, -0.06527514 ,-3.28278697,-6.27342939  ,
-                  -2.03870477, 0.41308922,-2.27304972,  1.81173972 ,-2.76739579,-6.00313583  ,
-                   1.1912514 ,-4.25131413,-2.52552199, -3.56185531])
-
-start2  = np.array([-8.09429697e-01 ,-9.37396748e-01 ,-2.49838416e+00 ,-1.56891444e+00 ,
-  -1.97564501e+00, -2.91681464e+00, -1.21498551e-02, -8.97901635e-01,
-  -1.26688508e+00, -2.76750743e+00, -2.96540419e+00, -6.79323586e-01,
-   1.54624474e+00, -8.74796683e-01, -1.52321549e+00, -2.64133597e+00,
-  -8.59453166e-01, -1.58466625e+00, -2.01465273e-01, -1.26856454e+00,
-   4.19045597e+00, -1.92619073e+00,  3.23216049e+00,  1.03054444e-01,
-   9.16643850e-01,  3.42070231e+00,  2.00386980e+00, -6.01837900e-01,
-   1.11276134e+00, -1.69859445e+00,  3.67665123e+00, -1.78697586e+00,
-   1.28108171e+00,  1.45648689e+00,  1.59245102e+00, -3.71949116e+00,
-  -4.43194729e+00, -2.44828585e+00,  4.08330419e-01,  2.94010281e-01])
-
-start3 = np.array([-1.18283093 ,-0.26728024 ,-2.2313471  ,-1.58341688 ,-1.98251115,-3.793315  ,
-          -0.48793422 ,-0.67476851 , 0.04134961 ,-3.60958836 ,-5.39195483,-1.57560256,   
-          -0.05445229 ,-1.21873346 ,-1.90764296 ,-4.26275975 ,-1.00705933,-1.86825905,   
-          -1.48580697 ,-1.86968071 , 3.70861183 ,-2.93769572 , 4.88173226, 0.13688775,   
-          -0.10593204 , 3.60321618 ,-0.03406283 ,-1.02863234 , 2.8962784 ,-2.05488278,   
-           2.99330352 ,-2.89483663 , 0.99400913 , 0.91455076 ,-0.84541177,-3.3345754 ,
-          -3.25684876 ,-1.76577659 ,-0.32568681 , 1.48462079])
-
 model.enable_synth_deg()
 obs_names = ['MLKLa_obs']
 mlkl_obs = 'MLKLa_obs'
 
+# start4 = np.array([-3.      , -4.81343868 ,-5.67667786 ,-3.        ,-1.87171553 ,-3.15785365,
+#                  -4.7794484 , -3.         ,-4.052776   ,-5.6776313 ,-3.644325   ,-0.33904272,
+#                  -3.        , -2.50720966 ,-8.50855492 ,-3.5566539 ,-1.47515023 ,-4.21938536,
+#                  -3.00901115,  1.99245293 , 1.76438361 ,-9.49905583,-2.48545225 , 1.25527251,
+#                  -3.15170825, -4.00999632 , 1.51454775 ,-3.81642336,-8.76866337 ,-7.40242627,
+#                  -3.57923878, -4.         ,-5.         , 0.        ,-6.         ,-3.        ,
+#                   2.26298516, -3.         ,-2.11109248 ,-3.83409258])
 
 # Defining a few helper functions to use
 def normalize(trajectories):
@@ -65,7 +46,7 @@ def extract_records(recarray, names):
 t = np.array([0, 30, 90, 270, 480,600, 720, 840, 960])
 
 # t = np.linspace(0, 720, 13)
-solver1 = ScipyOdeSimulator(model, tspan=t)
+solver1 = ScipyOdeSimulator(model, tspan=t, compiler='cython')
 
 y100 = np.array([0, 0.00885691708746097,0.0161886154261265,0.0373005242261882,
                   0.2798939020159581, 0.510, .8097294067, 0.95,0.98])
@@ -102,22 +83,22 @@ def display(parameter_2):
     param_values[rate_mask] = 10 ** Y
     # rate_params = 10 ** Y
 
-    t10_params = np.copy(param_values)
-    t10_params[0] = 233
-    ko_pars = [param_values, t10_params]
+    # t10_params = np.copy(param_values)
+    # t10_params[0] = 233
+    ko_pars = [param_values] #, t10_params]
 
-    result = solver1.run(param_values=ko_pars) #, num_processors=10)
+    result = solver1.run(param_values=ko_pars)
 
     ysim_array11 = result.observables[0]['MLKLa_obs']
-    ysim_array22 = result.observables[1]['MLKLa_obs']
+    # ysim_array22 = result.observables[1]['MLKLa_obs']
 
     # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm11 = normalize(ysim_array11)
-    ysim_norm22 = normalize(ysim_array22)
+    # ysim_norm22 = normalize(ysim_array22)
 
 
-    mlkl_100 = np.array([0.001, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05])
-    mlkl_10= np.array([0.001, 0.05,0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    mlkl_10 = np.array([0.001, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10])
+    # mlkl_10= np.array([0.001, 0.05,0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
 
 
     var_data = collections.OrderedDict([('t100_var', mlkl_100), ('a20_var', mlkl_10)])
@@ -168,11 +149,11 @@ def obj_function(parameter_2):
     param_values[rate_mask] = 10 ** Y
     # rate_params = 10 ** Y
 
-    t10_params = np.copy(param_values)
-    t10_params[0] = 233
-    ko_pars = [param_values, t10_params]
+    # t10_params = np.copy(param_values)
+    # t10_params[0] = 233
+    ko_pars = [param_values] #, t10_params]
 
-    result = solver1.run(param_values=ko_pars) #,num_processors =50)
+    result = solver1.run(param_values=ko_pars)
     # solver2.run(param_values=a20_params)
     # solver3.run(param_values=tradd_params)
     # solver4.run(param_values=fadd_params)
@@ -181,35 +162,35 @@ def obj_function(parameter_2):
     # list = [y1, y2, y3, y4, y5]
     # for i in list:
     ysim_array1 = result.observables[0]['MLKLa_obs']
-    ysim_array2 = result.observables[1]['MLKLa_obs']
+    # ysim_array2 = result.observables[1]['MLKLa_obs']
 
     # ysim_array = extract_records(solver.yobs, obs_names)
     ysim_norm1 = normalize(ysim_array1)
-    ysim_norm2 = normalize(ysim_array2)
+    # ysim_norm2 = normalize(ysim_array2)
 
     # mlkl_var = np.var(y)
-    mlkl_100 = np.array([0.001, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05])
-    mlkl_10= np.array([0.001, 0.05,0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05])
+    # mlkl_100 = np.array([0.001, 0.05, 0.05, 0.05, 0.05, 0.2, 0.05, 0.05, 0.05])
+    mlkl_10= np.array([0.001, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.10])
 
-    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_100))
-    e2 = np.sum((y10 - ysim_norm2) ** 2 / (mlkl_10))
+    e1 = np.sum((ydata_norm - ysim_norm1) ** 2 / (mlkl_10))
+    # e2 = np.sum((y10 - ysim_norm2) ** 2 / (mlkl_10))
 
-    error = e1 + e2
+    error = e1
     return error,
 
 
-
+# 
 # def run_example():
 #     best_pars = np.zeros((10000, len(model.parameters)))
 #     counter = 0
 #     for i in range(10000):
 #     # Here we initialize the class
 #     # We must proivde the cost function and a starting value
-#         optimizer = PSO(cost_function=obj_function, start=start, verbose=True)
+#         optimizer = PSO(cost_function=obj_function, start=log10_original_values, verbose=True)
 #         # We also must set bounds. This can be a single scalar or an array of len(start_position)
-#         optimizer.set_bounds(parameter_range=3)
+#         optimizer.set_bounds(parameter_range=2)
 #         optimizer.set_speed(speed_min=-.25, speed_max=.25)
-#         optimizer.run(num_particles=100, num_iterations=1000)
+#         optimizer.run(num_particles=75, num_iterations=10)
 #         fitness, positions = optimizer.return_ranked_populations()  # at end of PSO for all # particles, rank by cost function value
 #         hist_all = optimizer.all_history
 #         fit_all = optimizer.all_fitness
@@ -230,22 +211,19 @@ def obj_function(parameter_2):
 #         np.save('necro_tnf100_10_optimizer_best_10000_%s' % i, optimizer.best)
 
 def run_example2():
-    counter = 0
     # print('run_example')
     # Here we initial the class
     # We must proivde the cost function and a starting value
     optimizer = PSO(cost_function=obj_function,start = log10_original_values, verbose=True)
     # We also must set bounds. This can be a single scalar or an array of len(start_position)
-    optimizer.set_bounds(parameter_range=3)
+    optimizer.set_bounds(parameter_range=2)
     optimizer.set_speed(speed_min=-.25, speed_max=.25)
     optimizer.run(num_particles=100, num_iterations=500)
     print(optimizer.best)
-    counter += 1
-    print(counter)
-    np.save('necro_optimizer_best_100_500_5_5',optimizer.best)
+    np.save('optimizer_best_100_500_5_5_10tnf',optimizer.best)
     # print('whatever')
-#     if plot:
-#          display(optimizer.best)
+    # if plot:
+	 # display(optimizer.best)
 
 if '__main__' == __name__:
     run_example2()
@@ -352,3 +330,4 @@ if '__main__' == __name__:
 # #
 # if '__main__' == __name__:
 #     run_example()
+
