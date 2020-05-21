@@ -6,9 +6,9 @@
  
  PySB examples can be found in simplepso/examples
  
+![Alt Text](docs/training_earm.gif)
 
-
-
+<img src="docs/training_earm.gif" width="250" height="250"/>
 You can email me at james.ch.pino@gmail.com for any questions or comments.
 
 

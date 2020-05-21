@@ -2,14 +2,14 @@ import os
 
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from scipy.stats import wasserstein_distance
+import seaborn as sns
 
 from pysb.integrate import odesolve
 from simplepso import PSO
 
 os.environ['CUDA_VISIBLE_DEVICES'] = "1"
-from pysb.simulator import CUDASimulator
+from pysb.simulator import CudaSSASimulator
 
 
 def run_params_for_plot(params):
@@ -83,7 +83,7 @@ def run():
 
 
 if __name__ == '__main__':
-    from pysb.examples.schlogl import model
+    from pysb.examples.schloegl import model
 
     tspan = np.linspace(0, 100, 101)
     model.parameters['X_0'].value = 250
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     num_sim = 1000
     num_particles = 8
 
-    simulator = CUDASimulator(model, tspan=tspan, verbose=False)
+    simulator = CudaSSASimulator(model, tspan=tspan, verbose=False)
 
     actual_traj = run_params_for_plot(None)
     actual = actual_traj[-1, :]
