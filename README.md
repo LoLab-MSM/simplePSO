@@ -7,8 +7,7 @@
  PySB examples can be found in simplepso/examples
  
 
-
-
+<img src="docs/training_earm.gif" width="500" />
 You can email me at james.ch.pino@gmail.com for any questions or comments.
 
 

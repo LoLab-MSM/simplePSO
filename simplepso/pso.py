@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-import concurrent.futures
-import os
+from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
+import os
 
+import dill
 import numpy as np
 
+dill.settings['recurse'] = True
 from simplepso.logging import setup_logger
 
 os.environ['OMP_NUM_THREADS'] = "1"
@@ -36,7 +38,7 @@ class PSO(object):
         optimizer = simplepso.pso.PSO(cost_function,start_position)
         optimizer.set_bounds()
         optimizer.set_speed()
-        optimizer.run(number_of_particles, number_of_iterations)
+        optimizer.run(number_of_particles, number_of_iterations, num_processes)
 
 
     Notes:
@@ -46,7 +48,7 @@ class PSO(object):
 
     """
 
-    def __init__(self, cost_function=None, start=None, num_proc=1,
+    def __init__(self, cost_function=None, start=None,
                  save_sampled=False, verbose=False, shrink_steps=True,
                  simulator=None):
         """
@@ -57,10 +59,6 @@ class PSO(object):
             Callable function that takes a parameter and returns a tuple
         start : list_list
             Starting position
-        num_proc : int
-            Number of processors to run on. If using scipy, note that you may
-            need to set OMP_NUM_THREADS=1 to prevent each process from using
-            more than one CPU.
         save_sampled : bool
             Save each position samples
         verbose : bool
@@ -76,7 +74,6 @@ class PSO(object):
         if simulator is not None:
             self.simulator = simulator
         self.verbose = verbose
-        self.num_proc = num_proc
         self.best = None
         self.max_speed = None
         self.min_speed = None
@@ -87,6 +84,7 @@ class PSO(object):
         self.all_history = None
         self.all_fitness = None
         self.population = []
+        self.population_fitness = []
         self.values = []
         self.history = []
         self.update_w = shrink_steps
@@ -113,7 +111,7 @@ class PSO(object):
         return part
 
     def set_cost_function(self, cost_function):
-        """ Cost function must return a scalar followed by a , (tuple)
+        """ Cost function must return a scalar
 
         Parameters
         ----------
@@ -248,8 +246,8 @@ class PSO(object):
         self.ub = upper
         self.bounds_set = True
 
-    def calc_fitness(self, traj, num_sim):
-        population_fitness = np.zeros((len(self.population)))
+    def _calc_fitness_from_array(self, traj, num_sim):
+
         for i, part in enumerate(self.population):
             start = i * num_sim
             end = (i + 1) * num_sim
@@ -257,12 +255,12 @@ class PSO(object):
             tmp_results = tmp_results.T.unstack('simulation')
             error = self.cost_function(tmp_results)
             part.fitness = error
-            population_fitness[i] = error
-        return population_fitness
+            self.population_fitness[i] = error
 
-    def get_parameters_from_population(self, num_sims, total_sims, n_params):
+    def _get_parameters_from_population(self, num_sims, total_sims, n_params):
+        """ Create param_array for GPU based simulators """
         rate_vals = np.zeros((total_sims, n_params))
-        # create parameters for each particle
+        # create parameters for each particle, creates blocks per num_sims
         for i, part in enumerate(self.population):
             start = i * num_sims
             end = (i + 1) * num_sims
@@ -270,7 +268,7 @@ class PSO(object):
         return rate_vals
 
     def run(self, num_particles, num_iterations, num_processes=1,
-            save_samples=False, stop_threshold=1e-5):
+            save_samples=False, stop_threshold=1e-5, max_iter_no_improv=None):
         """ Run optimization
 
         Parameters
@@ -279,13 +277,16 @@ class PSO(object):
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
         num_processes : int
-            Number of processes (cpu cores) to use
+            Number of processors to run on. If using scipy, note that you may
+            need to set OMP_NUM_THREADS=1 to prevent each process from using
+            more than one CPU.
         save_samples : bool
-            Save positions of particles over time, can require large memory
+            Save ALL positions of particles over time, can require large memory
             if num_particles, num_iterations, and len(parameters) is large.
         stop_threshold : float
             Threshold of standard deviation of all particles cost function.
-
+        max_iter_no_improv: int
+            Maximum steps allowed without improvement
         """
         if self._is_setup:
             pass
@@ -299,17 +300,24 @@ class PSO(object):
             self.all_fitness = np.zeros((num_iterations, num_particles))
         values = np.zeros(num_iterations)
         self.population = [self._generate() for _ in range(num_particles)]
-
-        with concurrent.futures.ProcessPoolExecutor(num_processes) as executor:
+        self.population_fitness = np.zeros(len(self.population))
+        if max_iter_no_improv is None:
+            max_iter_no_improv = np.inf
+        iter_without_improvement = 0
+        best_fitness = np.inf
+        with ProcessPoolExecutor(num_processes) as executor:
             for g in range(num_iterations):
                 if self.update_w:
                     self.w = (num_iterations - g + 1.) / num_iterations
-                fitness = list(executor.map(
-                    self.cost_function, [p.pos for p in self.population],
-                    chunksize=int(num_particles / num_processes))
+                self.population_fitness = np.array(
+                    list(executor.map(
+                        self.cost_function,
+                        [p.pos for p in self.population],
+                    )
+                    )
                 )
-                population_fitness = np.array(fitness)
-                for ind, fit in zip(self.population, population_fitness):
+
+                for ind, fit in zip(self.population, self.population_fitness):
                     ind.fitness = fit
                 self._update_connected()
                 for part in self.population:
@@ -322,13 +330,21 @@ class PSO(object):
                     self.all_fitness[g, :] = curr_fit
 
                 if self.verbose:
-                    self.print_stats(g + 1, fitness=population_fitness)
+                    self.print_stats(g + 1, fitness=self.population_fitness)
 
-                if population_fitness.std() < stop_threshold:
-                    self.log.info("Stopping criteria reached.")
+                if self.population_fitness.std() < stop_threshold:
+                    self.log.info("Stopping. STD < stop_threshold.")
                     break
-        self.values = values[:g]
-        self.history = history[:g, :]
+                if self.best.fitness < best_fitness:
+                    best_fitness = self.best.fitness
+                    iter_without_improvement = 0
+                else:
+                    iter_without_improvement += 1
+                if iter_without_improvement > max_iter_no_improv:
+                    self.log.info("Stopping. max_iter_no_improv reached.")
+                    break
+        self.values = np.array(values[:g])
+        self.history = np.array(history[:g, :])
 
     def run_ssa(self, model, num_particles, num_iterations, num_sim,
                 save_samples=False, stop_threshold=0):
@@ -351,10 +367,10 @@ class PSO(object):
         if self.simulator is None:
             raise Exception("Must provide an SSA simulator to use this method")
 
-        history = np.zeros((num_iterations, len(self.start)))
-        values = np.zeros(num_iterations)
-        # self.population = self.toolbox.population(num_particles)
+        history = []
+        values = []
         self.population = [self._generate() for _ in range(num_particles)]
+        self.population_fitness = np.zeros((len(self.population)))
         total_sims = num_particles * num_sim
         rate_p = model.parameters_rules()
         rate_mask = np.array([p in rate_p for p in model.parameters])
@@ -365,7 +381,7 @@ class PSO(object):
         for g in range(0, num_iterations):
             if self.update_w:
                 self.w = (num_iterations - g) / num_iterations
-            rate_values = self.get_parameters_from_population(
+            rate_values = self._get_parameters_from_population(
                 num_sim, total_sims, len(log10_original_values)
             )
 
@@ -376,13 +392,13 @@ class PSO(object):
             self.simulator.initials = None
             self.simulator.param_values = None
             traj = self.simulator.run(param_values=all_param_vals).dataframe.T
-            population_fitness = self.calc_fitness(traj, num_sim)
+            self._calc_fitness_from_array(traj, num_sim)
             self._update_connected()
             for part in self.population:
                 self._update_particle_position(part)
 
-            values[g] = self.best.fitness
-            history[g] = self.best.pos
+            values.append(self.best.fitness)
+            history.append(self.best.pos)
 
             if self.save_sampled or save_samples:
                 curr_fit, curr_pop = self.return_ranked_populations()
@@ -390,12 +406,13 @@ class PSO(object):
                 self.all_fitness[g, :] = curr_fit
 
             if self.verbose:
-                self.print_stats(g + 1, fitness=population_fitness)
-            if population_fitness.std() < stop_threshold:
+                self.print_stats(g + 1, fitness=self.population_fitness)
+            if self.population_fitness.std() < stop_threshold:
                 self.log.info("Stopping criteria reached.")
                 break
-        self.values = values[:g]
-        self.history = history[:g, :]
+
+        self.values = values
+        self.history = history
 
     def print_stats(self, iteration, fitness):
         if iteration == 1:
