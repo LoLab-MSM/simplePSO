@@ -4,6 +4,7 @@ from copy import deepcopy
 import os
 
 import numpy as np
+from pysb.simulator.scipyode import SerialExecutor
 
 from simplepso.logging import setup_logger
 
@@ -282,7 +283,8 @@ class PSO(object):
             max_iter_no_improv = np.inf
         iter_without_improvement = 0
         best_fitness = np.inf
-        with ProcessPoolExecutor(num_processes) as executor:
+        with SerialExecutor() if num_processes == 1 else \
+                ProcessPoolExecutor(max_workers=num_processes) as executor:
             for g in range(num_iterations):
                 if self.update_w:
                     self.w = (num_iterations - g + 1.) / num_iterations
@@ -420,6 +422,6 @@ class PSO(object):
         if iteration == 1:
             self.log.info(stats_header)
         self.log.info(
-            stats_output.format(iteration, self.best.fitness, fitness.mean(),
+            stats_output.format(iteration, self.best.fitness[0], fitness.mean(),
                                 fitness.min(), fitness.max(), fitness.std())
         )

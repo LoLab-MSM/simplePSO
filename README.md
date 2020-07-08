@@ -2,7 +2,7 @@
 
 # Simple interface to optimize models using Particle Swarm optimization
  
- This package was built to train models written in PySB. However it is general and can be used to optimize any function.
+ Training stochastic or determinisic models encoded in PySB? Looking for an easy to use, effecient Python package? Look no further.
  
  PySB examples can be found in simplepso/examples
  
