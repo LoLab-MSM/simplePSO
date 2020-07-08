@@ -1,15 +1,11 @@
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import wasserstein_distance
 import seaborn as sns
 
 from pysb.integrate import odesolve
+from pysb.simulator import OpenCLSSASimulator
 from simplepso import PSO
-
-os.environ['CUDA_VISIBLE_DEVICES'] = "1"
-from pysb.simulator import CudaSSASimulator
 
 
 def run_params_for_plot(params):
@@ -20,7 +16,7 @@ def run_params_for_plot(params):
 
 
 def obj_function(traj_dist):
-    tmp = traj_dist[name].values[-1, :]
+    tmp = traj_dist[name].T.unstack('simulation').values[-1, :]
     return wasserstein_distance(tmp, actual)
 
 
@@ -86,12 +82,14 @@ if __name__ == '__main__':
     from pysb.examples.schloegl import model
 
     tspan = np.linspace(0, 100, 101)
-    model.parameters['X_0'].value = 250
+    model.parameters['X_0'].value = 500
     name = 'X_total'
-    num_sim = 1000
+    num_sim = 100
     num_particles = 8
+    # uncomment to use CUDA device
+    # simulator = CudaSSASimulator(model, tspan=tspan, verbose=False)
 
-    simulator = CudaSSASimulator(model, tspan=tspan, verbose=False)
+    simulator = OpenCLSSASimulator(model, tspan=tspan, verbose=False)
 
     actual_traj = run_params_for_plot(None)
     actual = actual_traj[-1, :]

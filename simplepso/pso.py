@@ -4,8 +4,8 @@ from copy import deepcopy
 import os
 
 import numpy as np
-from pysb.simulator.scipyode import SerialExecutor
 
+from pysb.simulator.scipyode import SerialExecutor
 from simplepso.logging import setup_logger
 
 os.environ['OMP_NUM_THREADS'] = "1"
@@ -422,6 +422,6 @@ class PSO(object):
         if iteration == 1:
             self.log.info(stats_header)
         self.log.info(
-            stats_output.format(iteration, self.best.fitness[0], fitness.mean(),
+            stats_output.format(iteration, self.best.fitness, fitness.mean(),
                                 fitness.min(), fitness.max(), fitness.std())
         )
