@@ -3,10 +3,8 @@ from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
 import os
 
-import dill
 import numpy as np
 
-dill.settings['recurse'] = True
 from simplepso.logging import setup_logger
 
 os.environ['OMP_NUM_THREADS'] = "1"
@@ -246,27 +244,6 @@ class PSO(object):
         self.ub = upper
         self.bounds_set = True
 
-    def _calc_fitness_from_array(self, traj, num_sim):
-
-        for i, part in enumerate(self.population):
-            start = i * num_sim
-            end = (i + 1) * num_sim
-            tmp_results = traj[list(range(start, end))]
-            tmp_results = tmp_results.T.unstack('simulation')
-            error = self.cost_function(tmp_results)
-            part.fitness = error
-            self.population_fitness[i] = error
-
-    def _get_parameters_from_population(self, num_sims, total_sims, n_params):
-        """ Create param_array for GPU based simulators """
-        rate_vals = np.zeros((total_sims, n_params))
-        # create parameters for each particle, creates blocks per num_sims
-        for i, part in enumerate(self.population):
-            start = i * num_sims
-            end = (i + 1) * num_sims
-            rate_vals[start:end, :] = part.pos
-        return rate_vals
-
     def run(self, num_particles, num_iterations, num_processes=1,
             save_samples=False, stop_threshold=1e-5, max_iter_no_improv=None):
         """ Run optimization
@@ -346,6 +323,30 @@ class PSO(object):
         self.values = np.array(values[:g])
         self.history = np.array(history[:g, :])
 
+    def _calc_fitness_from_array(self, traj, num_sim):
+        index_names = traj.index.names
+        traj.reset_index(inplace=True)
+        for i, part in enumerate(self.population):
+            start = i * num_sim
+            end = (i + 1) * num_sim
+            tmp_results = traj.loc[
+                traj.simulation.isin(list(range(start, end)))]
+            # tmp_results = tmp_results.T.unstack('simulation')
+            tmp_results.set_index(index_names, inplace=True)
+            error = self.cost_function(tmp_results)
+            part.fitness = error
+            self.population_fitness[i] = error
+
+    def _get_parameters_from_population(self, num_sims, total_sims, n_params):
+        """ Create param_array for GPU based simulators """
+        rate_vals = np.zeros((total_sims, n_params))
+        # create parameters for each particle, creates blocks per num_sims
+        for i, part in enumerate(self.population):
+            start = i * num_sims
+            end = (i + 1) * num_sims
+            rate_vals[start:end, :] = part.pos
+        return rate_vals
+
     def run_ssa(self, model, num_particles, num_iterations, num_sim,
                 save_samples=False, stop_threshold=0):
         """ Run PSO for a stochastic simulator
@@ -391,7 +392,8 @@ class PSO(object):
             # duplicate any
             self.simulator.initials = None
             self.simulator.param_values = None
-            traj = self.simulator.run(param_values=all_param_vals).dataframe.T
+            traj = self.simulator.run(
+                param_values=all_param_vals).dataframe  # .T
             self._calc_fitness_from_array(traj, num_sim)
             self._update_connected()
             for part in self.population:
