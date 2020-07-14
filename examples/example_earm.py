@@ -198,7 +198,7 @@ def run_example():
         num_particles=24,
         num_iterations=100,
         stop_threshold=1e-5,
-        num_processes=18,
+        num_processors=18,
         max_iter_no_improv=20
     )
 

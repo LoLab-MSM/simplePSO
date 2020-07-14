@@ -118,7 +118,7 @@ if '__main__' == __name__:
     optimizer.set_speed(speed_min=-.05, speed_max=.05)
 
     # Now we run the pso algorithm
-    optimizer.run(num_particles=50, num_iterations=500, num_processes=12,
+    optimizer.run(num_particles=50, num_iterations=500, num_processors=12,
                   max_iter_no_improv=25)
 
     best_params = optimizer.best.pos
