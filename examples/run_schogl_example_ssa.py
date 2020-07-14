@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import wasserstein_distance
 import seaborn as sns
+from scipy.stats import wasserstein_distance
 
 from pysb.integrate import odesolve
 from pysb.simulator import OpenCLSSASimulator
@@ -21,12 +21,12 @@ def obj_function(traj_dist):
 
 
 def run_pso():
-    optimizer = PSO(simulator=simulator, cost_function=obj_function,
-                    start=log10_original_values, verbose=True)
+    optimizer = PSO(start=log10_original_values, verbose=True)
     optimizer.set_bounds(parameter_range=.2)
     optimizer.set_speed(speed_min=-.05, speed_max=.05)
     optimizer.run_ssa(model, num_particles=num_particles, num_iterations=200,
-                      num_sim=num_sim)
+                      cost_function=obj_function, num_sim=num_sim,
+                      simulator=simulator)
 
     print("Ending parameters")
     print(10 ** optimizer.best.pos)

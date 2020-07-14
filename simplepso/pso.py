@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
 from concurrent.futures import ProcessPoolExecutor
 from copy import deepcopy
-import os
 
 import numpy as np
 
@@ -31,18 +31,11 @@ class PSO(object):
 
     This class provides a simple interface to run particle swarm optimization.
     It can optimize parameters for a function using two run methods.
-        run() : cost function gets a parameter vector and returns a scalar.
+        run() : cost function gets a parameter vector and returns a scalar. Can
+            be used with any callable function.
         run_ssa() : cost function gets multiple trajectories of a PySB model
-        and returns a scalar. These trajectories are provided as
-        a pandas.DataFrame.
-
-    Examples:
-
-        optimizer = simplepso.pso.PSO(cost_function,start_position)
-        optimizer.set_bounds()
-        optimizer.set_speed()
-        optimizer.run(number_of_particles, number_of_iterations, num_processes)
-
+            and returns a scalar. These trajectories are provided as
+            a pandas.DataFrame. PySB dependent function.
 
     Notes:
         Must set 1.) cost_function, 2.) starting position, 3.) bounds
@@ -51,20 +44,12 @@ class PSO(object):
 
     """
 
-    def __init__(self, cost_function=None, start=None,
-                 save_sampled=False, verbose=False, shrink_steps=True,
-                 simulator=None):
+    def __init__(self, start=None, save_sampled=False, verbose=False,
+                 shrink_steps=True):
         """
 
         Parameters
         ----------
-        cost_function : function
-            For ODE based simulations: callable function that takes a parameter
-            and returns a scalar value
-            For SSA simulations: callable function that takes a defined number
-             of SSA trajectories and returns a scalar.
-             To use, use the PSO.run_ssa function.
-              Must pass initialized SSA simulator to PSO.
         start : list_list
             Starting position
         save_sampled : bool
@@ -74,15 +59,12 @@ class PSO(object):
             Shrink max distance traveled by each particle as the number of
             iterations increases
         """
-        self.cost_function = cost_function
         self.save_sampled = save_sampled
         if start is not None:
             self.set_start_position(start)
         else:
             self.start = None
             self.size = None
-        if simulator is not None:
-            self.simulator = simulator
         self.verbose = verbose
         self.best = None
         self.max_speed = None
@@ -120,16 +102,6 @@ class PSO(object):
         part.smax = self.max_speed
         return part
 
-    def set_cost_function(self, cost_function):
-        """ Cost function must return a scalar
-
-        Parameters
-        ----------
-        cost_function : callable function
-
-        """
-        self.cost_function = cost_function
-
     def _setup_pso(self):
         """ Sets up everything for PSO. Only does once """
         if self.max_speed is None or self.min_speed is None:
@@ -141,10 +113,6 @@ class PSO(object):
         if self.start is None:
             raise Exception("Must provide a starting position\n"
                             "Use PSO.set_start_position() \n")
-
-        if self.cost_function is None:
-            raise Exception("No cost function. "
-                            "Set with PSO.set_cost_function().")
 
         self._is_setup = True
 
@@ -183,11 +151,14 @@ class PSO(object):
         -------
         np.array, np.array
         """
-        positions = np.zeros(np.shape(self.population))
-        fitnesses = np.zeros(len(self.population))
+        positions = []
+        fitnesses = []
         for n, part in enumerate(self.population):
-            fitnesses[n] = part.best.fitness
-            positions[n] = part.best.pos
+            fitnesses.append(part.best.fitness)
+            positions.append(part.best.pos)
+
+        positions = np.array(positions)
+        fitnesses = np.array(fitnesses)
         idx = np.argsort(fitnesses)
         return fitnesses[idx], positions[idx]
 
@@ -256,8 +227,9 @@ class PSO(object):
         self.ub = upper
         self.bounds_set = True
 
-    def run(self, num_particles, num_iterations, num_processors=1,
-            save_samples=False, stop_threshold=1e-5, max_iter_no_improv=None):
+    def run(self, num_particles, num_iterations, cost_function=None,
+            num_processors=1, save_samples=False, stop_threshold=1e-5,
+            max_iter_no_improv=None):
         """ Run optimization
 
         Parameters
@@ -265,6 +237,8 @@ class PSO(object):
         num_particles : int
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
+        cost_function : callable function, takes a parameter set and returns
+            a scalar value (particles fitness)
         num_processors : int
             Number of processors to run on. If using scipy, note that you may
             need to set OMP_NUM_THREADS=1 to prevent each process from using
@@ -281,6 +255,9 @@ class PSO(object):
             pass
         else:
             self._setup_pso()
+
+        if not callable(cost_function):
+            raise Exception("Provide a callable cost function")
 
         history = np.zeros((num_iterations, len(self.start)))
         if self.save_sampled or save_samples:
@@ -301,7 +278,7 @@ class PSO(object):
                     self.w = (num_iterations - g + 1.) / num_iterations
                 self.population_fitness = np.array(
                     list(executor.map(
-                        self.cost_function,
+                        cost_function,
                         [p.pos for p in self.population],
                     )
                     )
@@ -336,7 +313,7 @@ class PSO(object):
         self.values = np.array(values[:g])
         self.history = np.array(history[:g, :])
 
-    def _calc_fitness_from_array(self, traj, num_sim):
+    def _calc_fitness_from_array(self, traj, num_sim, cost_function):
         index_names = traj.index.names
         traj.reset_index(inplace=True)
         for i, part in enumerate(self.population):
@@ -344,9 +321,8 @@ class PSO(object):
             end = (i + 1) * num_sim
             tmp_results = traj.loc[
                 traj.simulation.isin(list(range(start, end)))]
-            # tmp_results = tmp_results.T.unstack('simulation')
             tmp_results.set_index(index_names, inplace=True)
-            error = self.cost_function(tmp_results)
+            error = cost_function(tmp_results)
             part.fitness = error
             self.population_fitness[i] = error
 
@@ -361,7 +337,8 @@ class PSO(object):
         return rate_vals
 
     def run_ssa(self, model, num_particles, num_iterations, num_sim,
-                save_samples=False, stop_threshold=0):
+                cost_function, simulator, save_samples=False,
+                stop_threshold=0):
         """ Run PSO for a stochastic simulator
 
         Parameters
@@ -370,6 +347,11 @@ class PSO(object):
         num_particles : int
         num_iterations : int
         num_sim : int
+        cost_function : function
+            Takes a pandas dataframe of PySB trajectories created by running
+            multiple SSA simulations. Function must return a scalar.
+        simulator : pysb.Simulator
+            PySB simulator (CudaSSASimulator or OpenclSSASimulator)
         save_samples : bool
         stop_threshold : float
 
@@ -378,7 +360,7 @@ class PSO(object):
             pass
         else:
             self._setup_pso()
-        if self.simulator is None:
+        if simulator is None:
             raise Exception("Must provide an SSA simulator to use this method")
 
         history = []
@@ -403,10 +385,10 @@ class PSO(object):
             all_param_vals[:, rate_mask] = 10 ** rate_values
             # reset initials and param_values so simulator won't try to
             # duplicate any
-            self.simulator.initials = None
-            self.simulator.param_values = None
-            traj = self.simulator.run(param_values=all_param_vals).dataframe
-            self._calc_fitness_from_array(traj, num_sim)
+            simulator.initials = None
+            simulator.param_values = None
+            traj = simulator.run(param_values=all_param_vals).dataframe
+            self._calc_fitness_from_array(traj, num_sim, cost_function)
             self._update_connected()
             for part in self.population:
                 self._update_particle_position(part)

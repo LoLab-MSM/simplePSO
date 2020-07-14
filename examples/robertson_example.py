@@ -109,8 +109,7 @@ if '__main__' == __name__:
 
     # Here we initial the class
     # We must proivde the cost function and a starting value
-    optimizer = PSO(cost_function=obj_function, start=start_position,
-                    verbose=True, shrink_steps=False)
+    optimizer = PSO(start=start_position, verbose=True, shrink_steps=False)
 
     # We also must set bounds of the parameter space, and the speed PSO will
     # travel (max speed in either direction)
@@ -119,7 +118,7 @@ if '__main__' == __name__:
 
     # Now we run the pso algorithm
     optimizer.run(num_particles=50, num_iterations=500, num_processors=12,
-                  max_iter_no_improv=25)
+                  cost_function=obj_function, max_iter_no_improv=25)
 
     best_params = optimizer.best.pos
     display(best_params, "After optimization")
