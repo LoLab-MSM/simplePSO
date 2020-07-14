@@ -257,7 +257,7 @@ class PSO(object):
             self._setup_pso()
 
         if not callable(cost_function):
-            raise Exception("Provide a callable cost function")
+            raise TypeError("Provide a callable cost function")
 
         history = np.zeros((num_iterations, len(self.start)))
         if self.save_sampled or save_samples:
@@ -361,7 +361,8 @@ class PSO(object):
         else:
             self._setup_pso()
         if simulator is None:
-            raise Exception("Must provide an SSA simulator to use this method")
+            raise ValueError(
+                "Must provide an SSA simulator to use this method")
 
         history = []
         values = []
