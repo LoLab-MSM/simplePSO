@@ -30,7 +30,11 @@ class PSO(object):
     """ Simple interface to run particle swarm optimization
 
     This class provides a simple interface to run particle swarm optimization.
-    It builds off the deap package, but provides a simple interface.
+    It can optimize parameters for a function using two run methods.
+        run() : cost function gets a parameter vector and returns a scalar.
+        run_ssa() : cost function gets multiple trajectories of a PySB model
+        and returns a scalar. These trajectories are provided as
+        a pandas.DataFrame.
 
     Examples:
 
@@ -55,13 +59,20 @@ class PSO(object):
         Parameters
         ----------
         cost_function : function
-            Callable function that takes a parameter and returns a tuple
+            For ODE based simulations: callable function that takes a parameter
+            and returns a scalar value
+            For SSA simulations: callable function that takes a defined number
+             of SSA trajectories and returns a scalar.
+             To use, use the PSO.run_ssa function.
+              Must pass initialized SSA simulator to PSO.
         start : list_list
             Starting position
         save_sampled : bool
-            Save each position samples
+            Save each particles position and fitness over all iterations.
         verbose : bool
-
+        shrink_steps : bool
+            Shrink max distance traveled by each particle as the number of
+            iterations increases
         """
         self.cost_function = cost_function
         self.save_sampled = save_sampled
@@ -245,7 +256,7 @@ class PSO(object):
         self.ub = upper
         self.bounds_set = True
 
-    def run(self, num_particles, num_iterations, num_processes=1,
+    def run(self, num_particles, num_iterations, num_processors=1,
             save_samples=False, stop_threshold=1e-5, max_iter_no_improv=None):
         """ Run optimization
 
@@ -254,7 +265,7 @@ class PSO(object):
         num_particles : int
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
-        num_processes : int
+        num_processors : int
             Number of processors to run on. If using scipy, note that you may
             need to set OMP_NUM_THREADS=1 to prevent each process from using
             more than one CPU.
@@ -283,8 +294,8 @@ class PSO(object):
             max_iter_no_improv = np.inf
         iter_without_improvement = 0
         best_fitness = np.inf
-        with SerialExecutor() if num_processes == 1 else \
-                ProcessPoolExecutor(max_workers=num_processes) as executor:
+        with SerialExecutor() if num_processors == 1 else \
+                ProcessPoolExecutor(max_workers=num_processors) as executor:
             for g in range(num_iterations):
                 if self.update_w:
                     self.w = (num_iterations - g + 1.) / num_iterations
@@ -394,8 +405,7 @@ class PSO(object):
             # duplicate any
             self.simulator.initials = None
             self.simulator.param_values = None
-            traj = self.simulator.run(
-                param_values=all_param_vals).dataframe  # .T
+            traj = self.simulator.run(param_values=all_param_vals).dataframe
             self._calc_fitness_from_array(traj, num_sim)
             self._update_connected()
             for part in self.population:
