@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 _MAJOR = 2
-_MINOR = 0
+_MINOR = 1
 _MICRO = 0
 version              = '%d.%d.%d' % (_MAJOR, _MINOR, _MICRO)
 release              = '%d.%d' % (_MAJOR, _MINOR)
@@ -17,7 +17,7 @@ setup(
     description='Simple usage particle swarm optimization',
     author='James C. Pino',
     author_email='james.ch.pino@gmail.com',
-    url='https://github.com/LoLab-VU/ParticleSwarmOptimization',
+    url='https://github.com/LoLab-VU/simplePSO',
     keywords=['optimization',
               'systems biology'],
     classifiers=['License :: OSI Approved :: BSD License',
@@ -29,5 +29,4 @@ setup(
                       'numpy >= 1.11.0',
                       'scipy >= 0.17.1',
                       'pysb >= 1.1.1'],
-                      'dill >= 0.3.2'
     )

@@ -37,7 +37,7 @@ solver = ScipyOdeSimulator(
     tspan,
     integrator='lsoda',
     use_analytic_jacobian=True,
-    compiler='cython',
+    compiler='python',
     integrator_options={"rtol": 1e-6, "atol": 1e-6}
 )
 
@@ -186,7 +186,6 @@ def create_gif_of_model_training(pso_instance):
 def run_example():
     # create PSO object
     pso = PSO(save_sampled=False, verbose=True, shrink_steps=False)
-    pso.set_cost_function(likelihood)
     pso.set_start_position(starting_position)
 
     # allows particles to move +/- 2 orders of magnitude
@@ -198,8 +197,9 @@ def run_example():
         num_particles=24,
         num_iterations=100,
         stop_threshold=1e-5,
-        num_processes=18,
-        max_iter_no_improv=20
+        num_processors=18,
+        max_iter_no_improv=20,
+        cost_function=likelihood
     )
 
     display(pso.best.pos, save_name='best_fit')
