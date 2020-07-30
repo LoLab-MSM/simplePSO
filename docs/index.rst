@@ -1,23 +1,17 @@
-.. simplepso documentation master file, created by
-sphinx-quickstart on Thu Jun  2 15:57:36 2016.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
-
 Welcome to simplepso's documentation!
 =====================================
 
-Contents:
-
+.. image:: training_earm.gif
+   :width: 400
 
 .. toctree::
-:maxdepth: 3
+   :maxdepth: 2
 
+   ode_example/ode_example.rst
 
-.. automodule:: pso
+.. autoclass:: simplepso.pso.PSO
+   :members:
 
-
-.. autoclass:: pso.PSO
-:members:
 
 Indices and tables
 ==================
