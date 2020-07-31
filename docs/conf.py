@@ -46,8 +46,9 @@ extensions = [
 
 ]
 autodoc_default_options = {
-    'members': True,
+    # 'members': True,
     'member-order': 'groupwise',
+    'undoc-members': True,
     'special-members': '__init__',
 }
 # Napoleon settings

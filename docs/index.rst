@@ -30,9 +30,9 @@ to use. That's it!
     best.fitness
 
 We provide two examples in the examples
-`folder https://github.com/LoLab-VU/simplePSO/tree/master/examples`_ training
+`folder <https://github.com/LoLab-VU/simplePSO/tree/master/examples>`_ training
 PySB models to time course data using ODE simulations and
-`one https://github.com/LoLab-VU/simplePSO/blob/master/examples/run_schogl_example_ssa.py`_
+`one <https://github.com/LoLab-VU/simplePSO/blob/master/examples/run_schogl_example_ssa.py>`_
 example training a model to a distribution of species concentrations using
 stochastic simulations.
 
