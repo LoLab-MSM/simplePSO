@@ -48,7 +48,7 @@ class PSO(object):
 
         Parameters
         ----------
-        start : list_list
+        start : list
             Starting position
         save_sampled : bool
             Save each particles position and fitness over all iterations.
