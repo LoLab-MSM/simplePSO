@@ -86,8 +86,9 @@ noise.
 .. image:: example_rob.png
 
 Next, we define the cost function. The cost function should take a parameter
-set as an argument and return a scalar value. To efficiently sample across large
-parameter space, we use log10 space for the parameters. This means before you
+set as an argument and return a scalar value, where the ultimate goal is to
+minimize this value. To efficiently sample across large parameter space, we
+use log10 space for the parameters. This means before you
 pass them back to the simulator, you must convert them to linear space.
 We are also only optimizing the rate parameters from the model, not the
 initial conditions, so we must create a mask to identify which parameters in

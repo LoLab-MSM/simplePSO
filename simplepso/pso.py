@@ -7,10 +7,15 @@ import numpy as np
 
 from simplepso.logging import setup_logger
 
+# set OMP_NUM_THREADS to 1 to prevent multi-processing to expand no each core
 os.environ['OMP_NUM_THREADS'] = "1"
 
 
 class Particle(object):
+    """
+    Particle to be used in the Swarm
+    """
+
     def __init__(self, pos):
         self.pos = pos
         self.fitness = None
@@ -180,8 +185,11 @@ class PSO(object):
     def set_speed(self, speed_min=-10000, speed_max=10000):
         """ Sets the max and min speed of the particles.
 
-        This is usually a fraction of the range of values that the particles
-        can travel.
+        This is usually a fraction of the bounds set with `set_bounds`. So if
+        one sets the bound to be +/- 1 order of magnitude, you can set the
+        speed to be -.1 and .1, allow the particles to update in 1/10 the
+        parameter space. This keeps particles near their local position rather
+        than jumping across parameter space quickly.
 
         Parameters
         ----------
@@ -202,8 +210,13 @@ class PSO(object):
         Parameters
         ----------
         parameter_range : float
-        lower : array of lower bounds for parameters
-        upper : array of upper bounds for parameters
+            If provided parameter_range, the range will be set by the starting
+            position +/- this value. To set each parameter manually, use
+            `lower` and `upper` args
+        lower : array
+            Lower bounds for parameters
+        upper : array
+            Upper bounds for parameters
 
         """
         if self.start is None:
@@ -242,8 +255,9 @@ class PSO(object):
         num_particles : int
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
-        cost_function : callable function, takes a parameter set and returns
-            a scalar value (particles fitness)
+            Number of iterations to perform.
+        cost_function : callable function
+            Takes a parameter set and returns a scalar (particles fitness)
         num_processors : int
             Number of processors to run on. If using scipy, note that you may
             need to set OMP_NUM_THREADS=1 to prevent each process from using
@@ -252,9 +266,11 @@ class PSO(object):
             Save ALL positions of particles over time, can require large memory
             if num_particles, num_iterations, and len(parameters) is large.
         stop_threshold : float
-            Threshold of standard deviation of all particles cost function.
+             Standard deviation of the particles’ cost function at which the
+             optimization is stopped
         max_iter_no_improv: int
-            Maximum steps allowed without improvement
+            Maximum steps allowed without improvement before the optimization
+            stops.
         """
         if self._is_setup:
             pass
@@ -351,8 +367,11 @@ class PSO(object):
         ----------
         model : pysb.Model
         num_particles : int
+            Number of particles in the swarm.
         num_iterations : int
+            Number of iterations to perform
         num_sim : int
+            Number of SSA simulations to run for each particle.
         cost_function : function
             Takes a pandas dataframe of PySB trajectories created by running
             multiple SSA simulations. Function must return a scalar.
