@@ -4,3 +4,4 @@ scipy>=0.17.1
 pandas
 numpydoc
 sphinx_bootstrap_theme
+sphinx==3.1.2
