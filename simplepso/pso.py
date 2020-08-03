@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 import os
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, Executor, Future
 from copy import deepcopy
 
 import numpy as np
 
-from pysb.simulator.scipyode import SerialExecutor
 from simplepso.logging import setup_logger
 
+# set OMP_NUM_THREADS to 1 to prevent multi-processing to expand no each core
 os.environ['OMP_NUM_THREADS'] = "1"
 
 
 class Particle(object):
+    """
+    Particle to be used in the Swarm
+    """
+
     def __init__(self, pos):
         self.pos = pos
         self.fitness = None
@@ -27,21 +31,15 @@ stats_output = '{:<10}' + '\t'.join(['{:>12.3f}'] * 5)
 
 
 class PSO(object):
-    """ Simple interface to run particle swarm optimization
+    """
+    Simple interface to run particle swarm optimization
 
-    This class provides a simple interface to run particle swarm optimization.
     It can optimize parameters for a function using two run methods.
         run() : cost function gets a parameter vector and returns a scalar. Can
             be used with any callable function.
         run_ssa() : cost function gets multiple trajectories of a PySB model
             and returns a scalar. These trajectories are provided as
             a pandas.DataFrame. PySB dependent function.
-
-    Notes:
-        Must set 1.) cost_function, 2.) starting position, 3.) bounds
-        To run need to supply number of particles and number of iterations.
-        20 particles is a good starting place.
-
     """
 
     def __init__(self, start=None, save_sampled=False, verbose=False,
@@ -50,7 +48,7 @@ class PSO(object):
 
         Parameters
         ----------
-        start : list_list
+        start : list
             Starting position
         save_sampled : bool
             Save each particles position and fitness over all iterations.
@@ -64,9 +62,11 @@ class PSO(object):
             self.set_start_position(start)
         else:
             self.start = None
+            """Starting position"""
             self.size = None
         self.verbose = verbose
         self.best = None
+        """Best Particle of population"""
         self.max_speed = None
         self.min_speed = None
         self.lb = None
@@ -74,11 +74,19 @@ class PSO(object):
         self.bounds_set = False
         self.range = 2
         self.all_history = None
+        """History of all particles positions over all iterations. Only saved
+        if save_sampled=True"""
         self.all_fitness = None
+        """History of all particles finesses over all iterations. Only saved
+        if save_sampled=True"""
         self.population = []
+        """Population of particles"""
         self.population_fitness = []
+        """Fitness values of population of particles"""
         self.values = []
+        """Fitness values of the best particle for each iteration"""
         self.history = []
+        """Best particle for each iteration"""
         self.update_w = shrink_steps
         self._is_setup = False
         self.log = setup_logger(verbose)
@@ -152,18 +160,19 @@ class PSO(object):
         np.array, np.array
         """
         positions = []
-        fitnesses = []
+        finesses = []
         for n, part in enumerate(self.population):
-            fitnesses.append(part.best.fitness)
+            finesses.append(part.best.fitness)
             positions.append(part.best.pos)
 
         positions = np.array(positions)
-        fitnesses = np.array(fitnesses)
-        idx = np.argsort(fitnesses)
-        return fitnesses[idx], positions[idx]
+        finesses = np.array(finesses)
+        idx = np.argsort(finesses)
+        return finesses[idx], positions[idx]
 
     def set_start_position(self, position):
-        """ Set the starting position for the population of particles.
+        """
+        Set the starting position for the population of particles.
 
         Parameters
         ----------
@@ -176,8 +185,11 @@ class PSO(object):
     def set_speed(self, speed_min=-10000, speed_max=10000):
         """ Sets the max and min speed of the particles.
 
-        This is usually a fraction of the range of values that the particles
-        can travel.
+        This is usually a fraction of the bounds set with `set_bounds`. So if
+        one sets the bound to be +/- 1 order of magnitude, you can set the
+        speed to be -.1 and .1, allow the particles to update in 1/10 the
+        parameter space. This keeps particles near their local position rather
+        than jumping across parameter space quickly.
 
         Parameters
         ----------
@@ -198,8 +210,13 @@ class PSO(object):
         Parameters
         ----------
         parameter_range : float
-        lower : array of lower bounds for parameters
-        upper : array of upper bounds for parameters
+            If provided parameter_range, the range will be set by the starting
+            position +/- this value. To set each parameter manually, use
+            `lower` and `upper` args
+        lower : array
+            Lower bounds for parameters
+        upper : array
+            Upper bounds for parameters
 
         """
         if self.start is None:
@@ -230,15 +247,17 @@ class PSO(object):
     def run(self, num_particles, num_iterations, cost_function=None,
             num_processors=1, save_samples=False, stop_threshold=1e-5,
             max_iter_no_improv=None):
-        """ Run optimization
+        """
+        Run optimization
 
         Parameters
         ----------
         num_particles : int
             Number of particles in population, ~20 is a good starting place
         num_iterations : int
-        cost_function : callable function, takes a parameter set and returns
-            a scalar value (particles fitness)
+            Number of iterations to perform.
+        cost_function : callable function
+            Takes a parameter set and returns a scalar (particles fitness)
         num_processors : int
             Number of processors to run on. If using scipy, note that you may
             need to set OMP_NUM_THREADS=1 to prevent each process from using
@@ -247,9 +266,11 @@ class PSO(object):
             Save ALL positions of particles over time, can require large memory
             if num_particles, num_iterations, and len(parameters) is large.
         stop_threshold : float
-            Threshold of standard deviation of all particles cost function.
+             Standard deviation of the particles’ cost function at which the
+             optimization is stopped
         max_iter_no_improv: int
-            Maximum steps allowed without improvement
+            Maximum steps allowed without improvement before the optimization
+            stops.
         """
         if self._is_setup:
             pass
@@ -339,14 +360,18 @@ class PSO(object):
     def run_ssa(self, model, num_particles, num_iterations, num_sim,
                 cost_function, simulator, save_samples=False,
                 stop_threshold=0):
-        """ Run PSO for a stochastic simulator
+        """
+        Run PSO for a stochastic simulator
 
         Parameters
         ----------
         model : pysb.Model
         num_particles : int
+            Number of particles in the swarm.
         num_iterations : int
+            Number of iterations to perform
         num_sim : int
+            Number of SSA simulations to run for each particle.
         cost_function : function
             Takes a pandas dataframe of PySB trajectories created by running
             multiple SSA simulations. Function must return a scalar.
@@ -354,7 +379,6 @@ class PSO(object):
             PySB simulator (CudaSSASimulator or OpenclSSASimulator)
         save_samples : bool
         stop_threshold : float
-
         """
         if self._is_setup:
             pass
@@ -418,3 +442,20 @@ class PSO(object):
             stats_output.format(iteration, self.best.fitness, fitness.mean(),
                                 fitness.min(), fitness.max(), fitness.std())
         )
+
+
+class SerialExecutor(Executor):
+    """ Execute tasks in serial (immediately on submission)
+    Code originally from PySB.
+    """
+
+    def submit(self, fn, *args, **kwargs):
+        f = Future()
+        try:
+            result = fn(*args, **kwargs)
+        except BaseException as e:
+            f.set_exception(e)
+        else:
+            f.set_result(result)
+
+        return f
