@@ -16,13 +16,23 @@ class Particle(object):
     Particle to be used in the Swarm
     """
 
-    def __init__(self, pos):
+    def __init__(self, pos, fitness=None, smin=None, smax=None):
         self.pos = pos
-        self.fitness = None
-        self.best = None
-        self.smin = None
-        self.smax = None
+        self.fitness = fitness
+        self.smin = smin
+        self.smax = smax
+        self.__best = None
 
+    @property
+    def best(self):
+        return self.__best
+
+    @best.setter
+    def best(self, new_best):
+        self.__best = Particle(
+            deepcopy(new_best.pos), deepcopy(new_best.fitness),
+            deepcopy(new_best.smin), deepcopy(new_best.smax)
+        )
 
 # Used for printing below
 header = '{:<10}' + "\t".join(['{:>12}'] * 5)
@@ -128,11 +138,18 @@ class PSO(object):
         """ Update the population of particles"""
         for part in self.population:
             if part.best is None or part.best.fitness > part.fitness:
-                part.best = deepcopy(part)
-                part.best.fitness = deepcopy(part.fitness)
+                part.best = part
+                # part.best = deepcopy(part)
+                # part.best.fitness = deepcopy(part.fitness)
             if self.best is None or self.best.fitness > part.fitness:
-                self.best = deepcopy(part)
-                self.best.fitness = deepcopy(part.fitness)
+                self.best = Particle(
+                    deepcopy(part.pos),
+                    deepcopy(part.fitness),
+                    deepcopy(part.smin),
+                    deepcopy(part.smax)
+                )
+                # self.best = deepcopy(part)
+                # self.best.fitness = deepcopy(part.fitness)
 
     def _update_particle_position(self, part):
         """ Updates an individual particles position """
@@ -419,7 +436,7 @@ class PSO(object):
                 self._update_particle_position(part)
 
             values.append(self.best.fitness)
-            history.append(self.best.pos)
+            history.append(deepcopy(self.best.pos))
 
             if self.save_sampled or save_samples:
                 curr_fit, curr_pop = self.return_ranked_populations()
@@ -432,8 +449,8 @@ class PSO(object):
                 self.log.info("Stopping criteria reached.")
                 break
 
-        self.values = values
-        self.history = history
+        self.values = np.array(values)
+        self.history = np.array(history)
 
     def print_stats(self, iteration, fitness):
         if iteration == 1:
