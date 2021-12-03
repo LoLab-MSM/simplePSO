@@ -1,10 +1,6 @@
 from setuptools import find_packages, setup
 
-_MAJOR = 2
-_MINOR = 1
-_MICRO = 0
-version              = '%d.%d.%d' % (_MAJOR, _MINOR, _MICRO)
-release              = '%d.%d' % (_MAJOR, _MINOR)
+from simplepso import __version__
 
 with open('README.md') as f:
     readme = f.read()
@@ -13,7 +9,7 @@ with open('README.md') as f:
 setup(
     name='simplepso',
     packages=find_packages(),
-    version=version,
+    version=__version__,
     description='Simple usage particle swarm optimization',
     author='James C. Pino',
     author_email='james.ch.pino@gmail.com',

@@ -30,12 +30,15 @@ def himmelblau(individual):
 
 
 def test_population_creation():
-    pso = PSO(start=[10, 0], verbose=False)
+    known_sol = [8.6998, 6.7665]
+    pso = PSO(start=[0, 0], verbose=False, shrink_steps=False)
     pso.set_bounds(lower=[-100, -100], upper=[100, 100])
+    pso.set_speed(-10, 10)
     pso.run(num_iterations=100, num_particles=10, cost_function=h1, )
     pso.return_ranked_populations()
-    error = np.sum((pso.best.pos - [8.6998, 6.7665]) ** 2)
-    print('True value: [8.6998, 6.7665]. Found:{0}. Error^2 = {1}'.format(pso.best, error))
+    error = np.sum((pso.best.pos - known_sol) ** 2)
+    print('True value: [8.6998, 6.7665]. Found:{0}. Error^2 = {1}'.format(
+        pso.best.pos, error))
     assert (error < 0.1)
 
 
@@ -58,7 +61,9 @@ def test_himmelblau():
             found_min = i
     if good_min:
         print('Found minimum')
-        print('True value: {0}. Found:{1}. Error^2 = {2}'.format(found_min, pso.best, error))
+        print('True value: {0}. Found:{1}. Error^2 = {2}'.format(
+            found_min, pso.best.pos, error)
+        )
 
 
 @raises(Exception)
