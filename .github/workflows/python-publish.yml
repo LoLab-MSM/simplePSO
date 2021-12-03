@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy:
-
+    environment: release
     runs-on: ubuntu-latest
 
     steps:
