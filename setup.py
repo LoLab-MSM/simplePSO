@@ -8,7 +8,7 @@ with open('README.md') as f:
 
 setup(
     name='simplepso',
-    packages=find_packages(),
+    packages=find_packages(exclude=['examples', 'docs'],),
     version=__version__,
     description='Simple usage particle swarm optimization',
     author='James C. Pino',
